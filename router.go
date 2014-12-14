@@ -56,7 +56,7 @@ func NewRouter() *router {
 		routes:          make([]*Route, 0),
 		routesEq:        make(map[string]map[string]*Route),
 		defaultFunc: "Do",
-		pools: NewPools(2000),
+		pools: NewPools(800),
 	}
 }
 

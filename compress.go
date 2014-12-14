@@ -20,6 +20,10 @@ const (
 	HeaderVary            = "Vary"
 )
 
+type CompressInterface interface {
+	CompressType() string
+}
+
 type Compress struct {
 	exts map[string]bool
 }
@@ -41,26 +45,43 @@ func (compress *Compress) Handle(ctx *Context) {
 
 	if len(compress.exts) > 0 {
 		if _, ok := compress.exts[strings.ToLower(path.Ext(ctx.Req().URL.Path))]; !ok {
-			ctx.Next()
-			return
+			// if exts include *, then all things will compress
+			if _, ok = compress.exts["*"]; !ok {
+				ctx.Next()
+				return
+			}
 		}
 	}
 
-	// for cache server
-	ctx.Header().Add("Vary", "Accept-Encoding")
+	acceptCompress := strings.SplitN(ae, ",", -1)
 
-	splitted := strings.SplitN(ae, ",", -1)
+	var compressType string = "auto"
+	if action:= ctx.Action(); action != nil {
+		if c, ok := action.(CompressInterface); ok {
+			compressType = c.CompressType()
+		}
+	}
+
+	// if blank, then no compress
+	if compressType == "" {
+		ctx.Next()
+		return
+	}
+
 	var writer io.Writer
-	for _, val := range splitted {
-		val = strings.TrimSpace(val)
-		if val == "gzip" {
-			ctx.Header().Set("Content-Encoding", "gzip")
-			writer, _ = gzip.NewWriterLevel(ctx, gzip.BestSpeed)
-			break
-		} else if val == "deflate" {
-			ctx.Header().Set("Content-Encoding", "deflate")
-			writer, _ = flate.NewWriter(ctx, flate.BestSpeed)
-			break
+	var val string
+	for _, val = range acceptCompress {
+		if compressType == "auto" || val == compressType {
+			val = strings.TrimSpace(val)
+			if val == "gzip" {
+				ctx.Header().Set("Content-Encoding", "gzip")
+				writer, _ = gzip.NewWriterLevel(ctx, gzip.BestSpeed)
+				break
+			} else if val == "deflate" {
+				ctx.Header().Set("Content-Encoding", "deflate")
+				writer, _ = flate.NewWriter(ctx, flate.BestSpeed)
+				break
+			}
 		}
 	}
 
@@ -69,13 +90,16 @@ func (compress *Compress) Handle(ctx *Context) {
 		return
 	}
 
+	// for cache server
+	ctx.Header().Add(HeaderVary, "Accept-Encoding")
+
 	gzw := compressWriter{writer, ctx.ResponseWriter}
 	ctx.ResponseWriter = gzw
 
 	ctx.Next()
 
 	// delete content length after we know we have been written to
-	gzw.Header().Del("Content-Length")
+	gzw.Header().Del(HeaderContentLength)
 
 	switch writer.(type) {
 		case *gzip.Writer:
