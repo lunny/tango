@@ -1,20 +1,11 @@
 package tango
 
 import (
-	"fmt"
-	"net/http"
 	"bufio"
+	"fmt"
 	"net"
+	"net/http"
 )
-
-type ResponseType int
-
-const (
-	AutoResponse  = iota + 1
-	JsonResponse
-	XmlResponse
-)
-
 
 // ResponseWriter is a wrapper around http.ResponseWriter that provides extra information about
 // the response. It is recommended that middleware handlers use this construct to wrap a responsewriter
@@ -37,8 +28,8 @@ func NewResponseWriter(rw http.ResponseWriter) ResponseWriter {
 
 type responseWriter struct {
 	http.ResponseWriter
-	status      int
-	size        int
+	status int
+	size   int
 }
 
 func (rw *responseWriter) WriteHeader(s int) {

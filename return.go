@@ -1,10 +1,31 @@
 package tango
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"net/http"
 )
 
+type ResponseType int
+
+const (
+	AutoResponse = iota + 1
+	JsonResponse
+	XmlResponse
+)
+
+type IResponseType interface {
+	ResponseType() int
+}
+
 func ReturnHandler(ctx *Context) {
+	var rt int
+	if action := ctx.Action(); action != nil {
+		if i, ok := action.(IResponseType); ok {
+			rt = i.ResponseType()
+		}
+	}
+
 	ctx.Next()
 
 	// if has been write, then return
@@ -22,17 +43,39 @@ func ReturnHandler(ctx *Context) {
 		}
 	}
 
-	if err, ok := ctx.Result.(AbortError); ok {
-		ctx.WriteHeader(err.Code())
-		ctx.Write([]byte(err.Error()))
-	} else if err, ok := ctx.Result.(error); ok {
-		ctx.WriteHeader(http.StatusInternalServerError)
-		ctx.Write([]byte(err.Error()))
-	} else if bs, ok := ctx.Result.([]byte); ok {
-		ctx.WriteHeader(http.StatusOK)
-		ctx.Write(bs)
-	} else if s, ok := ctx.Result.(string); ok {
-		ctx.WriteHeader(http.StatusOK)
-		ctx.Write([]byte(s))
+	if rt == JsonResponse {
+		bs, err := json.Marshal(ctx.Result)
+		if err != nil {
+			ctx.Result = err
+		} else {
+			ctx.WriteHeader(http.StatusOK)
+			ctx.Write(bs)
+			return
+		}
+	} else if rt == XmlResponse {
+		bs, err := xml.Marshal(ctx.Result)
+		if err != nil {
+			ctx.Result = err
+		} else {
+			ctx.WriteHeader(http.StatusOK)
+			ctx.Write(bs)
+			return
+		}
 	}
+
+	switch res := ctx.Result.(type) {
+	case AbortError:
+		ctx.WriteHeader(res.Code())
+		ctx.Write([]byte(res.Error()))
+	case error:
+		ctx.WriteHeader(http.StatusInternalServerError)
+		ctx.Write([]byte(res.Error()))
+	case []byte:
+		ctx.WriteHeader(http.StatusOK)
+		ctx.Write(res)
+	case string:
+		ctx.WriteHeader(http.StatusOK)
+		ctx.Write([]byte(res))
+	}
+
 }

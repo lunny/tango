@@ -1,16 +1,15 @@
 package tango
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
-	"encoding/json"
-	"encoding/xml"
 	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
-	//"strconv"
 )
 
 type Handler interface {
@@ -21,11 +20,11 @@ type Context struct {
 	router   Router
 	handlers []Handler
 
-	idx          int
-	req          *http.Request
+	idx int
+	req *http.Request
 	ResponseWriter
-	route        *Route
-	args         []reflect.Value
+	route   *Route
+	args    []reflect.Value
 	matched bool
 
 	action interface{}
@@ -38,11 +37,11 @@ func NewContext(
 	req *http.Request,
 	resp ResponseWriter) *Context {
 	return &Context{
-		router:  router,
-		handlers: handlers,
-		idx:     0,
-		req:     req,
-		ResponseWriter:    resp,
+		router:         router,
+		handlers:       handlers,
+		idx:            0,
+		req:            req,
+		ResponseWriter: resp,
 	}
 }
 
@@ -151,6 +150,10 @@ func (ctx *Context) Download(fpath string) error {
 	return err
 }
 
+func (ctx *Context) Redirect(url string) error {
+	return redirect(ctx, url)
+}
+
 func redirect(w http.ResponseWriter, url string, status ...int) error {
 	s := 302
 	if len(status) > 0 {
@@ -160,10 +163,6 @@ func redirect(w http.ResponseWriter, url string, status ...int) error {
 	w.WriteHeader(s)
 	_, err := w.Write([]byte("Redirecting to: " + url))
 	return err
-}
-
-func (ctx *Context) Redirect(url string, status ...int) error {
-	return redirect(ctx, url, status...)
 }
 
 // Notmodified writes a 304 HTTP response

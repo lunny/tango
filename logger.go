@@ -16,10 +16,6 @@ type Logger interface {
 	Warn(v ...interface{})
 	Errorf(format string, v ...interface{})
 	Error(v ...interface{})
-	Fatal(v ...interface{})
-	Fatalf(format string, v ...interface{})
-	Panic(v ...interface{})
-	Panicf(format string, v ...interface{})
 }
 
 func NewLogger(out io.Writer) Logger {
@@ -49,7 +45,7 @@ func (itor *Logging) Handle(ctx *Context) {
 		}
 	}
 
-	itor.logger.Debug("Started",ctx.Req().Method,
+	itor.logger.Debug("Started", ctx.Req().Method,
 		ctx.Req().URL.Path, "for", ctx.Req().RemoteAddr)
 
 	start := time.Now()
@@ -68,4 +64,3 @@ func (itor *Logging) Handle(ctx *Context) {
 		}
 	}
 }
-

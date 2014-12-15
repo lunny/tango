@@ -1,14 +1,14 @@
 package tango
 
 import (
+	"bufio"
 	"compress/flate"
 	"compress/gzip"
 	"fmt"
 	"io"
-	"path"
 	"net"
 	"net/http"
-	"bufio"
+	"path"
 	"strings"
 )
 
@@ -27,10 +27,10 @@ type CompressInterface interface {
 type Compress struct {
 	exts map[string]bool
 }
- 
+
 func NewCompress(exts []string) *Compress {
 	compress := &Compress{make(map[string]bool)}
-	for _, ext:=range exts {
+	for _, ext := range exts {
 		compress.exts[strings.ToLower(ext)] = true
 	}
 	return compress
@@ -56,7 +56,7 @@ func (compress *Compress) Handle(ctx *Context) {
 	acceptCompress := strings.SplitN(ae, ",", -1)
 
 	var compressType string = "auto"
-	if action:= ctx.Action(); action != nil {
+	if action := ctx.Action(); action != nil {
 		if c, ok := action.(CompressInterface); ok {
 			compressType = c.CompressType()
 		}
@@ -75,7 +75,7 @@ func (compress *Compress) Handle(ctx *Context) {
 			val = strings.TrimSpace(val)
 			if val == "gzip" {
 				ctx.Header().Set("Content-Encoding", "gzip")
-				writer, _ = gzip.NewWriterLevel(ctx, gzip.BestSpeed)
+				writer = gzip.NewWriter(ctx)
 				break
 			} else if val == "deflate" {
 				ctx.Header().Set("Content-Encoding", "deflate")
@@ -102,10 +102,10 @@ func (compress *Compress) Handle(ctx *Context) {
 	gzw.Header().Del(HeaderContentLength)
 
 	switch writer.(type) {
-		case *gzip.Writer:
-			writer.(*gzip.Writer).Close()
-		case *flate.Writer:
-			writer.(*flate.Writer).Close()
+	case *gzip.Writer:
+		writer.(*gzip.Writer).Close()
+	case *flate.Writer:
+		writer.(*flate.Writer).Close()
 	}
 }
 

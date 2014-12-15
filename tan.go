@@ -27,17 +27,41 @@ func Version() string {
 type Tango struct {
 	*Injector
 	Router
-	Mode int
+	Mode     int
 	handlers []Handler
-	logger Logger
+	logger   Logger
+}
+
+func (tango *Tango) Get(url string, c interface{}) {
+	tango.AddRouter(url, []string{"GET"}, c)
+}
+
+func (tango *Tango) Post(url string, c interface{}) {
+	tango.AddRouter(url, []string{"POST"}, c)
+}
+
+func (tango *Tango) Head(url string, c interface{}) {
+	tango.AddRouter(url, []string{"Head"}, c)
+}
+
+func (tango *Tango) Delete(url string, c interface{}) {
+	tango.AddRouter(url, []string{"Delete"}, c)
+}
+
+func (tango *Tango) Put(url string, c interface{}) {
+	tango.AddRouter(url, []string{"Put"}, c)
+}
+
+func (tango *Tango) Any(url string, c interface{}) {
+	tango.AddRouter(url, defaultMethods, c)
 }
 
 func NewWithLogger(logger Logger, handlers ...Handler) *Tango {
 	tango := &Tango{
 		Injector: NewInjector(),
-		Router: NewRouter(),
-		Mode: Dev,
-		logger: logger,
+		Router:   NewRouter(),
+		Mode:     Dev,
+		logger:   logger,
 	}
 
 	tango.Use(handlers...)
@@ -50,6 +74,7 @@ func (t *Tango) Use(handlers ...Handler) {
 		t.handlers = append(t.handlers, handler)
 		t.Map(handler)
 	}
+	t.injectAll()
 }
 
 func (t *Tango) Run(addr string) {
@@ -72,7 +97,6 @@ func WrapBefore(handler http.Handler) HandlerFunc {
 		ctx.Next()
 	})
 }
-
 
 func WrapAfter(handler http.Handler) HandlerFunc {
 	return HandlerFunc(func(ctx *Context) {
@@ -132,7 +156,7 @@ func Full() *Tango {
 		NewStatic("public", "public", []string{"index.html", "index.htm"}),
 		HandlerFunc(ResponseHandler),
 		HandlerFunc(RequestHandler),
-		NewSessions(time.Minute * 20),
+		NewSessions(time.Minute*20),
 		NewRender("templates", true, true),
 	)
 }

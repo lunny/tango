@@ -8,20 +8,32 @@ import (
 type RouteType int
 
 const (
-	FuncRoute = iota +1
+	FuncRoute = iota + 1
 	StructRoute
 	StructPtrRoute
 )
 
 // Route
 type Route struct {
-	path           string          //path string
-	regexp *regexp.Regexp  //path regexp
+	path       string          //path string
+	regexp     *regexp.Regexp  //path regexp
 	methods    map[string]bool //GET POST HEAD DELETE etc.
-	structType 	reflect.Type    //handler element
-	method         reflect.Value
-	routeType       RouteType
-	pools *pools
+	structType reflect.Type    //handler element
+	method     reflect.Value
+	routeType  RouteType
+	pools      *pools
+}
+
+func (route *Route) Method() reflect.Value {
+	return route.method
+}
+
+func (route *Route) StructType() reflect.Type {
+	return route.structType
+}
+
+func (route *Route) RouteType() RouteType {
+	return route.routeType
 }
 
 func (route *Route) IsStruct() bool {
@@ -37,50 +49,47 @@ func (route *Route) newAction() reflect.Value {
 }
 
 type Router interface {
-	Any(string, interface{})
-	Get(string, interface{})
-	Post(string, interface{})
-	Head(string, interface{})
+	AddRouter(path string, methods []string, handler interface{})
 	Match(requestPath, method string) (*Route, []reflect.Value)
 }
 
 type router struct {
-	routes          []*Route
-	routesEq        map[string]map[string]*Route
+	routes      []*Route
+	routesEq    map[string]map[string]*Route
 	defaultFunc string
-	pools *pools
+	pools       *pools
 }
 
 func NewRouter() *router {
 	return &router{
-		routes:          make([]*Route, 0),
-		routesEq:        make(map[string]map[string]*Route),
+		routes:      make([]*Route, 0),
+		routesEq:    make(map[string]map[string]*Route),
 		defaultFunc: "Do",
-		pools: NewPools(800),
+		pools:       NewPools(800),
 	}
 }
 
 func (router *router) addRoute(r string, methods map[string]bool,
-	t reflect.Type, handler string, 
+	t reflect.Type, handler string,
 	method reflect.Value, tp RouteType) error {
 	cr, err := regexp.Compile(r)
 	if err != nil {
 		return err
 	}
 	router.routes = append(router.routes, &Route{
-		path:           r,
-		regexp: cr,
+		path:       r,
+		regexp:     cr,
 		methods:    methods,
 		structType: t,
-		method:         method,
-		routeType:       tp,
-		pools: 	router.pools,
+		method:     method,
+		routeType:  tp,
+		pools:      router.pools,
 	})
 	return nil
 }
 
 func (router *router) addEqRoute(r string, methods map[string]bool,
-	t reflect.Type, handler string, 
+	t reflect.Type, handler string,
 	method reflect.Value, tp RouteType) {
 	if _, ok := router.routesEq[r]; !ok {
 		router.routesEq[r] = make(map[string]*Route)
@@ -88,47 +97,39 @@ func (router *router) addEqRoute(r string, methods map[string]bool,
 	for v, _ := range methods {
 		router.routesEq[r][v] = &Route{
 			structType: t,
-			method:         method,
-			routeType:       tp,
-			pools: 	router.pools,
+			method:     method,
+			routeType:  tp,
+			pools:      router.pools,
 		}
 	}
 }
 
 var (
-	defaultMethods = map[string]bool{
-		"GET": true, 
-		"POST": true,
-		"HEAD": true,
+	defaultMethods = []string{
+		"GET",
+		"POST",
+		"HEAD",
+		"DELETE",
+		"PUT",
 	}
 )
 
-func (router *router) addRouter(methods map[string]bool, url string, c interface{}) {
-	vc := reflect.ValueOf(c)
-	if vc.Kind() == reflect.Func {
-		router.addFuncRouter(methods, url, c)
-	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
-		router.addStructRouter(methods, url, c)
+func slice2map(slice []string) map[string]bool {
+	var res = make(map[string]bool, len(slice))
+	for _, s := range slice {
+		res[s] = true
 	}
+	return res
 }
 
-func (router *router) Get(url string, c interface{}) {
-	methods := map[string]bool{"GET": true}
-	router.addRouter(methods, url, c)
-}
-
-func (router *router) Post(url string, c interface{}) {
-	methods := map[string]bool{"POST": true}
-	router.addRouter(methods, url, c)
-}
-
-func (router *router) Head(url string, c interface{}) {
-	methods := map[string]bool{"Head": true}
-	router.addRouter(methods, url, c)
-}
-
-func (router *router) Any(url string, c interface{}) {
-	router.addRouter(defaultMethods, url, c)
+func (router *router) AddRouter(url string, methods []string, c interface{}) {
+	vc := reflect.ValueOf(c)
+	methodsMap := slice2map(methods)
+	if vc.Kind() == reflect.Func {
+		router.addFuncRouter(methodsMap, url, c)
+	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
+		router.addStructRouter(methodsMap, url, c)
+	}
 }
 
 func (router *router) addFuncRouter(methods map[string]bool, url string, c interface{}) {
@@ -144,13 +145,13 @@ func (router *router) addStructRouter(methods map[string]bool, url string, c int
 	// added a default method Do as /
 	if m, ok := t.MethodByName(router.defaultFunc); ok {
 		router.addEqRoute(
-			removeStick(url), methods, 
+			removeStick(url), methods,
 			t, router.defaultFunc,
 			m.Func, StructPtrRoute,
 		)
 	} else if m, ok := vc.Type().MethodByName(router.defaultFunc); ok {
 		router.addEqRoute(
-			removeStick(url), methods, 
+			removeStick(url), methods,
 			t, router.defaultFunc,
 			m.Func, StructRoute,
 		)
