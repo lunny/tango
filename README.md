@@ -11,7 +11,7 @@ Package tango is a high productive and modular design web framework in Go.
 
 To install Tango:
 
-    go get github.com/unny/tango
+    go get github.com/lunny/tango
 
 The very basic usage of Tango:
 
