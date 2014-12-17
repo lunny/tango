@@ -53,11 +53,14 @@ func newPool(size int, tp reflect.Type) *pool {
 
 func (p *pool) New() reflect.Value {
 	p.lock.Lock()
-	defer p.lock.Unlock()
+	defer func() {
+		p.cur++
+		p.lock.Unlock()
+	}()
+
 	if p.cur == p.pool.Len() {
 		p.pool = reflect.MakeSlice(p.tp, p.size, p.size)
 		p.cur = 0
 	}
-	p.cur++
 	return p.pool.Index(p.cur).Addr()
 }
