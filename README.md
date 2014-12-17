@@ -3,7 +3,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 ![Tango Logo](tangologo.png)
 
-Package tango is a high productive and modular design web framework in Go.
+Package tango is a micro & pluggable web framework in Go.
 
 ##### Current version: 0.1.0
 
@@ -31,13 +31,10 @@ func main() {
 
 ## Features
 
-- Powerful routing with suburl.
-- Flexible routes combinations.
-- Unlimited nested group routers.
+- Powerful routing & Flexible routes combinations.
 - Directly integrate with existing services.
 - Easy to plugin/unplugin features with modular design.
-- Handy & Performance dependency injection embbed.
-- Good performance.
+- High Performance dependency injection embbed.
 
 ## Middlewares 
 
@@ -45,11 +42,17 @@ Middlewares allow you easily plugin/unplugin features for your Tango application
 
 There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
 
-- compress - Gzip compression to all requests
-- render - Go template engine
+- compress - Gzip & Deflate compression
 - static - Serves static files
+- logger - Log the request & inject Logger to action struct
+- return - Handle the returned value smartlly
+- request - Inject request to action struct
+- response - Inject response to action struct
+
 - [session](https://github.com/tango-contrib/session) - Session manager
-- [csrf](https://github.com/tango-contrib/csrf) - Generates and validates csrf tokens
+- [xsrf](https://github.com/tango-contrib/xsrf) - Generates and validates csrf tokens
+- [bind](https://github.com/tango-contrib/bind) - Bind and validates forms
+- [render](https://github.com/tango-contrib/render) - Go template engine
 
 ## Use Cases
 
