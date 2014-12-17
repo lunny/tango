@@ -4,18 +4,27 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
+	"reflect"
 )
 
 type ResponseType int
 
 const (
-	AutoResponse = iota + 1
+	AutoResponse = iota
 	JsonResponse
 	XmlResponse
 )
 
 type IResponseType interface {
 	ResponseType() int
+}
+
+func isNil(a interface{}) bool {
+	if a == nil {
+		return true
+	}
+	aa := reflect.ValueOf(a)
+	return !aa.IsValid() || (aa.Type().Kind() == reflect.Ptr && aa.IsNil())
 }
 
 func ReturnHandler(ctx *Context) {

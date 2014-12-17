@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"net/http"
 
-	"github.com/go-xweb/log"
+	"github.com/lunny/log"
 )
 
 func TestLogger(t *testing.T) {

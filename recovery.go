@@ -2,7 +2,6 @@ package tango
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"runtime"
 )
@@ -36,8 +35,6 @@ func (recovery *Recovery) Handle(ctx *Context) {
 
 			if recovery.logger != nil {
 				recovery.logger.Error(content)
-			} else {
-				log.Println("[tango]", content)
 			}
 
 			if !ctx.Written() {

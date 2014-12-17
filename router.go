@@ -3,6 +3,7 @@ package tango
 import (
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 type RouteType int
@@ -12,6 +13,14 @@ const (
 	StructRoute
 	StructPtrRoute
 )
+
+func removeStick(uri string) string {
+	uri = strings.TrimRight(uri, "/")
+	if uri == "" {
+		uri = "/"
+	}
+	return uri
+}
 
 // Route
 type Route struct {
@@ -111,6 +120,9 @@ var (
 		"HEAD",
 		"DELETE",
 		"PUT",
+		"OPTIONS",
+		"TRACE",
+		"PATCH",
 	}
 )
 

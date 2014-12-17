@@ -3,7 +3,6 @@ package tango
 import (
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -41,32 +40,31 @@ func (tango *Tango) Post(url string, c interface{}) {
 }
 
 func (tango *Tango) Head(url string, c interface{}) {
-	tango.AddRouter(url, []string{"Head"}, c)
+	tango.AddRouter(url, []string{"HEAD"}, c)
+}
+
+func (tango *Tango) Options(url string, c interface{}) {
+	tango.AddRouter(url, []string{"OPTIONS"}, c)
+}
+
+func (tango *Tango) Trace(url string, c interface{}) {
+	tango.AddRouter(url, []string{"TRACE"}, c)
+}
+
+func (tango *Tango) Patch(url string, c interface{}) {
+	tango.AddRouter(url, []string{"PATCH"}, c)
 }
 
 func (tango *Tango) Delete(url string, c interface{}) {
-	tango.AddRouter(url, []string{"Delete"}, c)
+	tango.AddRouter(url, []string{"DELETE"}, c)
 }
 
 func (tango *Tango) Put(url string, c interface{}) {
-	tango.AddRouter(url, []string{"Put"}, c)
+	tango.AddRouter(url, []string{"PUT"}, c)
 }
 
 func (tango *Tango) Any(url string, c interface{}) {
 	tango.AddRouter(url, defaultMethods, c)
-}
-
-func NewWithLogger(logger Logger, handlers ...Handler) *Tango {
-	tango := &Tango{
-		Injector: NewInjector(),
-		Router:   NewRouter(),
-		Mode:     Dev,
-		logger:   logger,
-	}
-
-	tango.Use(handlers...)
-
-	return tango
 }
 
 func (t *Tango) Use(handlers ...Handler) {
@@ -127,8 +125,26 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx.Invoke()
 }
 
+func (t *Tango) Handle(ctx *Context) {
+	ctx.Invoke()
+}
+
 func New(handlers ...Handler) *Tango {
 	return NewWithLogger(NewLogger(os.Stdout), handlers...)
+}
+
+func NewWithLogger(logger Logger, handlers ...Handler) *Tango {
+	tango := &Tango{
+		Injector: NewInjector(),
+		Router:   NewRouter(),
+		Mode:     Dev,
+		logger:   logger,
+	}
+
+	tango.Map(logger)
+	tango.Use(handlers...)
+
+	return tango
 }
 
 func Classic() *Tango {
@@ -138,26 +154,10 @@ func Classic() *Tango {
 		NewRecovery(true),
 		NewLogging(logger),
 		NewCompress([]string{".js", ".css", ".html", ".htm"}),
+		NewStatic("./public", "public", []string{"index.html", "index.htm"}),
 		HandlerFunc(ReturnHandler),
-		NewStatic("public", "public", []string{"index.html", "index.htm"}),
 		HandlerFunc(ResponseHandler),
 		HandlerFunc(RequestHandler),
-	)
-}
-
-func Full() *Tango {
-	logger := NewLogger(os.Stdout)
-	return NewWithLogger(
-		logger,
-		NewRecovery(true),
-		NewLogging(logger),
-		NewCompress([]string{".js", ".css", ".html", ".htm"}),
-		HandlerFunc(ReturnHandler),
-		NewStatic("public", "public", []string{"index.html", "index.htm"}),
-		HandlerFunc(ResponseHandler),
-		HandlerFunc(RequestHandler),
-		NewSessions(time.Minute*20),
-		NewRender("templates", true, true),
 	)
 }
 
@@ -167,6 +167,6 @@ func Static() *Tango {
 		logger,
 		NewLogging(logger),
 		NewCompress([]string{".js", ".css", ".html", ".htm"}),
-		NewStatic("public", "", []string{"index.html", "index.htm"}),
+		NewStatic("./public", "", []string{"index.html", "index.htm"}),
 	)
 }

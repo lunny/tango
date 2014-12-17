@@ -78,21 +78,21 @@ func (rw *responseWriter) Flush() {
 	}
 }
 
-type ResponseInterface interface {
+type Responser interface {
 	SetResponse(ResponseWriter)
 }
 
-type HttpResponseInterface interface {
+type HttpResponser interface {
 	SetResponse(http.ResponseWriter)
 }
 
 func ResponseHandler(ctx *Context) {
 	if action := ctx.Action(); action != nil {
-		if s, ok := action.(HttpResponseInterface); ok {
+		if s, ok := action.(HttpResponser); ok {
 			s.SetResponse(ctx)
 		}
 
-		if s, ok := action.(ResponseInterface); ok {
+		if s, ok := action.(Responser); ok {
 			s.SetResponse(ctx)
 		}
 	}

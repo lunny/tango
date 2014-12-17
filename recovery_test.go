@@ -1,30 +1,26 @@
 package tango
 
-/*
 import (
 	"bytes"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"os"
 )
-
 
 func TestRecovery(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 
-	rec := NewRecovery()
-	rec.Logger = log.New(buff, "[tango] ", 0)
+	n := NewWithLogger(NewLogger(os.Stdout))
 
-	n := New()
-	// replace log for testing
-	n.Use(rec)
+	n.Use(NewRecovery(true))
 	n.UseHandler(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		panic("here is a panic!")
 	}))
+
 	n.ServeHTTP(recorder, (*http.Request)(nil))
 	expect(t, recorder.Code, http.StatusInternalServerError)
 	refute(t, recorder.Body.Len(), 0)
 	refute(t, len(buff.String()), 0)
-}*/
+}
