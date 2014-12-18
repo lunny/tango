@@ -86,6 +86,22 @@ type HttpResponser interface {
 	SetResponse(http.ResponseWriter)
 }
 
+type Resp struct {
+	ResponseWriter
+}
+
+func (resp *Resp) SetResponse(r ResponseWriter) {
+	resp.ResponseWriter = r
+}
+
+type HttpResp struct {
+	http.ResponseWriter
+}
+
+func (resp *HttpResp) SetResponse(r http.ResponseWriter) {
+	resp.ResponseWriter = r
+}
+
 func ResponseHandler(ctx *Context) {
 	if action := ctx.Action(); action != nil {
 		if s, ok := action.(HttpResponser); ok {

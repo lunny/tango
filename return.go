@@ -15,8 +15,22 @@ const (
 	XmlResponse
 )
 
-type IResponseType interface {
+type ResponseTyper interface {
 	ResponseType() int
+}
+
+type Json struct {
+}
+
+func (Json) ResponseType() int {
+	return JsonResponse
+}
+
+type Xml struct {
+}
+
+func (Xml) ResponseType() int {
+	return XmlResponse
 }
 
 func isNil(a interface{}) bool {
@@ -30,7 +44,7 @@ func isNil(a interface{}) bool {
 func ReturnHandler(ctx *Context) {
 	var rt int
 	if action := ctx.Action(); action != nil {
-		if i, ok := action.(IResponseType); ok {
+		if i, ok := action.(ResponseTyper); ok {
 			rt = i.ResponseType()
 		}
 	}
@@ -57,6 +71,7 @@ func ReturnHandler(ctx *Context) {
 		if err != nil {
 			ctx.Result = err
 		} else {
+			ctx.Header().Set("Content-Type", "application/json")
 			ctx.WriteHeader(http.StatusOK)
 			ctx.Write(bs)
 			return
@@ -66,6 +81,7 @@ func ReturnHandler(ctx *Context) {
 		if err != nil {
 			ctx.Result = err
 		} else {
+			ctx.Header().Set("Content-Type", "application/xml")
 			ctx.WriteHeader(http.StatusOK)
 			ctx.Write(bs)
 			return

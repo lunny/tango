@@ -193,3 +193,23 @@ func (ctx *Context) Abort(status int, body string) error {
 func (ctx *Context) SetHeader(key string, value string) {
 	ctx.Header().Set(key, value)
 }
+
+type Contexter interface {
+	SetContext(*Context)
+}
+
+type Ctx struct {
+	*Context
+}
+
+func (c *Ctx) SetContext(ctx *Context) {
+	c.Context = ctx
+}
+
+func ContextHandler(ctx *Context) {
+	if action := ctx.Action(); action != nil {
+		if a, ok := action.(Contexter); ok {
+			a.SetContext(ctx)
+		}
+	}
+}
