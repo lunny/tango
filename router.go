@@ -155,18 +155,21 @@ func (router *router) addStructRouter(methods map[string]bool, url string, c int
 	t := vc.Type().Elem()
 
 	// added a default method Do as /
-	if m, ok := t.MethodByName(router.defaultFunc); ok {
-		router.addEqRoute(
-			removeStick(url), methods,
-			t, router.defaultFunc,
-			m.Func, StructPtrRoute,
-		)
-	} else if m, ok := vc.Type().MethodByName(router.defaultFunc); ok {
-		router.addEqRoute(
-			removeStick(url), methods,
-			t, router.defaultFunc,
-			m.Func, StructRoute,
-		)
+	for _, name := range defaultMethods {
+		name = strings.Title(strings.ToLower(name))
+		if m, ok := t.MethodByName(name); ok {
+			router.addEqRoute(
+				removeStick(url), methods,
+				t, name,
+				m.Func, StructPtrRoute,
+			)
+		} else if m, ok := vc.Type().MethodByName(name); ok {
+			router.addEqRoute(
+				removeStick(url), methods,
+				t, name,
+				m.Func, StructRoute,
+			)
+		}
 	}
 }
 

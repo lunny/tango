@@ -39,24 +39,23 @@ func NewLogging(logger Logger) *Logging {
 }
 
 func (itor *Logging) Handle(ctx *Context) {
+	start := time.Now()
+	itor.logger.Debug("Started", ctx.Req().Method,
+		ctx.Req().URL.Path, "for", ctx.Req().RemoteAddr)
+
 	if action := ctx.Action(); action != nil {
 		if l, ok := action.(LogInterface); ok {
 			l.SetLogger(itor.logger)
 		}
 	}
 
-	itor.logger.Debug("Started", ctx.Req().Method,
-		ctx.Req().URL.Path, "for", ctx.Req().RemoteAddr)
-
-	start := time.Now()
-
 	ctx.Next()
 
 	if ctx.Written() {
 		statusCode := ctx.Status()
 		requestPath := ctx.Req().URL.Path
-
 		escape := time.Now().Sub(start)
+
 		if statusCode >= 200 && statusCode < 400 {
 			itor.logger.Info(ctx.Req().Method, statusCode, escape, requestPath)
 		} else {

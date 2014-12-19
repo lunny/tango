@@ -3,6 +3,7 @@ package tango
 import (
 	"net/http"
 	"os"
+	"log"
 )
 
 const (
@@ -78,8 +79,17 @@ func (t *Tango) Use(handlers ...Handler) {
 func (t *Tango) Run(addr string) {
 	if t.logger != nil {
 		t.logger.Info("listening on", addr, modes[t.Mode])
+	}else {
+		log.Println("listening on", addr, modes[t.Mode])
 	}
-	http.ListenAndServe(addr, t)
+	err := http.ListenAndServe(addr, t)
+	if err != nil {
+		if t.logger != nil {
+			t.logger.Error(err)
+		} else {
+			log.Println(err)
+		}
+	}
 }
 
 type HandlerFunc func(ctx *Context)
@@ -151,8 +161,8 @@ func Classic() *Tango {
 	logger := NewLogger(os.Stdout)
 	return NewWithLogger(
 		logger,
-		NewRecovery(true),
 		NewLogging(logger),
+		NewRecovery(true),
 		NewCompress([]string{".js", ".css", ".html", ".htm"}),
 		NewStatic("./public", "public", []string{"index.html", "index.htm"}),
 		HandlerFunc(ReturnHandler),
