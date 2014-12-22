@@ -140,10 +140,10 @@ func (t *Tango) Handle(ctx *Context) {
 }
 
 func New(handlers ...Handler) *Tango {
-	return NewWithLogger(NewLogger(os.Stdout), handlers...)
+	return NewWithLog(NewLogger(os.Stdout), handlers...)
 }
 
-func NewWithLogger(logger Logger, handlers ...Handler) *Tango {
+func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	tango := &Tango{
 		Injector: NewInjector(),
 		Router:   NewRouter(),
@@ -159,7 +159,7 @@ func NewWithLogger(logger Logger, handlers ...Handler) *Tango {
 
 func Classic() *Tango {
 	logger := NewLogger(os.Stdout)
-	return NewWithLogger(
+	return NewWithLog(
 		logger,
 		NewLogging(logger),
 		NewRecovery(true),
@@ -173,7 +173,7 @@ func Classic() *Tango {
 
 func Static() *Tango {
 	logger := NewLogger(os.Stdout)
-	return NewWithLogger(
+	return NewWithLog(
 		logger,
 		NewLogging(logger),
 		NewCompress([]string{".js", ".css", ".html", ".htm"}),

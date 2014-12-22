@@ -33,7 +33,8 @@ func (c *Injector) inject(obj interface{}) {
 			m := t.Method(i)
 			if m.Type.NumIn() == 2 &&
 				strings.HasPrefix(m.Name, "Set") &&
-				(m.Type.In(1) == k || k.Implements(m.Type.In(1))){
+				(m.Type.In(1) == k || ((m.Type.In(1).Kind() == reflect.Interface) &&
+					k.Implements(m.Type.In(1)))){
 				m.Func.Call([]reflect.Value{vv, reflect.ValueOf(v)})
 			}
 		}

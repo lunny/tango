@@ -12,7 +12,7 @@ func TestRecovery(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 
-	n := NewWithLogger(NewLogger(os.Stdout))
+	n := NewWithLog(NewLogger(os.Stdout))
 
 	n.Use(NewRecovery(true))
 	n.UseHandler(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
