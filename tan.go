@@ -169,6 +169,7 @@ func Classic() *Tango {
 		HandlerFunc(ResponseHandler),
 		HandlerFunc(RequestHandler),
 		HandlerFunc(ParamHandler),
+		HandlerFunc(ContextHandler),
 	)
 }
 

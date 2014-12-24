@@ -11,6 +11,7 @@ import (
 func TestRecovery(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
+	recorder.Body = buff
 
 	n := NewWithLog(NewLogger(os.Stdout))
 

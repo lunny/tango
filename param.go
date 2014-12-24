@@ -19,7 +19,8 @@ func (p *Params) SetParams(u url.Values) {
 func ParamHandler(ctx *Context) {
 	if action := ctx.Action(); action != nil {
 		if p, ok := action.(Paramer); ok {
-			p.SetParams(ctx.args)
+			p.SetParams(ctx.Params())
 		}
 	}
+	ctx.Next()
 }

@@ -25,7 +25,7 @@ type Context struct {
 	req *http.Request
 	ResponseWriter
 	route   *Route
-	args url.Values
+	params url.Values
 	callArgs   []reflect.Value
 	matched bool
 
@@ -56,6 +56,11 @@ func (ctx *Context) Route() *Route {
 	return ctx.route
 }
 
+func (ctx *Context) Params() url.Values {
+	ctx.newAction()
+	return ctx.params
+}
+
 func (ctx *Context) Action() interface{} {
 	ctx.newAction()
 	return ctx.action
@@ -69,11 +74,10 @@ func (ctx *Context) newAction() {
 			allowedMethod = "GET"
 		}
 
-		ctx.route, ctx.args = ctx.router.Match(reqPath, allowedMethod)
+		ctx.route, ctx.params = ctx.router.Match(reqPath, allowedMethod)
 		if ctx.route != nil {
 			vc := ctx.route.newAction()
 			ctx.action = vc.Interface()
-			ctx.callArgs = make([]reflect.Value, 0)
 			switch ctx.route.routeType {
 			case StructPtrRoute:
 				ctx.callArgs = []reflect.Value{vc.Elem()}
@@ -81,6 +85,13 @@ func (ctx *Context) newAction() {
 				ctx.callArgs = []reflect.Value{vc}
 			case FuncRoute:
 				ctx.callArgs = []reflect.Value{}
+			case FuncHttpRoute:
+				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter), 
+					reflect.ValueOf(ctx.Req())}
+			case FuncCtxRoute:
+				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx)}
+			default:
+				panic("routeType error")
 			}
 		}
 		ctx.matched = true
@@ -214,4 +225,5 @@ func ContextHandler(ctx *Context) {
 			a.SetContext(ctx)
 		}
 	}
+	ctx.Next()
 }

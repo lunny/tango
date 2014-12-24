@@ -11,9 +11,11 @@ import (
 type RouteType int
 
 const (
-	FuncRoute RouteType = iota + 1
-	StructRoute
-	StructPtrRoute
+	FuncRoute RouteType = iota + 1 	// func () string
+	FuncHttpRoute 					// func (response, request) string
+	FuncCtxRoute 					// func (*tango.Context) string
+	StructRoute 					// func (st) Get() string
+	StructPtrRoute 					// func (*struct) Get() string
 )
 
 type UrlType int
@@ -236,7 +238,7 @@ func (router *router) AddRoute(m string, route *Route) {
 	case StaticUrl:
 		router.routesEq[m][route.path] = route
 	case NamedUrl:
-		router.routesName[m] = append(router.routes[m], route)
+		router.routesName[m] = append(router.routesName[m], route)
 	case RegexpUrl:
 		router.routes[m] = append(router.routes[m], route)
 	}
@@ -260,7 +262,7 @@ func (router *router) addStruct(methods []string, url string, c interface{}) {
 		newName := strings.Title(strings.ToLower(name))
 		if m, ok := t.MethodByName(newName); ok {
 			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
-		} else if m, ok := vc.Type().MethodByName(name); ok {
+		} else if m, ok := vc.Type().MethodByName(newName); ok {
 			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructRoute))
 		}
 	}
@@ -268,11 +270,9 @@ func (router *router) addStruct(methods []string, url string, c interface{}) {
 
 // when a request ask, then match the correct route
 func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
-	var route *Route
-
 	// for non-regular path, search the map
 	if routes, ok := router.routesEq[reqPath]; ok {
-		if route, ok = routes[allowMethod]; ok {
+		if route, ok := routes[allowMethod]; ok {
 			return route, make(url.Values)
 		}
 	}
@@ -281,7 +281,7 @@ func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
 	routes := router.routesName[allowMethod]
 	for _, r := range routes {
 		if args, ok := r.try(reqPath); ok {
-			return route, args
+			return r, args
 		}
 	}
 
@@ -298,11 +298,12 @@ func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
 		}
 
 		var args = make(url.Values)
+		// for regexp :0 -> first match param :1 -> the second
 		for i, arg := range match[1:] {
 			args.Add(fmt.Sprintf(":%d", i), arg)
 		}
 
-		return route, args
+		return r, args
 	}
 
 	return nil, nil
