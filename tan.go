@@ -65,7 +65,7 @@ func (tango *Tango) Put(url string, c interface{}) {
 }
 
 func (tango *Tango) Any(url string, c interface{}) {
-	tango.AddRouter(url, defaultMethods, c)
+	tango.AddRouter(url, SupportMethods, c)
 }
 
 func (t *Tango) Use(handlers ...Handler) {
@@ -168,6 +168,7 @@ func Classic() *Tango {
 		HandlerFunc(ReturnHandler),
 		HandlerFunc(ResponseHandler),
 		HandlerFunc(RequestHandler),
+		HandlerFunc(ParamHandler),
 	)
 }
 

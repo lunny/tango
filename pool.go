@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-type pools struct {
+/*type pools struct {
 	pools map[reflect.Type]*pool
 	lock sync.Mutex
 	size int
@@ -32,7 +32,7 @@ func (ps *pools) Pool(tp reflect.Type) *pool {
 
 func (p *pools) New(tp reflect.Type) reflect.Value {
 	return p.Pool(tp).New()
-}
+}*/
 
 type pool struct {
 	size int

@@ -4,41 +4,83 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"net/url"
+	"fmt"
 )
 
 type RouteType int
 
 const (
-	FuncRoute = iota + 1
+	FuncRoute RouteType = iota + 1
 	StructRoute
 	StructPtrRoute
 )
 
-func removeStick(uri string) string {
-	uri = strings.TrimRight(uri, "/")
-	if uri == "" {
-		uri = "/"
+type UrlType int
+
+const (
+	StaticUrl UrlType = iota + 1
+	NamedUrl
+	RegexpUrl
+)
+
+var (
+	SupportMethods = []string{
+		"GET",
+		"POST",
+		"HEAD",
+		"DELETE",
+		"PUT",
+		"OPTIONS",
+		"TRACE",
+		"PATCH",
 	}
-	return uri
-}
+
+	PoolSize = 800
+)
 
 // Route
 type Route struct {
 	path       string          //path string
 	regexp     *regexp.Regexp  //path regexp
-	methods    map[string]bool //GET POST HEAD DELETE etc.
-	structType reflect.Type    //handler element
+	urlType    UrlType
 	method     reflect.Value
 	routeType  RouteType
-	pools      *pools
+	pool       *pool
+}
+
+func NewRoute(r string, t reflect.Type,
+	method reflect.Value, tp RouteType) *Route {
+	var urlType UrlType = StaticUrl
+	var cr *regexp.Regexp
+	var err error
+	if regexp.QuoteMeta(r) != r {
+		urlType = RegexpUrl
+		cr, err = regexp.Compile(r)
+		if err != nil {
+			panic("wrong route:"+err.Error())
+			return nil
+		}
+	} else if strings.Contains(r, ":") {
+		urlType = NamedUrl
+	}
+
+	return &Route{
+		path: r,
+		regexp: cr,
+		urlType: urlType,
+		method: method,
+		routeType:  tp,
+		pool: newPool(PoolSize, t),
+	}
 }
 
 func (route *Route) Method() reflect.Value {
 	return route.method
 }
 
-func (route *Route) StructType() reflect.Type {
-	return route.structType
+func (route *Route) UrlType() UrlType {
+	return route.urlType
 }
 
 func (route *Route) RouteType() RouteType {
@@ -54,143 +96,198 @@ func (route *Route) newAction() reflect.Value {
 		return route.method
 	}
 
-	return route.pools.New(route.structType)
+	return route.pool.New()
+}
+
+func (route *Route) try(path string) (url.Values, bool) {
+	p := make(url.Values)
+	var i, j int
+	for i < len(path) {
+		switch {
+		case j >= len(route.path):
+			if route.path != "/" && len(route.path) > 0 && route.path[len(route.path)-1] == '/' {
+				return p, true
+			}
+			return nil, false
+		case route.path[j] == ':':
+			var name, val string
+			var nextc byte
+			name, nextc, j = match(route.path, isAlnum, j+1)
+			val, _, i = match(path, matchPart(nextc), i)
+			p.Add(":"+name, val)
+		case path[i] == route.path[j]:
+			i++
+			j++
+		default:
+			return nil, false
+		}
+	}
+	if j != len(route.path) {
+		return nil, false
+	}
+	return p, true
 }
 
 type Router interface {
 	AddRouter(path string, methods []string, handler interface{})
-	Match(requestPath, method string) (*Route, []reflect.Value)
+	Match(requestPath, method string) (*Route, url.Values)
 }
 
 type router struct {
-	routes      []*Route
+	routes      map[string][]*Route
 	routesEq    map[string]map[string]*Route
-	defaultFunc string
-	pools       *pools
+	routesName  map[string][]*Route
 }
 
 func NewRouter() *router {
+	routesEq := make(map[string]map[string]*Route)
+	for _, m := range SupportMethods {
+		routesEq[m] = make(map[string]*Route)
+	}
+
+	routesName := make(map[string][]*Route)
+	for _, m := range SupportMethods {
+		routesName[m] = make([]*Route, 0)
+	}
+
+	routes := make(map[string][]*Route)
+	for _, m := range SupportMethods {
+		routes[m] = make([]*Route, 0)
+	}
+
 	return &router{
-		routes:      make([]*Route, 0),
-		routesEq:    make(map[string]map[string]*Route),
-		defaultFunc: "Do",
-		pools:       NewPools(800),
+		routesEq: routesEq,
+		routes: routes,
+		routesName: routesName,
 	}
 }
 
-func (router *router) addRoute(r string, methods map[string]bool,
-	t reflect.Type, handler string,
-	method reflect.Value, tp RouteType) error {
-	cr, err := regexp.Compile(r)
-	if err != nil {
-		return err
+func matchPart(b byte) func(byte) bool {
+	return func(c byte) bool {
+		return c != b && c != '/'
 	}
-	router.routes = append(router.routes, &Route{
-		path:       r,
-		regexp:     cr,
-		methods:    methods,
-		structType: t,
-		method:     method,
-		routeType:  tp,
-		pools:      router.pools,
-	})
-	return nil
 }
 
-func (router *router) addEqRoute(r string, methods map[string]bool,
-	t reflect.Type, handler string,
-	method reflect.Value, tp RouteType) {
-	if _, ok := router.routesEq[r]; !ok {
-		router.routesEq[r] = make(map[string]*Route)
+func match(s string, f func(byte) bool, i int) (matched string, next byte, j int) {
+	j = i
+	for j < len(s) && f(s[j]) {
+		j++
 	}
-	for v, _ := range methods {
-		router.routesEq[r][v] = &Route{
-			structType: t,
-			method:     method,
-			routeType:  tp,
-			pools:      router.pools,
+	if j < len(s) {
+		next = s[j]
+	}
+	return s[i:j], next, j
+}
+
+func isAlpha(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
+func isAlnum(ch byte) bool {
+	return isAlpha(ch) || isDigit(ch)
+}
+
+func Tail(pat, path string) string {
+	var i, j int
+	for i < len(path) {
+		switch {
+		case j >= len(pat):
+			if pat[len(pat)-1] == '/' {
+				return path[i:]
+			}
+			return ""
+		case pat[j] == ':':
+			var nextc byte
+			_, nextc, j = match(pat, isAlnum, j+1)
+			_, _, i = match(path, matchPart(nextc), i)
+		case path[i] == pat[j]:
+			i++
+			j++
+		default:
+			return ""
 		}
 	}
+	return ""
 }
 
-var (
-	defaultMethods = []string{
-		"GET",
-		"POST",
-		"HEAD",
-		"DELETE",
-		"PUT",
-		"OPTIONS",
-		"TRACE",
-		"PATCH",
+func removeStick(uri string) string {
+	uri = strings.TrimRight(uri, "/")
+	if uri == "" {
+		uri = "/"
 	}
-)
-
-func slice2map(slice []string) map[string]bool {
-	var res = make(map[string]bool, len(slice))
-	for _, s := range slice {
-		res[s] = true
-	}
-	return res
+	return uri
 }
 
 func (router *router) AddRouter(url string, methods []string, c interface{}) {
 	vc := reflect.ValueOf(c)
-	methodsMap := slice2map(methods)
 	if vc.Kind() == reflect.Func {
-		router.addFuncRouter(methodsMap, url, c)
+		router.addFunc(methods, url, c)
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
-		router.addStructRouter(methodsMap, url, c)
+		router.addStruct(methods, url, c)
 	}
 }
 
-func (router *router) addFuncRouter(methods map[string]bool, url string, c interface{}) {
-	vc := reflect.ValueOf(c)
-	t := vc.Type()
-	router.addEqRoute(removeStick(url), methods, t, "", vc, FuncRoute)
+func (router *router) AddRoute(m string, route *Route) {
+	switch route.urlType {
+	case StaticUrl:
+		router.routesEq[m][route.path] = route
+	case NamedUrl:
+		router.routesName[m] = append(router.routes[m], route)
+	case RegexpUrl:
+		router.routes[m] = append(router.routes[m], route)
+	}
 }
 
-func (router *router) addStructRouter(methods map[string]bool, url string, c interface{}) {
+func (router *router) addFunc(methods []string, url string, c interface{}) {
+	vc := reflect.ValueOf(c)
+	t := vc.Type()
+	r := NewRoute(removeStick(url), t, vc, FuncRoute)
+	for _, m := range methods {
+		router.AddRoute(m, r)
+	}
+}
+
+func (router *router) addStruct(methods []string, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type().Elem()
 
-	// added a default method Do as /
-	for _, name := range defaultMethods {
-		name = strings.Title(strings.ToLower(name))
-		if m, ok := t.MethodByName(name); ok {
-			router.addEqRoute(
-				removeStick(url), methods,
-				t, name,
-				m.Func, StructPtrRoute,
-			)
+	// added a default method Get, Post
+	for _, name := range methods {
+		newName := strings.Title(strings.ToLower(name))
+		if m, ok := t.MethodByName(newName); ok {
+			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
 		} else if m, ok := vc.Type().MethodByName(name); ok {
-			router.addEqRoute(
-				removeStick(url), methods,
-				t, name,
-				m.Func, StructRoute,
-			)
+			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructRoute))
 		}
 	}
 }
 
 // when a request ask, then match the correct route
-func (router *router) Match(reqPath, allowMethod string) (*Route, []reflect.Value) {
+func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
 	var route *Route
-	var args = make([]reflect.Value, 0)
 
 	// for non-regular path, search the map
 	if routes, ok := router.routesEq[reqPath]; ok {
 		if route, ok = routes[allowMethod]; ok {
+			return route, make(url.Values)
+		}
+	}
+
+	// name match
+	routes := router.routesName[allowMethod]
+	for _, r := range routes {
+		if args, ok := r.try(reqPath); ok {
 			return route, args
 		}
 	}
 
-	for _, r := range router.routes {
-		//if the methods don't match, skip this handler (except HEAD can be used in place of GET)
-		if _, ok := r.methods[allowMethod]; !ok {
-			continue
-		}
-
+	// regex match
+	routes = router.routes[allowMethod]
+	for _, r := range routes {
 		if !r.regexp.MatchString(reqPath) {
 			continue
 		}
@@ -200,8 +297,9 @@ func (router *router) Match(reqPath, allowMethod string) (*Route, []reflect.Valu
 			continue
 		}
 
-		for _, arg := range match[1:] {
-			args = append(args, reflect.ValueOf(arg))
+		var args = make(url.Values)
+		for i, arg := range match[1:] {
+			args.Add(fmt.Sprintf(":%d", i), arg)
 		}
 
 		return route, args

@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"net/url"
 	"io"
 	"net/http"
 	"os"
@@ -24,7 +25,8 @@ type Context struct {
 	req *http.Request
 	ResponseWriter
 	route   *Route
-	args    []reflect.Value
+	args url.Values
+	callArgs   []reflect.Value
 	matched bool
 
 	action interface{}
@@ -67,18 +69,18 @@ func (ctx *Context) newAction() {
 			allowedMethod = "GET"
 		}
 
-		route, args := ctx.router.Match(reqPath, allowedMethod)
-		if route != nil {
-			ctx.route = route
-			vc := route.newAction()
+		ctx.route, ctx.args = ctx.router.Match(reqPath, allowedMethod)
+		if ctx.route != nil {
+			vc := ctx.route.newAction()
 			ctx.action = vc.Interface()
-			switch route.routeType {
+			ctx.callArgs = make([]reflect.Value, 0)
+			switch ctx.route.routeType {
 			case StructPtrRoute:
-				ctx.args = append([]reflect.Value{vc.Elem()}, args...)
+				ctx.callArgs = []reflect.Value{vc.Elem()}
 			case StructRoute:
-				ctx.args = append([]reflect.Value{vc}, args...)
+				ctx.callArgs = []reflect.Value{vc}
 			case FuncRoute:
-				ctx.args = args
+				ctx.callArgs = []reflect.Value{}
 			}
 		}
 		ctx.matched = true
@@ -96,7 +98,7 @@ func (ctx *Context) Invoke() {
 	} else {
 		ctx.newAction()
 		if ctx.action != nil {
-			ret := ctx.route.method.Call(ctx.args)
+			ret := ctx.route.method.Call(ctx.callArgs)
 			if len(ret) > 0 {
 				ctx.Result = ret[0].Interface()
 			}
