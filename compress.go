@@ -20,7 +20,7 @@ const (
 	HeaderVary            = "Vary"
 )
 
-type CompressInterface interface {
+type Compresser interface {
 	CompressType() string
 }
 
@@ -57,7 +57,7 @@ func (compress *Compress) Handle(ctx *Context) {
 
 	var compressType string = "auto"
 	if action := ctx.Action(); action != nil {
-		if c, ok := action.(CompressInterface); ok {
+		if c, ok := action.(Compresser); ok {
 			compressType = c.CompressType()
 		}
 	}
