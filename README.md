@@ -23,11 +23,34 @@ import "github.com/lunny/tango"
 func main() {
     t := tango.Classic()
     t.Get("/", func() string {
-        return "Hello world!"
+        return "Hello tango!"
     })
     t.Run()
 }
 ```
+
+Of course, tango support struct form also.
+
+```go
+package main
+
+import "github.com/lunny/tango"
+
+type Action struct {
+}
+
+func (Action) Get() string {
+    return "Hello tango!"
+}
+
+func main() {
+    t := tango.Classic()
+    t.Get("/", new(Action))
+    t.Run()
+}
+```
+
+More document, please see [godoc](http://godoc.org/github.com/lunny/tango).
 
 ## Features
 

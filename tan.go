@@ -78,12 +78,18 @@ func (t *Tango) Use(handlers ...Handler) {
 	t.injectAll()
 }
 
-func (t *Tango) Run(addr string) {
+func (t *Tango) Run(addrs ...string) {
+	var addr string
+	if len(addrs) == 0 {
+		addr = ":8000"
+	}
+
 	if t.logger != nil {
 		t.logger.Info("listening on", addr, modes[t.Mode])
 	}else {
 		log.Println("listening on", addr, modes[t.Mode])
 	}
+
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
 		if t.logger != nil {
