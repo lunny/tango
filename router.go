@@ -6,6 +6,7 @@ import (
 	"strings"
 	"net/url"
 	"fmt"
+	"net/http"
 )
 
 type RouteType int
@@ -244,10 +245,32 @@ func (router *router) AddRoute(m string, route *Route) {
 	}
 }
 
+/* 
+	we supports 3 form funcs
+	
+	func()
+	func(*Context)
+	func(http.ResponseWriter, *http.Request)
+
+	it can has or has not return value
+*/
 func (router *router) addFunc(methods []string, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type()
-	r := NewRoute(removeStick(url), t, vc, FuncRoute)
+	var r *Route
+
+	if t.NumIn() == 0 {
+		r = NewRoute(removeStick(url), t, vc, FuncRoute)
+	} else if t.NumIn() == 1 && t.In(0) == reflect.TypeOf(new(Context)) {
+		r = NewRoute(removeStick(url), t, vc, FuncCtxRoute)
+	} else if t.NumIn() == 2 && 
+		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" && 
+			t.In(0).PkgPath() == "net/http") && 
+		t.In(1) == reflect.TypeOf(new(http.Request)) {
+		r = NewRoute(removeStick(url), t, vc, FuncHttpRoute)
+	} else {
+		panic("no support function type")
+	}
 	for _, m := range methods {
 		router.AddRoute(m, r)
 	}

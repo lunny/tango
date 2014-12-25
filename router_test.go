@@ -70,3 +70,54 @@ func TestRouter2(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "post")
 }
+
+func TestRouterFunc(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func() string {
+		return "func"
+	})
+	o.Post("/", func(ctx *Context) {
+		ctx.Write([]byte("func(*Context)"))
+	})
+	o.Put("/", func(resp http.ResponseWriter, req *http.Request) {
+		resp.Write([]byte("func(http.ResponseWriter, *http.Request)"))
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "func")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("POST", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "func(*Context)")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("PUT", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "func(http.ResponseWriter, *http.Request)")
+}
