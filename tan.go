@@ -34,6 +34,7 @@ type Tango struct {
 
 func (tango *Tango) Get(url string, c interface{}) {
 	tango.AddRouter(url, []string{"GET"}, c)
+	tango.AddRouter(url, []string{"HEAD"}, c)
 }
 
 func (tango *Tango) Post(url string, c interface{}) {
