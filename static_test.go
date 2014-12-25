@@ -23,6 +23,18 @@ func TestStatic(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "hello tango")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tg.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "this is index.html")
 }
 
 func TestStatic2(t *testing.T) {
