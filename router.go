@@ -12,11 +12,13 @@ import (
 type RouteType int
 
 const (
-	FuncRoute RouteType = iota + 1 	// func () string
-	FuncHttpRoute 					// func (response, request) string
-	FuncCtxRoute 					// func (*tango.Context) string
-	StructRoute 					// func (st) Get() string
-	StructPtrRoute 					// func (*struct) Get() string
+	FuncRoute RouteType = iota + 1 	// func ()
+	FuncHttpRoute 					// func (http.ResponseWriter, *http.Request)
+	FuncReqRoute 					// func (*http.Request)
+	FuncResponseRoute 				// func (http.ResponseWriter)
+	FuncCtxRoute 					// func (*tango.Context)
+	StructRoute 					// func (st) Get()
+	StructPtrRoute 					// func (*struct) Get()
 )
 
 type UrlType int
@@ -246,11 +248,13 @@ func (router *router) AddRoute(m string, route *Route) {
 }
 
 /* 
-	we supports 3 form funcs
+	we supports 5 form funcs
 	
 	func()
 	func(*Context)
 	func(http.ResponseWriter, *http.Request)
+	func(http.ResponseWriter)
+	func(*http.Request)
 
 	it can has or has not return value
 */
@@ -261,8 +265,17 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 
 	if t.NumIn() == 0 {
 		r = NewRoute(removeStick(url), t, vc, FuncRoute)
-	} else if t.NumIn() == 1 && t.In(0) == reflect.TypeOf(new(Context)) {
-		r = NewRoute(removeStick(url), t, vc, FuncCtxRoute)
+	} else if t.NumIn() == 1 {
+		if t.In(0) == reflect.TypeOf(new(Context)) {
+			r = NewRoute(removeStick(url), t, vc, FuncCtxRoute)
+		} else if t.In(0) == reflect.TypeOf(new(http.Request)) {
+			r = NewRoute(removeStick(url), t, vc, FuncReqRoute)
+		} else if t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" && 
+			t.In(0).PkgPath() == "net/http" {
+			r = NewRoute(removeStick(url), t, vc, FuncResponseRoute)
+		} else {
+			panic("no support function type")
+		}
 	} else if t.NumIn() == 2 && 
 		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" && 
 			t.In(0).PkgPath() == "net/http") && 

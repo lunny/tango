@@ -88,6 +88,10 @@ func (ctx *Context) newAction() {
 			case FuncHttpRoute:
 				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter), 
 					reflect.ValueOf(ctx.Req())}
+			case FuncReqRoute:
+				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.Req())}
+			case FuncResponseRoute:
+				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter)}
 			case FuncCtxRoute:
 				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx)}
 			default:

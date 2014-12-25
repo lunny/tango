@@ -86,7 +86,14 @@ func TestRouterFunc(t *testing.T) {
 	o.Put("/", func(resp http.ResponseWriter, req *http.Request) {
 		resp.Write([]byte("func(http.ResponseWriter, *http.Request)"))
 	})
+	o.Options("/", func(resp http.ResponseWriter) {
+		resp.Write([]byte("func(http.ResponseWriter)"))
+	})
+	o.Delete("/", func(req *http.Request) string {
+		return "func(*http.Request)"
+	})
 
+	// plain
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -97,6 +104,7 @@ func TestRouterFunc(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "func")
 
+	// context
 	buff.Reset()
 
 	req, err = http.NewRequest("POST", "http://localhost:8000/", nil)
@@ -109,6 +117,7 @@ func TestRouterFunc(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "func(*Context)")
 
+	// http
 	buff.Reset()
 
 	req, err = http.NewRequest("PUT", "http://localhost:8000/", nil)
@@ -120,4 +129,30 @@ func TestRouterFunc(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "func(http.ResponseWriter, *http.Request)")
+
+	// response
+	buff.Reset()
+
+	req, err = http.NewRequest("OPTIONS", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "func(http.ResponseWriter)")
+
+	// req
+	buff.Reset()
+
+	req, err = http.NewRequest("DELETE", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "func(*http.Request)")
 }

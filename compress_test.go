@@ -33,6 +33,7 @@ func TestCompress(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	req.Header.Add("Accept-Encoding", "gzip")
 
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
