@@ -71,7 +71,6 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - return - Handle the returned value smartlly
 - request - Inject request to action struct
 - response - Inject response to action struct
-
 - [session](https://github.com/tango-contrib/session) - Session manager
 - [xsrf](https://github.com/tango-contrib/xsrf) - Generates and validates csrf tokens
 - [bind](https://github.com/tango-contrib/bind) - Bind and validates forms
