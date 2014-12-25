@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"log"
+	"time"
 )
 
 const (
@@ -126,6 +127,8 @@ func (t *Tango) injectAll() {
 }
 
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	start := time.Now()
+
 	ctx := NewContext(
 		t.Router,
 		t.handlers,
@@ -134,6 +137,14 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	)
 
 	ctx.Invoke()
+
+	if !ctx.Written() {
+		if t.logger != nil {
+			ctx.WriteHeader(http.StatusNotFound)
+			escape := time.Now().Sub(start)
+			t.logger.Error(ctx.Req().Method, http.StatusNotFound, escape, req.URL.Path)
+		}
+	}
 }
 
 func (t *Tango) Handle(ctx *Context) {
