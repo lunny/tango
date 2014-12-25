@@ -40,7 +40,7 @@ func (recovery *Recovery) Handle(ctx *Context) {
 			if !ctx.Written() {
 				ctx.WriteHeader(http.StatusInternalServerError)
 				if !recovery.debug {
-					content = statusText[http.StatusInternalServerError]
+					content = http.StatusText(http.StatusInternalServerError)
 				}
 				ctx.Write([]byte(content))
 			}

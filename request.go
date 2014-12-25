@@ -9,15 +9,11 @@ type Requester interface {
 }
 
 type Req struct {
-	req *http.Request
+	*http.Request
 }
 
 func (r *Req) SetRequest(req *http.Request) {
-	r.req = req
-}
-
-func (r *Req) Req() *http.Request {
-	return r.req
+	r.Request = req
 }
 
 func RequestHandler(ctx *Context) {

@@ -53,6 +53,8 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [xsrf](https://github.com/tango-contrib/xsrf) - Generates and validates csrf tokens
 - [bind](https://github.com/tango-contrib/bind) - Bind and validates forms
 - [render](https://github.com/tango-contrib/render) - Go template engine
+- [dispatch](https://github.com/tango-contrib/dispatch) - Multiple Application support on one server
+- [pango2](https://github.com/tango-contrib/dispatch) - Pango2 teamplte engine support
 
 ## Use Cases
 
@@ -62,7 +64,6 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [API Reference](https://gowalker.org/github.com/lunny/tango)
 
 ## Credits
-
 
 ## License
 

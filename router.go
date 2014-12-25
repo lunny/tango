@@ -271,8 +271,8 @@ func (router *router) addStruct(methods []string, url string, c interface{}) {
 // when a request ask, then match the correct route
 func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
 	// for non-regular path, search the map
-	if routes, ok := router.routesEq[reqPath]; ok {
-		if route, ok := routes[allowMethod]; ok {
+	if routes, ok := router.routesEq[allowMethod]; ok {
+		if route, ok := routes[reqPath]; ok {
 			return route, make(url.Values)
 		}
 	}

@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"net/http/httptest"
 	"net/http"
-	"fmt"
 )
 
 type ParamAction struct {
@@ -16,7 +15,7 @@ func (p *ParamAction) Get() string {
 	return p.Params.Get(":name")
 }
 
-func TestParams(t *testing.T) {
+func TestParams1(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
@@ -24,7 +23,7 @@ func TestParams(t *testing.T) {
 	o := Classic()
 	o.Get("/:name", new(ParamAction))
 
-	req, err := http.NewRequest("GET", "http://localhost:3000/foobar", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -32,5 +31,32 @@ func TestParams(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	fmt.Println(recorder.Body)
+	expect(t, buff.String(), "foobar")
+}
+
+type Param2Action struct {
+	Params
+}
+
+func (p *Param2Action) Get() string {
+	return p.Params.Get(":0")
+}
+
+func TestParams2(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(.*)", new(Param2Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "foobar")
 }
