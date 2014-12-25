@@ -69,12 +69,7 @@ func (ctx *Context) Action() interface{} {
 func (ctx *Context) newAction() {
 	if !ctx.matched {
 		reqPath := removeStick(ctx.Req().URL.Path)
-		var allowedMethod = ctx.Req().Method
-		if allowedMethod == "HEAD" {
-			allowedMethod = "GET"
-		}
-
-		ctx.route, ctx.params = ctx.router.Match(reqPath, allowedMethod)
+		ctx.route, ctx.params = ctx.router.Match(reqPath, ctx.Req().Method)
 		if ctx.route != nil {
 			vc := ctx.route.newAction()
 			ctx.action = vc.Interface()
