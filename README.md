@@ -1,7 +1,7 @@
 Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](https://drone.io/github.com/lunny/tango/latest) [![](http://gocover.io/_badge/github.com/lunny/tango)](http://gocover.io/github.com/lunny/tango)
 =======================
 
-![Tango Logo](tangologo.png)
+![Tango Logo](logo.png)
 
 Package tango is a micro & pluggable web framework in Go.
 
