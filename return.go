@@ -67,15 +67,29 @@ func ReturnHandler(ctx *Context) {
 	}
 
 	if rt == JsonResponse {
-		bs, err := json.Marshal(ctx.Result)
-		if err != nil {
-			ctx.Result = err
-		} else {
+		if e, ok := ctx.Result.(error); ok {
+			var m = map[string]string{
+				"err": e.Error(),
+			}
+			bs, _ := json.Marshal(m)
 			ctx.Header().Set("Content-Type", "application/json")
 			ctx.WriteHeader(http.StatusOK)
 			ctx.Write(bs)
 			return
 		}
+
+		bs, err := json.Marshal(ctx.Result)
+		if err != nil {
+			ctx.Result = err
+			var m = map[string]string{
+				"err": err.Error(),
+			}
+			bs, _ = json.Marshal(m)
+		} 
+		ctx.Header().Set("Content-Type", "application/json")
+		ctx.WriteHeader(http.StatusOK)
+		ctx.Write(bs)
+		return
 	} else if rt == XmlResponse {
 		bs, err := xml.Marshal(ctx.Result)
 		if err != nil {
