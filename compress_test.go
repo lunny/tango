@@ -45,33 +45,43 @@ func (NoCompress) Get() string {
 func TestCompressAuto(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(CompressExample))
-	testCompress(t, o, "This is a auto compress text")
+	testCompress(t, o, "http://localhost:8000/", 
+		"This is a auto compress text", "gzip")
 }
 
 func TestCompressGzip(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(GZipExample))
-	testCompress(t, o, "This is a gzip compress text")
+	testCompress(t, o, "http://localhost:8000/", 
+		"This is a gzip compress text", "gzip")
 }
 
 func TestCompressDeflate(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(DeflateExample))
-	testCompress(t, o, "This is a deflate compress text")
+	testCompress(t, o, "http://localhost:8000/", 
+		"This is a deflate compress text", "deflate")
 }
 
 func TestCompressNon(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(NoCompress))
-	testCompress(t, o, "This is a non-compress text")
+	testCompress(t, o, "http://localhost:8000/", 
+		"This is a non-compress text", "")
 }
 
-func testCompress(t *testing.T, o *Tango, content string) {
+func TestCompressStatic(t *testing.T) {
+	o := Classic()
+	testCompress(t, o, "http://localhost:8000/public/test.html", 
+		"hello tango", "gzip")
+}
+
+func testCompress(t *testing.T, o *Tango, url, content, enc string) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -106,4 +116,5 @@ func testCompress(t *testing.T, o *Tango, content string) {
 	} else {
 		expect(t, buff.String(), content)
 	}
+	expect(t, enc, ce)
 }

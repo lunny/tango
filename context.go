@@ -3,7 +3,7 @@ package tango
 import (
 	"encoding/json"
 	"encoding/xml"
-	"errors"
+	//"errors"
 	"fmt"
 	"net/url"
 	"io"
@@ -118,9 +118,6 @@ func (ctx *Context) Invoke() {
 
 func (ctx *Context) ServeFile(path string) error {
 	http.ServeFile(ctx, ctx.Req(), path)
-	if ctx.Status() != http.StatusOK {
-		return errors.New("serve file failed")
-	}
 	return nil
 }
 

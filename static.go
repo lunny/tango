@@ -28,7 +28,6 @@ func (s *Statics) Handle(ctx *Context) {
 	}
 
 	var rPath = ctx.Req().URL.Path
-
 	// if defined prefix, then only check prefix
 	if s.Prefix != "" {
 		if !strings.HasPrefix(ctx.Req().URL.Path, "/"+s.Prefix) {
@@ -43,7 +42,7 @@ func (s *Statics) Handle(ctx *Context) {
 		}
 	}
 
-	fPath := filepath.Join(s.RootPath, rPath)
+	fPath, _ := filepath.Abs(filepath.Join(s.RootPath, rPath))
 	finfo, err := os.Stat(fPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
