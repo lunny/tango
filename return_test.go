@@ -30,8 +30,8 @@ func TestReturn(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(MyResponse))
-	
+	o.Any("/", new(MyReturn))
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -40,7 +40,37 @@ func TestReturn(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	expect(t, buff.String(), "my response")
+	expect(t, buff.String(), "string return")
+
+	buff.Reset()
+	req, err = http.NewRequest("POST", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "bytes return")
+}
+
+func TestReturnPut(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Any("/", new(MyReturn))
+
+	req, err := http.NewRequest("PUT", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusInternalServerError)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "error return")
 }
 
 type JsonReturn struct {

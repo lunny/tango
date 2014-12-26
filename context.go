@@ -3,7 +3,6 @@ package tango
 import (
 	"encoding/json"
 	"encoding/xml"
-	//"errors"
 	"fmt"
 	"net/url"
 	"io"
@@ -195,12 +194,6 @@ func (ctx *Context) Abort(status int, body string) error {
 	ctx.WriteHeader(status)
 	ctx.Write([]byte(body))
 	return nil
-}
-
-// SetHeader sets a response header. the current value
-// of that header will be overwritten .
-func (ctx *Context) SetHeader(key string, value string) {
-	ctx.Header().Set(key, value)
 }
 
 type Contexter interface {
