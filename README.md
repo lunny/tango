@@ -29,7 +29,7 @@ func main() {
 }
 ```
 
-Of course, tango support struct form also.
+Then visit `http://localhost:8000` on your browser. Of course, tango support struct form also.
 
 ```go
 package main
@@ -65,9 +65,12 @@ Middlewares allow you easily plugin/unplugin features for your Tango application
 
 There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
 
+- recovery - recover after panic
+- logger - log the request
 - compress - Gzip & Deflate compression
 - static - Serves static files
 - logger - Log the request & inject Logger to action struct
+- param - get the router parameters
 - return - Handle the returned value smartlly
 - request - Inject request to action struct
 - response - Inject response to action struct
