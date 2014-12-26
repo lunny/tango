@@ -4,39 +4,91 @@ import (
 	"fmt"
 	"testing"
 	"bytes"
+	"compress/gzip"
+	"compress/flate"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 )
 
 type CompressExample struct {
+	Compress // add this for ask compress according request accept-encoding
 }
 
-// implemented this method for ask MUST use gzip, if no implemented, 
-// then no compress
-func (a *CompressExample) CompressType() string {
-	return "gzip"
+func (CompressExample) Get() string {
+	return fmt.Sprintf("This is a auto compress text")
 }
 
-func (a *CompressExample) Get() string {
+type GZipExample struct {
+	GZip // add this for ask compress to GZip
+}
+
+func (GZipExample) Get() string {
 	return fmt.Sprintf("This is a gzip compress text")
 }
 
-func TestCompress(t *testing.T) {
+type DeflateExample struct {
+	Deflate // add this for ask compress to Deflate, if not support then not compress
+}
+
+func (DeflateExample) Get() string {
+	return fmt.Sprintf("This is a deflate compress text")
+}
+
+func TestCompressAuto(t *testing.T) {
+	o := Classic()
+	o.Get("/", new(CompressExample))
+	testCompress(t, o, "This is a auto compress text")
+}
+
+func TestCompressGzip(t *testing.T) {
+	o := Classic()
+	o.Get("/", new(GZipExample))
+	testCompress(t, o, "This is a gzip compress text")
+}
+
+func TestCompressDeflate(t *testing.T) {
+	o := Classic()
+	o.Get("/", new(DeflateExample))
+	testCompress(t, o, "This is a deflate compress text")
+}
+
+func testCompress(t *testing.T, o *Tango, content string) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
-
-	o := Classic()
-	o.Get("/", new(CompressExample))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
 	}
-	req.Header.Add("Accept-Encoding", "gzip")
+	req.Header.Add("Accept-Encoding", "gzip, deflate")
 
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	expect(t, buff.String(), "This is a gzip compress text")
+
+	ce := recorder.Header().Get("Content-Encoding")
+	if ce == "gzip" {
+		r, err := gzip.NewReader(buff)
+		if err != nil {
+			t.Error(err)
+		}
+		defer r.Close()
+
+		bs, err := ioutil.ReadAll(r)
+		if err != nil {
+			t.Error(err)
+		}
+		expect(t, string(bs), content)
+	} else if ce == "deflate" {
+		r := flate.NewReader(buff)
+		defer r.Close()
+
+		bs, err := ioutil.ReadAll(r)
+		if err != nil {
+			t.Error(err)
+		}
+		expect(t, string(bs), content)
+	}
 }

@@ -33,41 +33,41 @@ type Tango struct {
 	logger   Logger
 }
 
-func (tango *Tango) Get(url string, c interface{}) {
-	tango.AddRouter(url, []string{"GET"}, c)
-	tango.AddRouter(url, []string{"HEAD"}, c)
+func (t *Tango) Get(url string, c interface{}) {
+	t.AddRouter(url, []string{"GET"}, c)
+	t.AddRouter(url, []string{"HEAD"}, c)
 }
 
-func (tango *Tango) Post(url string, c interface{}) {
-	tango.AddRouter(url, []string{"POST"}, c)
+func (t *Tango) Post(url string, c interface{}) {
+	t.AddRouter(url, []string{"POST"}, c)
 }
 
-func (tango *Tango) Head(url string, c interface{}) {
-	tango.AddRouter(url, []string{"HEAD"}, c)
+func (t *Tango) Head(url string, c interface{}) {
+	t.AddRouter(url, []string{"HEAD"}, c)
 }
 
-func (tango *Tango) Options(url string, c interface{}) {
-	tango.AddRouter(url, []string{"OPTIONS"}, c)
+func (t *Tango) Options(url string, c interface{}) {
+	t.AddRouter(url, []string{"OPTIONS"}, c)
 }
 
-func (tango *Tango) Trace(url string, c interface{}) {
-	tango.AddRouter(url, []string{"TRACE"}, c)
+func (t *Tango) Trace(url string, c interface{}) {
+	t.AddRouter(url, []string{"TRACE"}, c)
 }
 
-func (tango *Tango) Patch(url string, c interface{}) {
-	tango.AddRouter(url, []string{"PATCH"}, c)
+func (t *Tango) Patch(url string, c interface{}) {
+	t.AddRouter(url, []string{"PATCH"}, c)
 }
 
-func (tango *Tango) Delete(url string, c interface{}) {
-	tango.AddRouter(url, []string{"DELETE"}, c)
+func (t *Tango) Delete(url string, c interface{}) {
+	t.AddRouter(url, []string{"DELETE"}, c)
 }
 
-func (tango *Tango) Put(url string, c interface{}) {
-	tango.AddRouter(url, []string{"PUT"}, c)
+func (t *Tango) Put(url string, c interface{}) {
+	t.AddRouter(url, []string{"PUT"}, c)
 }
 
-func (tango *Tango) Any(url string, c interface{}) {
-	tango.AddRouter(url, SupportMethods, c)
+func (t *Tango) Any(url string, c interface{}) {
+	t.AddRouter(url, SupportMethods, c)
 }
 
 func (t *Tango) Use(handlers ...Handler) {

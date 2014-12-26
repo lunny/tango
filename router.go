@@ -21,12 +21,12 @@ const (
 	StructPtrRoute 					// func (*struct) Get()
 )
 
-type UrlType int
+type PathType int
 
 const (
-	StaticUrl UrlType = iota + 1
-	NamedUrl
-	RegexpUrl
+	StaticPath PathType = iota + 1
+	NamedPath
+	RegexpPath
 )
 
 var (
@@ -48,7 +48,7 @@ var (
 type Route struct {
 	path       string          //path string
 	regexp     *regexp.Regexp  //path regexp
-	urlType    UrlType
+	pathType   PathType
 	method     reflect.Value
 	routeType  RouteType
 	pool       *pool
@@ -56,78 +56,78 @@ type Route struct {
 
 func NewRoute(r string, t reflect.Type,
 	method reflect.Value, tp RouteType) *Route {
-	var urlType UrlType = StaticUrl
+	var pathType = StaticPath
 	var cr *regexp.Regexp
 	var err error
 	if regexp.QuoteMeta(r) != r {
-		urlType = RegexpUrl
+		pathType = RegexpPath
 		cr, err = regexp.Compile(r)
 		if err != nil {
 			panic("wrong route:"+err.Error())
 			return nil
 		}
 	} else if strings.Contains(r, ":") {
-		urlType = NamedUrl
+		pathType = NamedPath
 	}
 
 	return &Route{
 		path: r,
 		regexp: cr,
-		urlType: urlType,
+		pathType: pathType,
 		method: method,
 		routeType:  tp,
 		pool: newPool(PoolSize, t),
 	}
 }
 
-func (route *Route) Method() reflect.Value {
-	return route.method
+func (r *Route) Method() reflect.Value {
+	return r.method
 }
 
-func (route *Route) UrlType() UrlType {
-	return route.urlType
+func (r *Route) PathType() PathType {
+	return r.pathType
 }
 
-func (route *Route) RouteType() RouteType {
-	return route.routeType
+func (r *Route) RouteType() RouteType {
+	return r.routeType
 }
 
-func (route *Route) IsStruct() bool {
-	return route.routeType == StructRoute || route.routeType == StructPtrRoute
+func (r *Route) IsStruct() bool {
+	return r.routeType == StructRoute || r.routeType == StructPtrRoute
 }
 
-func (route *Route) newAction() reflect.Value {
-	if !route.IsStruct() {
-		return route.method
+func (r *Route) newAction() reflect.Value {
+	if !r.IsStruct() {
+		return r.method
 	}
 
-	return route.pool.New()
+	return r.pool.New()
 }
 
-func (route *Route) try(path string) (url.Values, bool) {
+func (r *Route) try(path string) (url.Values, bool) {
 	p := make(url.Values)
 	var i, j int
 	for i < len(path) {
 		switch {
-		case j >= len(route.path):
-			if route.path != "/" && len(route.path) > 0 && route.path[len(route.path)-1] == '/' {
+		case j >= len(r.path):
+			if r.path != "/" && len(r.path) > 0 && r.path[len(r.path)-1] == '/' {
 				return p, true
 			}
 			return nil, false
-		case route.path[j] == ':':
+		case r.path[j] == ':':
 			var name, val string
 			var nextc byte
-			name, nextc, j = match(route.path, isAlnum, j+1)
+			name, nextc, j = match(r.path, isAlnum, j+1)
 			val, _, i = match(path, matchPart(nextc), i)
 			p.Add(":"+name, val)
-		case path[i] == route.path[j]:
+		case path[i] == r.path[j]:
 			i++
 			j++
 		default:
 			return nil, false
 		}
 	}
-	if j != len(route.path) {
+	if j != len(r.path) {
 		return nil, false
 	}
 	return p, true
@@ -144,7 +144,7 @@ type router struct {
 	routesName  map[string][]*Route
 }
 
-func NewRouter() *router {
+func NewRouter() Router {
 	routesEq := make(map[string]map[string]*Route)
 	for _, m := range SupportMethods {
 		routesEq[m] = make(map[string]*Route)
@@ -196,7 +196,7 @@ func isAlnum(ch byte) bool {
 	return isAlpha(ch) || isDigit(ch)
 }
 
-func Tail(pat, path string) string {
+func tail(pat, path string) string {
 	var i, j int
 	for i < len(path) {
 		switch {
@@ -237,12 +237,12 @@ func (router *router) AddRouter(url string, methods []string, c interface{}) {
 }
 
 func (router *router) AddRoute(m string, route *Route) {
-	switch route.urlType {
-	case StaticUrl:
+	switch route.pathType {
+	case StaticPath:
 		router.routesEq[m][route.path] = route
-	case NamedUrl:
+	case NamedPath:
 		router.routesName[m] = append(router.routesName[m], route)
-	case RegexpUrl:
+	case RegexpPath:
 		router.routes[m] = append(router.routes[m], route)
 	}
 }

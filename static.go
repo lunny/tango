@@ -21,7 +21,7 @@ func NewStatic(rootPath, prefix string, indexFiles []string) *Statics {
 	}
 }
 
-func (itor *Statics) Handle(ctx *Context) {
+func (s *Statics) Handle(ctx *Context) {
 	if ctx.Req().Method != "GET" && ctx.Req().Method != "HEAD" {
 		ctx.Next()
 		return
@@ -30,20 +30,20 @@ func (itor *Statics) Handle(ctx *Context) {
 	var rPath = ctx.Req().URL.Path
 
 	// if defined prefix, then only check prefix
-	if itor.Prefix != "" {
-		if !strings.HasPrefix(ctx.Req().URL.Path, "/"+itor.Prefix) {
+	if s.Prefix != "" {
+		if !strings.HasPrefix(ctx.Req().URL.Path, "/"+s.Prefix) {
 			ctx.Next()
 			return
 		} else {
-			if len("/"+itor.Prefix) == len(ctx.Req().URL.Path) {
+			if len("/"+s.Prefix) == len(ctx.Req().URL.Path) {
 				rPath = ""
 			} else {
-				rPath = ctx.Req().URL.Path[len("/"+itor.Prefix):]
+				rPath = ctx.Req().URL.Path[len("/"+s.Prefix):]
 			}
 		}
 	}
 
-	fPath := filepath.Join(itor.RootPath, rPath)
+	fPath := filepath.Join(s.RootPath, rPath)
 	finfo, err := os.Stat(fPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -60,8 +60,8 @@ func (itor *Statics) Handle(ctx *Context) {
 		return
 	} else {
 		// try serving index.html or index.htm
-		if len(itor.IndexFiles) > 0 {
-			for _, index := range itor.IndexFiles {
+		if len(s.IndexFiles) > 0 {
+			for _, index := range s.IndexFiles {
 				nPath := filepath.Join(fPath, index)
 				finfo, err = os.Stat(nPath)
 				if err != nil {
