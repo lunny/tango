@@ -50,7 +50,7 @@ func main() {
 }
 ```
 
-More document, please see [godoc](http://godoc.org/github.com/lunny/tango).
+More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [Wiki](https://github.com/lunny/tango/wiki)
 
 ## Features
 
