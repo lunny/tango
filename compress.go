@@ -56,9 +56,10 @@ func compress(ctx *Context, compressType string) {
 	acceptCompress := strings.SplitN(ae, ",", -1)
 	var writer io.Writer
 	var val string
+
 	for _, val = range acceptCompress {
+		val = strings.TrimSpace(val)
 		if compressType == "auto" || val == compressType {
-			val = strings.TrimSpace(val)
 			if val == "gzip" {
 				ctx.Header().Set("Content-Encoding", "gzip")
 				writer = gzip.NewWriter(ctx.ResponseWriter)

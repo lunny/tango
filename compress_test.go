@@ -35,6 +35,13 @@ func (DeflateExample) Get() string {
 	return fmt.Sprintf("This is a deflate compress text")
 }
 
+type NoCompress struct {
+}
+
+func (NoCompress) Get() string {
+	return fmt.Sprintf("This is a non-compress text")
+}
+
 func TestCompressAuto(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(CompressExample))
@@ -51,6 +58,12 @@ func TestCompressDeflate(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(DeflateExample))
 	testCompress(t, o, "This is a deflate compress text")
+}
+
+func TestCompressNon(t *testing.T) {
+	o := Classic()
+	o.Get("/", new(NoCompress))
+	testCompress(t, o, "This is a non-compress text")
 }
 
 func testCompress(t *testing.T, o *Tango, content string) {
@@ -90,5 +103,7 @@ func testCompress(t *testing.T, o *Tango, content string) {
 			t.Error(err)
 		}
 		expect(t, string(bs), content)
+	} else {
+		expect(t, buff.String(), content)
 	}
 }
