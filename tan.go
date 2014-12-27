@@ -10,7 +10,7 @@ import (
 const (
 	Dev = iota
 	Test
-	Product
+	Prod
 )
 
 var (
@@ -82,6 +82,8 @@ func (t *Tango) Run(addrs ...string) {
 	var addr string
 	if len(addrs) == 0 {
 		addr = ":8000"
+	} else {
+		addr = addrs[0]
 	}
 
 	if t.logger != nil {
