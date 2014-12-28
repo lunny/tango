@@ -28,6 +28,13 @@ type LogInterface interface {
 	SetLogger(Logger)
 }
 
+type Log struct {
+	Logger
+}
+func (l *Log) SetLogger(log Logger) {
+	l.Logger = log
+}
+
 type Logging struct {
 	logger Logger
 }
@@ -35,6 +42,12 @@ type Logging struct {
 func NewLogging(logger Logger) *Logging {
 	return &Logging{
 		logger: logger,
+	}
+}
+
+func (l *Logging) Inject(o interface{}) {
+	if g, ok := o.(LogInterface); ok {
+		g.SetLogger(l.logger)
 	}
 }
 

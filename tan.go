@@ -14,6 +14,8 @@ const (
 )
 
 var (
+	Env = Dev
+
 	modes = []string{
 		"Dev",
 		"Test",
@@ -26,10 +28,10 @@ func Version() string {
 }
 
 type Tango struct {
-	*Injector
 	Router
 	Mode     int
 	handlers []Handler
+	injectors []Injector
 	logger   Logger
 }
 
@@ -70,10 +72,17 @@ func (t *Tango) Any(url string, c interface{}) {
 	t.AddRouter(url, SupportMethods, c)
 }
 
+/*
+func (t *Tango) Group(url string, cs map[string]interface{}) {
+	for k, v :=
+}*/
+
 func (t *Tango) Use(handlers ...Handler) {
 	for _, handler := range handlers {
 		t.handlers = append(t.handlers, handler)
-		t.Map(handler)
+		if i, ok := interface{}(handler).(Injector); ok {
+			t.injectors = append(t.injectors, i)
+		}
 	}
 	t.injectAll()
 }
@@ -129,8 +138,10 @@ func (t *Tango) UseHandler(handler http.Handler) {
 }
 
 func (t *Tango) injectAll() {
-	for _, handler := range t.handlers {
-		t.Inject(handler)
+	for _, injector := range t.injectors {
+		for _, handler := range t.handlers {
+			injector.Inject(handler)
+		}
 	}
 }
 
@@ -165,20 +176,26 @@ func New(handlers ...Handler) *Tango {
 
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	tango := &Tango{
-		Injector: NewInjector(),
 		Router:   NewRouter(),
-		Mode:     Dev,
+		Mode:     Env,
 		logger:   logger,
+		handlers: make([]Handler, 0),
+		injectors: make([]Injector, 0),
 	}
 
-	tango.Map(logger)
 	tango.Use(handlers...)
 
 	return tango
 }
 
-func Classic() *Tango {
-	logger := NewLogger(os.Stdout)
+func Classic(l ...Logger) *Tango {
+	var logger Logger
+	if len(l) == 0 {
+		logger = NewLogger(os.Stdout)
+	} else {
+		logger = l[0]
+	}
+
 	return NewWithLog(
 		logger,
 		NewLogging(logger),
@@ -193,8 +210,14 @@ func Classic() *Tango {
 	)
 }
 
-func Static() *Tango {
-	logger := NewLogger(os.Stdout)
+func Static(l ...Logger) *Tango {
+	var logger Logger
+	if len(l) == 0 {
+		logger = NewLogger(os.Stdout)
+	} else {
+		logger = l[0]
+	}
+
 	return NewWithLog(
 		logger,
 		NewLogging(logger),
