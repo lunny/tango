@@ -37,7 +37,6 @@ package main
 import "github.com/lunny/tango"
 
 type Action struct {}
-
 func (Action) Get() string {
     return "Hello tango!"
 }
