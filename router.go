@@ -134,7 +134,7 @@ func (r *Route) try(path string) (url.Values, bool) {
 }
 
 type Router interface {
-	AddRouter(path string, methods []string, handler interface{})
+	Route(methods []string, path string, handler interface{})
 	Match(requestPath, method string) (*Route, url.Values)
 }
 
@@ -227,7 +227,7 @@ func removeStick(uri string) string {
 	return uri
 }
 
-func (router *router) AddRouter(url string, methods []string, c interface{}) {
+func (router *router) Route(methods []string, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	if vc.Kind() == reflect.Func {
 		router.addFunc(methods, url, c)
@@ -236,7 +236,7 @@ func (router *router) AddRouter(url string, methods []string, c interface{}) {
 	}
 }
 
-func (router *router) AddRoute(m string, route *Route) {
+func (router *router) addRoute(m string, route *Route) {
 	switch route.pathType {
 	case StaticPath:
 		router.routesEq[m][route.path] = route
@@ -248,7 +248,7 @@ func (router *router) AddRoute(m string, route *Route) {
 }
 
 /* 
-	we supports 5 form funcs
+	Tango supports 5 form funcs
 	
 	func()
 	func(*Context)
@@ -285,7 +285,7 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 		panic("no support function type")
 	}
 	for _, m := range methods {
-		router.AddRoute(m, r)
+		router.addRoute(m, r)
 	}
 }
 
@@ -297,9 +297,9 @@ func (router *router) addStruct(methods []string, url string, c interface{}) {
 	for _, name := range methods {
 		newName := strings.Title(strings.ToLower(name))
 		if m, ok := t.MethodByName(newName); ok {
-			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
+			router.addRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
 		} else if m, ok := vc.Type().MethodByName(newName); ok {
-			router.AddRoute(name, NewRoute(removeStick(url), t, m.Func, StructRoute))
+			router.addRoute(name, NewRoute(removeStick(url), t, m.Func, StructRoute))
 		}
 	}
 }

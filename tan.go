@@ -24,7 +24,7 @@ var (
 )
 
 func Version() string {
-	return "0.1.0.1228"
+	return "0.2.0.1229"
 }
 
 type Tango struct {
@@ -36,46 +36,40 @@ type Tango struct {
 }
 
 func (t *Tango) Get(url string, c interface{}) {
-	t.AddRouter(url, []string{"GET"}, c)
-	t.AddRouter(url, []string{"HEAD"}, c)
+	t.Route([]string{"GET", "HEAD"}, url, c)
 }
 
 func (t *Tango) Post(url string, c interface{}) {
-	t.AddRouter(url, []string{"POST"}, c)
+	t.Route([]string{"POST"}, url, c)
 }
 
 func (t *Tango) Head(url string, c interface{}) {
-	t.AddRouter(url, []string{"HEAD"}, c)
+	t.Route([]string{"HEAD"}, url, c)
 }
 
 func (t *Tango) Options(url string, c interface{}) {
-	t.AddRouter(url, []string{"OPTIONS"}, c)
+	t.Route([]string{"OPTIONS"}, url, c)
 }
 
 func (t *Tango) Trace(url string, c interface{}) {
-	t.AddRouter(url, []string{"TRACE"}, c)
+	t.Route([]string{"TRACE"}, url, c)
 }
 
 func (t *Tango) Patch(url string, c interface{}) {
-	t.AddRouter(url, []string{"PATCH"}, c)
+	t.Route([]string{"PATCH"}, url, c)
 }
 
 func (t *Tango) Delete(url string, c interface{}) {
-	t.AddRouter(url, []string{"DELETE"}, c)
+	t.Route([]string{"DELETE"}, url, c)
 }
 
 func (t *Tango) Put(url string, c interface{}) {
-	t.AddRouter(url, []string{"PUT"}, c)
+	t.Route([]string{"PUT"}, url, c)
 }
 
 func (t *Tango) Any(url string, c interface{}) {
-	t.AddRouter(url, SupportMethods, c)
+	t.Route(SupportMethods, url, c)
 }
-
-/*
-func (t *Tango) Group(url string, cs map[string]interface{}) {
-	for k, v :=
-}*/
 
 func (t *Tango) Use(handlers ...Handler) {
 	for _, handler := range handlers {
