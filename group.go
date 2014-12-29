@@ -61,17 +61,14 @@ func (g *Group) Route(methods []string, url string, c interface{}) {
 	g.routers = append(g.routers, groupRouter{methods, url, c})
 }
 
-func (t *Tango) addGroup(p string, g *Group) {
-	for _, r := range g.routers {
-		t.Route(r.methods, path.Join(p, r.url), r.c)
+func (g *Group) Group(p string, o interface{}) {
+	gr := getGroup(o)
+	for _, gchild := range gr.routers {
+		g.Route(gchild.methods, path.Join(p, gchild.url), gchild.c)
 	}
 }
 
-var (
-	gt = reflect.TypeOf(new(Group))
-)
-
-func (t *Tango) Group(p string, o interface{}) {
+func getGroup(o interface{}) *Group {
 	vc := reflect.ValueOf(o)
 	tp := vc.Type()
 	var g *Group
@@ -84,5 +81,19 @@ func (t *Tango) Group(p string, o interface{}) {
 	} else {
 		panic("not allowed group parameter")
 	}
-	t.addGroup(p, g)
+	return g
+}
+
+func (t *Tango) addGroup(p string, g *Group) {
+	for _, r := range g.routers {
+		t.Route(r.methods, path.Join(p, r.url), r.c)
+	}
+}
+
+var (
+	gt = reflect.TypeOf(new(Group))
+)
+
+func (t *Tango) Group(p string, o interface{}) {
+	t.addGroup(p, getGroup(o))
 }
