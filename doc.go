@@ -38,7 +38,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [bind](https://github.com/tango-contrib/bind) - Bind and validates forms
 - [render](https://github.com/tango-contrib/render) - Go template engine
 - [dispatch](https://github.com/tango-contrib/dispatch) - Multiple Application support on one server
-- [pango2](https://github.com/tango-contrib/dispatch) - Pango2 teamplte engine support
+- [pongo2](https://github.com/tango-contrib/pongo2) - Pongo2 teamplte engine support
 
 */
 
