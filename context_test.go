@@ -109,7 +109,7 @@ func TestContext4(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(CtxFileAction))
+	o.Any("/", new(CtxFileAction))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
