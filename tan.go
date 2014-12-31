@@ -35,6 +35,10 @@ type Tango struct {
 	logger   Logger
 }
 
+func (t *Tango) Logger() Logger {
+	return t.logger
+}
+
 func (t *Tango) Get(url string, c interface{}) {
 	t.Route([]string{"GET", "HEAD"}, url, c)
 }

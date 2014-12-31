@@ -163,7 +163,7 @@ func (ctx *Context) Download(fpath string) error {
 }
 
 func (ctx *Context) Redirect(url string) error {
-	return redirect(ctx, url)
+	return redirect(ctx, url, http.StatusTemporaryRedirect)
 }
 
 func redirect(w http.ResponseWriter, url string, status ...int) error {
@@ -182,10 +182,14 @@ func (ctx *Context) NotModified() {
 	ctx.WriteHeader(http.StatusNotModified)
 }
 
+func (ctx *Context) Unauthorized() {
+	ctx.Abort(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
+}
+
 // NotFound writes a 404 HTTP response
 func (ctx *Context) NotFound(message ...string) error {
 	if len(message) == 0 {
-		return ctx.Abort(http.StatusNotFound, "Not Found")
+		return ctx.Abort(http.StatusNotFound, http.StatusText(http.StatusNotFound))
 	}
 	return ctx.Abort(http.StatusNotFound, message[0])
 }

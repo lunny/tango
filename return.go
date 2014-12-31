@@ -7,8 +7,6 @@ import (
 	"reflect"
 )
 
-type ResponseType int
-
 const (
 	AutoResponse = iota
 	JsonResponse
@@ -19,16 +17,12 @@ type ResponseTyper interface {
 	ResponseType() int
 }
 
-type Json struct {
-}
-
+type Json struct {}
 func (Json) ResponseType() int {
 	return JsonResponse
 }
 
-type Xml struct {
-}
-
+type Xml struct {}
 func (Xml) ResponseType() int {
 	return XmlResponse
 }
@@ -39,6 +33,11 @@ func isNil(a interface{}) bool {
 	}
 	aa := reflect.ValueOf(a)
 	return !aa.IsValid() || (aa.Type().Kind() == reflect.Ptr && aa.IsNil())
+}
+
+type XmlError struct {
+	XMLName   xml.Name `xml:"err"`
+	Content string `xml:"content"`
 }
 
 func ReturnHandler(ctx *Context) {
@@ -67,39 +66,39 @@ func ReturnHandler(ctx *Context) {
 	}
 
 	if rt == JsonResponse {
-		if e, ok := ctx.Result.(error); ok {
-			var m = map[string]string{
-				"err": e.Error(),
-			}
-			bs, _ := json.Marshal(m)
-			ctx.Header().Set("Content-Type", "application/json")
-			ctx.WriteHeader(http.StatusOK)
-			ctx.Write(bs)
-			return
-		}
-
-		bs, err := json.Marshal(ctx.Result)
-		if err != nil {
-			ctx.Result = err
-			var m = map[string]string{
-				"err": err.Error(),
-			}
-			bs, _ = json.Marshal(m)
-		} 
+		encoder := json.NewEncoder(ctx)
 		ctx.Header().Set("Content-Type", "application/json")
-		ctx.WriteHeader(http.StatusOK)
-		ctx.Write(bs)
+		if e, ok := ctx.Result.(error); ok {
+			encoder.Encode(map[string]string{
+				"err": e.Error(),
+			})
+		} else {
+			err := encoder.Encode(ctx.Result)
+			if err != nil {
+				ctx.Result = err
+				encoder.Encode(map[string]string{
+					"err": err.Error(),
+				})
+			}
+		}
 		return
 	} else if rt == XmlResponse {
-		bs, err := xml.Marshal(ctx.Result)
-		if err != nil {
-			ctx.Result = err
+		encoder := xml.NewEncoder(ctx)
+		ctx.Header().Set("Content-Type", "application/xml")
+		if e, ok := ctx.Result.(error); ok {
+			encoder.Encode(XmlError{
+				Content: e.Error(),
+			})
 		} else {
-			ctx.Header().Set("Content-Type", "application/xml")
-			ctx.WriteHeader(http.StatusOK)
-			ctx.Write(bs)
-			return
+			err := encoder.Encode(ctx.Result)
+			if err != nil {
+				ctx.Result = err
+				encoder.Encode(XmlError{
+					Content: err.Error(),
+				})
+			}
 		}
+		return
 	}
 
 	switch res := ctx.Result.(type) {
@@ -116,5 +115,4 @@ func ReturnHandler(ctx *Context) {
 		ctx.WriteHeader(http.StatusOK)
 		ctx.Write([]byte(res))
 	}
-
 }

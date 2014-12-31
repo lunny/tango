@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	"errors"
+	"strings"
 	"encoding/xml"
 )
 
@@ -101,7 +102,34 @@ func TestReturnJson(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	expect(t, buff.String(), `{"test1":1,"test2":"2","test3":true}`)
+	expect(t, strings.TrimSpace(buff.String()), `{"test1":1,"test2":"2","test3":true}`)
+}
+
+type JsonErrReturn struct {
+	Json
+}
+
+func (JsonErrReturn) Get() error {
+	return errors.New("error")
+}
+
+func TestReturnJsonError(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JsonErrReturn))
+	
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
 }
 
 type XmlReturn struct {
@@ -147,4 +175,31 @@ func TestReturnXml(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), `<person id="13"><name><first>John</first><last>Doe</last></name><age>42</age><Married>false</Married><City>Hanga Roa</City><State>Easter Island</State><!-- Need more details. --></person>`)
+}
+
+type XmlErrReturn struct {
+	Xml
+}
+
+func (XmlErrReturn) Get() error {
+	return errors.New("error")
+}
+
+func TestReturnXmlError(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(XmlErrReturn))
+	
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `<err><content>error</content></err>`)
 }
