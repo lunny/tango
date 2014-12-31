@@ -124,28 +124,21 @@ func (ctx *Context) ServeFile(path string) error {
 	return nil
 }
 
-func (ctx *Context) ServeReader(rd io.Reader) error {
-	_, err := io.Copy(ctx.ResponseWriter, rd)
-	return err
-}
-
 func (ctx *Context) ServeXml(obj interface{}) error {
-	dt, err := xml.Marshal(obj)
-	if err != nil {
-		return err
+	encoder := xml.NewEncoder(ctx)
+	err := encoder.Encode(obj)
+	if err == nil {
+		ctx.Header().Set("Content-Type", "application/xml")
 	}
-	ctx.Header().Set("Content-Type", "application/xml")
-	_, err = ctx.Write(dt)
 	return err
 }
 
 func (ctx *Context) ServeJson(obj interface{}) error {
-	dt, err := json.Marshal(obj)
-	if err != nil {
-		return err
+	encoder := json.NewEncoder(ctx)
+	err := encoder.Encode(obj)
+	if err == nil {
+		ctx.Header().Set("Content-Type", "application/json")
 	}
-	ctx.Header().Set("Content-Type", "application/json")
-	_, err = ctx.Write(dt)
 	return err
 }
 
