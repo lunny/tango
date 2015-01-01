@@ -155,12 +155,12 @@ func (ctx *Context) Download(fpath string) error {
 	return err
 }
 
-func (ctx *Context) Redirect(url string) error {
-	return redirect(ctx, url, http.StatusTemporaryRedirect)
+func (ctx *Context) Redirect(url string, status ...int) error {
+	return redirect(ctx, url, status...)
 }
 
 func redirect(w http.ResponseWriter, url string, status ...int) error {
-	s := 302
+	s := http.StatusTemporaryRedirect
 	if len(status) > 0 {
 		s = status[0]
 	}

@@ -205,6 +205,7 @@ func Classic(l ...Logger) *Tango {
 		HandlerFunc(RequestHandler),
 		HandlerFunc(ParamHandler),
 		HandlerFunc(ContextHandler),
+		HandlerFunc(EventHandler),
 	)
 }
 
