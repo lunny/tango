@@ -53,9 +53,12 @@ func (l *Logging) Inject(o interface{}) {
 
 func (itor *Logging) Handle(ctx *Context) {
 	start := time.Now()
-	itor.logger.Debug("Started", ctx.Req().Method,
-		ctx.Req().URL.Path, "for", ctx.Req().RemoteAddr)
+	p := ctx.Req().URL.Path 
+	if len(ctx.Req().URL.RawQuery) > 0 {
+		p = p + "?"+ctx.Req().URL.RawQuery
+	}
 
+	itor.logger.Debug("Started", ctx.Req().Method, p, "for", ctx.Req().RemoteAddr)
 	if action := ctx.Action(); action != nil {
 		if l, ok := action.(LogInterface); ok {
 			l.SetLogger(itor.logger)
@@ -66,13 +69,12 @@ func (itor *Logging) Handle(ctx *Context) {
 
 	if ctx.Written() {
 		statusCode := ctx.Status()
-		requestPath := ctx.Req().URL.Path
 		escape := time.Now().Sub(start)
 
 		if statusCode >= 200 && statusCode < 400 {
-			itor.logger.Info(ctx.Req().Method, statusCode, escape, requestPath)
+			itor.logger.Info(ctx.Req().Method, statusCode, escape, p)
 		} else {
-			itor.logger.Error(ctx.Req().Method, statusCode, escape, requestPath)
+			itor.logger.Error(ctx.Req().Method, statusCode, escape, p)
 		}
 	}
 }
