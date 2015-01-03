@@ -31,6 +31,8 @@ type Context struct {
 	params url.Values
 	callArgs   []reflect.Value
 	matched bool
+	cookies *cookies
+	secCookies *secureCookies
 
 	action interface{}
 	Result interface{}
@@ -52,6 +54,29 @@ func NewContext(
 
 func (ctx *Context) Req() *http.Request {
 	return ctx.req
+}
+
+func (ctx *Context) SecureCookies(secret string) Cookies {
+	if ctx.secCookies == nil {
+		ctx.secCookies = &secureCookies{
+			&cookies{
+				ctx.req,
+				ctx.ResponseWriter,
+			},
+			secret,
+		}
+	}
+	return ctx.secCookies
+}
+
+func (ctx *Context) Cookies() Cookies {
+	if ctx.cookies == nil {
+		ctx.cookies = &cookies{
+			ctx.req,
+			ctx.ResponseWriter,
+		}
+	}
+	return ctx.cookies
 }
 
 func (ctx *Context) Route() *Route {
