@@ -6,7 +6,6 @@ import (
 	"strings"
 	"net/http"
 	"net/http/httptest"
-	"fmt"
 )
 
 func TestCookie1(t *testing.T) {
