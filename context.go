@@ -181,18 +181,12 @@ func (ctx *Context) Download(fpath string) error {
 }
 
 func (ctx *Context) Redirect(url string, status ...int) error {
-	return redirect(ctx, url, status...)
-}
-
-func redirect(w http.ResponseWriter, url string, status ...int) error {
-	s := http.StatusTemporaryRedirect
+	s := http.StatusFound
 	if len(status) > 0 {
 		s = status[0]
 	}
-	w.Header().Set("Location", url)
-	w.WriteHeader(s)
-	_, err := w.Write([]byte("Redirecting to: " + url))
-	return err
+	http.Redirect(ctx.ResponseWriter, ctx.Req(), url, s)
+	return nil
 }
 
 // Notmodified writes a 304 HTTP response

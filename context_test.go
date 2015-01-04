@@ -121,3 +121,27 @@ func TestContext4(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, strings.TrimSpace(buff.String()), `this is index.html`)
 }
+
+func TestContext5(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Any("/2", func() string {
+		return "2"
+	})
+	o.Any("/", func(ctx *Context) {
+		ctx.Redirect("/2")
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusFound)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `<a href="/2">Found</a>.`)
+}
