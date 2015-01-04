@@ -24,7 +24,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.1.0103"
+	return "0.2.2.0104"
 }
 
 type Tango struct {
@@ -116,19 +116,19 @@ func (h HandlerFunc) Handle(ctx *Context) {
 }
 
 func WrapBefore(handler http.Handler) HandlerFunc {
-	return HandlerFunc(func(ctx *Context) {
+	return func(ctx *Context) {
 		handler.ServeHTTP(ctx.ResponseWriter, ctx.Req())
 
 		ctx.Next()
-	})
+	}
 }
 
 func WrapAfter(handler http.Handler) HandlerFunc {
-	return HandlerFunc(func(ctx *Context) {
+	return func(ctx *Context) {
 		ctx.Next()
 
 		handler.ServeHTTP(ctx.ResponseWriter, ctx.Req())
-	})
+	}
 }
 
 func (t *Tango) UseHandler(handler http.Handler) {
