@@ -71,6 +71,38 @@ func TestRouter2(t *testing.T) {
 	expect(t, buff.String(), "post")
 }
 
+type RouterSpecAction struct {
+	a string
+}
+
+func (RouterSpecAction) Method1() string{
+	return "1"
+}
+
+func (r *RouterSpecAction) Method2() string{
+	return r.a
+}
+
+/*
+func TestRouter3(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/1", new(RouterSpecAction).Method1)
+	o.Get("/2", new(RouterSpecAction).Method2)
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+}*/
+
 func TestRouterFunc(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()

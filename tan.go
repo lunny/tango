@@ -24,7 +24,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.2.0104"
+	return "0.2.3.0105"
 }
 
 type Tango struct {
@@ -110,7 +110,6 @@ func (t *Tango) Run(addrs ...string) {
 }
 
 type HandlerFunc func(ctx *Context)
-
 func (h HandlerFunc) Handle(ctx *Context) {
 	h(ctx)
 }
@@ -151,6 +150,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		t.handlers,
 		req,
 		NewResponseWriter(w),
+		t.logger,
 	)
 
 	ctx.Invoke()
@@ -162,14 +162,6 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			t.logger.Error(ctx.Req().Method, http.StatusNotFound, escape, req.URL.Path)
 		}
 	}
-}
-
-func (t *Tango) Handle(ctx *Context) {
-	ctx.Invoke()
-}
-
-func New(handlers ...Handler) *Tango {
-	return NewWithLog(NewLogger(os.Stdout), handlers...)
 }
 
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
@@ -186,6 +178,10 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	return tango
 }
 
+func New(handlers ...Handler) *Tango {
+	return NewWithLog(NewLogger(os.Stdout), handlers...)
+}
+
 func Classic(l ...Logger) *Tango {
 	var logger Logger
 	if len(l) == 0 {
@@ -196,31 +192,15 @@ func Classic(l ...Logger) *Tango {
 
 	return NewWithLog(
 		logger,
-		NewLogging(logger),
-		NewRecovery(true),
-		NewCompress([]string{".js", ".css", ".html", ".htm"}),
-		NewStatic("./public", "public", []string{"index.html", "index.htm"}),
-		HandlerFunc(ReturnHandler),
-		HandlerFunc(ResponseHandler),
-		HandlerFunc(RequestHandler),
-		HandlerFunc(ParamHandler),
-		HandlerFunc(ContextHandler),
-		HandlerFunc(EventHandler),
-	)
-}
-
-func Static(l ...Logger) *Tango {
-	var logger Logger
-	if len(l) == 0 {
-		logger = NewLogger(os.Stdout)
-	} else {
-		logger = l[0]
-	}
-
-	return NewWithLog(
-		logger,
-		NewLogging(logger),
-		NewCompress([]string{".js", ".css", ".html", ".htm"}),
-		NewStatic("./public", "", []string{"index.html", "index.htm"}),
+		Logging(),
+		Recovery(true),
+		Compresses([]string{".js", ".css", ".html", ".htm"}),
+		Static("./public", "public", []string{"index.html", "index.htm"}),
+		Return(),
+		Responses(),
+		Requests(),
+		Param(),
+		Contexts(),
+		Events(),
 	)
 }

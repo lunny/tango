@@ -36,19 +36,22 @@ type Context struct {
 
 	action interface{}
 	Result interface{}
+	Logger
 }
 
 func NewContext(
 	router Router,
 	handlers []Handler,
 	req *http.Request,
-	resp ResponseWriter) *Context {
+	resp ResponseWriter,
+	logger Logger) *Context {
 	return &Context{
 		router:         router,
 		handlers:       handlers,
 		idx:            0,
 		req:            req,
 		ResponseWriter: resp,
+		Logger: logger,
 	}
 }
 
@@ -228,11 +231,13 @@ func (c *Ctx) SetContext(ctx *Context) {
 	c.Context = ctx
 }
 
-func ContextHandler(ctx *Context) {
-	if action := ctx.Action(); action != nil {
-		if a, ok := action.(Contexter); ok {
-			a.SetContext(ctx)
+func Contexts() HandlerFunc {
+	return func(ctx *Context) {
+		if action := ctx.Action(); action != nil {
+			if a, ok := action.(Contexter); ok {
+				a.SetContext(ctx)
+			}
 		}
+		ctx.Next()
 	}
-	ctx.Next()
 }

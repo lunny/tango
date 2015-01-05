@@ -4,23 +4,22 @@
 /*
 Tango is a micro & pluggable web framework for Go language.
 
+	package main
 
-package main
+	import "github.com/lunny/tango"
 
-import "github.com/lunny/tango"
+	type Action struct {
+	}
 
-type Action struct {
-}
+	func (Action) Get() string {
+	    return "Hello tango!"
+	}
 
-func (Action) Get() string {
-    return "Hello tango!"
-}
-
-func main() {
-    t := tango.Classic()
-    t.Get("/", new(Action))
-    t.Run()
-}
+	func main() {
+	    t := tango.Classic()
+	    t.Get("/", new(Action))
+	    t.Run()
+	}
 
 Middlewares allow you easily plugin/unplugin features for your Tango applications.
 

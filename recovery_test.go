@@ -14,8 +14,7 @@ func TestRecovery(t *testing.T) {
 	recorder.Body = buff
 
 	n := NewWithLog(NewLogger(os.Stdout))
-
-	n.Use(NewRecovery(true))
+	n.Use(Recovery(true))
 	n.UseHandler(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		panic("here is a panic!")
 	}))

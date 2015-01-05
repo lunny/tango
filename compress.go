@@ -39,16 +39,37 @@ func (Compress) CompressType() string {
 	return "auto"
 }
 
-type Compresses struct {
-	exts map[string]bool
-}
-
-func NewCompress(exts []string) *Compresses {
-	compress := &Compresses{make(map[string]bool)}
+func Compresses(exts []string) HandlerFunc{
+	extsmap := make(map[string]bool)
 	for _, ext := range exts {
-		compress.exts[strings.ToLower(ext)] = true
+		extsmap[strings.ToLower(ext)] = true
 	}
-	return compress
+
+	return func(ctx *Context) {
+		ae := ctx.Req().Header.Get("Accept-Encoding")
+		if ae == "" {
+			ctx.Next()
+			return
+		}
+
+		if len(extsmap) > 0 {
+			ext := strings.ToLower(path.Ext(ctx.Req().URL.Path))
+			if _, ok := extsmap[ext]; ok {
+				compress(ctx, "auto")
+				return
+			}
+		}
+
+		if action := ctx.Action(); action != nil {
+			if c, ok := action.(Compresser); ok {
+				compress(ctx, c.CompressType())
+				return
+			}
+		}
+
+		// if blank, then no compress
+		ctx.Next()
+	}
 }
 
 func compress(ctx *Context, compressType string) {
@@ -96,32 +117,6 @@ func compress(ctx *Context, compressType string) {
 	case *flate.Writer:
 		writer.(*flate.Writer).Close()
 	}
-}
-
-func (c *Compresses) Handle(ctx *Context) {
-	ae := ctx.Req().Header.Get("Accept-Encoding")
-	if ae == "" {
-		ctx.Next()
-		return
-	}
-
-	if len(c.exts) > 0 {
-		ext := strings.ToLower(path.Ext(ctx.Req().URL.Path))
-		if _, ok := c.exts[ext]; ok {
-			compress(ctx, "auto")
-			return
-		}
-	}
-
-	if action := ctx.Action(); action != nil {
-		if c, ok := action.(Compresser); ok {
-			compress(ctx, c.CompressType())
-			return
-		}
-	}
-
-	// if blank, then no compress
-	ctx.Next()
 }
 
 type compressWriter struct {

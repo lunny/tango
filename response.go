@@ -102,16 +102,18 @@ func (resp *HttpResp) SetResponse(r http.ResponseWriter) {
 	resp.ResponseWriter = r
 }
 
-func ResponseHandler(ctx *Context) {
-	if action := ctx.Action(); action != nil {
-		if s, ok := action.(HttpResponser); ok {
-			s.SetResponse(ctx)
+func Responses() HandlerFunc {
+	return func(ctx *Context) {
+		if action := ctx.Action(); action != nil {
+			if s, ok := action.(HttpResponser); ok {
+				s.SetResponse(ctx)
+			}
+
+			if s, ok := action.(Responser); ok {
+				s.SetResponse(ctx)
+			}
 		}
 
-		if s, ok := action.(Responser); ok {
-			s.SetResponse(ctx)
-		}
+		ctx.Next()
 	}
-
-	ctx.Next()
 }

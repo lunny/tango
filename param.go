@@ -16,11 +16,13 @@ func (p *Params) SetParams(u url.Values) {
 	p.Values = u
 }
 
-func ParamHandler(ctx *Context) {
-	if action := ctx.Action(); action != nil {
-		if p, ok := action.(Paramer); ok {
-			p.SetParams(ctx.Params())
+func Param() HandlerFunc {
+	return func(ctx *Context) {
+		if action := ctx.Action(); action != nil {
+			if p, ok := action.(Paramer); ok {
+				p.SetParams(ctx.Params())
+			}
 		}
+		ctx.Next()
 	}
-	ctx.Next()
 }

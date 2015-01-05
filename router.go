@@ -233,6 +233,8 @@ func (router *router) Route(methods []string, url string, c interface{}) {
 		router.addFunc(methods, url, c)
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
 		router.addStruct(methods, url, c)
+	} else {
+		panic("not support route type")
 	}
 }
 

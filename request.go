@@ -16,12 +16,14 @@ func (r *Req) SetRequest(req *http.Request) {
 	r.Request = req
 }
 
-func RequestHandler(ctx *Context) {
-	if action := ctx.Action(); action != nil {
-		if s, ok := action.(Requester); ok {
-			s.SetRequest(ctx.Req())
+func Requests() HandlerFunc {
+	return func(ctx *Context) {
+		if action := ctx.Action(); action != nil {
+			if s, ok := action.(Requester); ok {
+				s.SetRequest(ctx.Req())
+			}
 		}
-	}
 
-	ctx.Next()
+		ctx.Next()
+	}
 }

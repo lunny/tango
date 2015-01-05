@@ -6,46 +6,33 @@ import (
 	"runtime"
 )
 
-type Recovery struct {
-	debug        bool
-	logger       Logger
-}
-
-func (recovery *Recovery) SetLogger(logger Logger) {
-	recovery.logger = logger
-}
-
-func NewRecovery(debug bool) *Recovery {
-	return &Recovery{debug: debug}
-}
-
-func (recovery *Recovery) Handle(ctx *Context) {
-	defer func() {
-		if e := recover(); e != nil {
-			content := fmt.Sprintf("Handler crashed with error: %v", e)
-			for i := 1; ;i += 1 {
-				_, file, line, ok := runtime.Caller(i)
-				if !ok {
-					break
-				} else {
-					content += "\n"
+func Recovery(debug bool) HandlerFunc {
+	return func(ctx *Context) {
+		defer func() {
+			if e := recover(); e != nil {
+				content := fmt.Sprintf("Handler crashed with error: %v", e)
+				for i := 1; ;i += 1 {
+					_, file, line, ok := runtime.Caller(i)
+					if !ok {
+						break
+					} else {
+						content += "\n"
+					}
+					content += fmt.Sprintf("%v %v", file, line)
 				}
-				content += fmt.Sprintf("%v %v", file, line)
-			}
 
-			if recovery.logger != nil {
-				recovery.logger.Error(content)
-			}
+				ctx.Logger.Error(content)
 
-			if !ctx.Written() {
-				ctx.WriteHeader(http.StatusInternalServerError)
-				if !recovery.debug {
-					content = http.StatusText(http.StatusInternalServerError)
+				if !ctx.Written() {
+					ctx.WriteHeader(http.StatusInternalServerError)
+					if !debug {
+						content = http.StatusText(http.StatusInternalServerError)
+					}
+					ctx.Write([]byte(content))
 				}
-				ctx.Write([]byte(content))
 			}
-		}
-	}()
+		}()
 
-	ctx.Next()
+		ctx.Next()
+	}
 }

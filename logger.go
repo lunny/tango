@@ -35,46 +35,32 @@ func (l *Log) SetLogger(log Logger) {
 	l.Logger = log
 }
 
-type Logging struct {
-	logger Logger
-}
-
-func NewLogging(logger Logger) *Logging {
-	return &Logging{
-		logger: logger,
-	}
-}
-
-func (l *Logging) Inject(o interface{}) {
-	if g, ok := o.(LogInterface); ok {
-		g.SetLogger(l.logger)
-	}
-}
-
-func (itor *Logging) Handle(ctx *Context) {
-	start := time.Now()
-	p := ctx.Req().URL.Path 
-	if len(ctx.Req().URL.RawQuery) > 0 {
-		p = p + "?"+ctx.Req().URL.RawQuery
-	}
-
-	itor.logger.Debug("Started", ctx.Req().Method, p, "for", ctx.Req().RemoteAddr)
-	if action := ctx.Action(); action != nil {
-		if l, ok := action.(LogInterface); ok {
-			l.SetLogger(itor.logger)
+func Logging() HandlerFunc {
+	return func(ctx *Context) {
+		start := time.Now()
+		p := ctx.Req().URL.Path 
+		if len(ctx.Req().URL.RawQuery) > 0 {
+			p = p + "?"+ctx.Req().URL.RawQuery
 		}
-	}
 
-	ctx.Next()
+		ctx.Debug("Started", ctx.Req().Method, p, "for", ctx.Req().RemoteAddr)
+		if action := ctx.Action(); action != nil {
+			if l, ok := action.(LogInterface); ok {
+				l.SetLogger(ctx.Logger)
+			}
+		}
 
-	if ctx.Written() {
-		statusCode := ctx.Status()
-		escape := time.Now().Sub(start)
+		ctx.Next()
 
-		if statusCode >= 200 && statusCode < 400 {
-			itor.logger.Info(ctx.Req().Method, statusCode, escape, p)
-		} else {
-			itor.logger.Error(ctx.Req().Method, statusCode, escape, p)
+		if ctx.Written() {
+			statusCode := ctx.Status()
+			escape := time.Now().Sub(start)
+
+			if statusCode >= 200 && statusCode < 400 {
+				ctx.Info(ctx.Req().Method, statusCode, escape, p)
+			} else {
+				ctx.Error(ctx.Req().Method, statusCode, escape, p)
+			}
 		}
 	}
 }

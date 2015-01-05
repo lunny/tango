@@ -13,10 +13,8 @@ func TestLogger(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 
-	n := New()
-
-	// replace log for testing
-	n.Use(NewLogging(log.New(buff, "[tango] ", 0)))
+	n := NewWithLog(log.New(buff, "[tango] ", 0))
+	n.Use(Logging())
 	n.UseHandler(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusNotFound)
 	}))
