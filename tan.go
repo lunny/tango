@@ -176,6 +176,5 @@ func Classic(l ...Logger) *Tango {
 		Requests(),
 		Param(),
 		Contexts(),
-		Events(),
 	)
 }
