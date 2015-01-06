@@ -21,14 +21,13 @@ var (
 )
 
 func Version() string {
-	return "0.2.3.0106"
+	return "0.2.4.0106"
 }
 
 type Tango struct {
 	Router
 	Mode     int
 	handlers []Handler
-	injectors []Injector
 	logger   Logger
 }
 
@@ -75,11 +74,7 @@ func (t *Tango) Any(url string, c interface{}) {
 func (t *Tango) Use(handlers ...Handler) {
 	for _, handler := range handlers {
 		t.handlers = append(t.handlers, handler)
-		if i, ok := interface{}(handler).(Injector); ok {
-			t.injectors = append(t.injectors, i)
-		}
 	}
-	t.injectAll()
 }
 
 func (t *Tango) Run(addrs ...string) {
@@ -123,14 +118,6 @@ func (t *Tango) UseHandler(handler http.Handler) {
 	t.Use(WrapBefore(handler))
 }
 
-func (t *Tango) injectAll() {
-	for _, injector := range t.injectors {
-		for _, handler := range t.handlers {
-			injector.Inject(handler)
-		}
-	}
-}
-
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	start := time.Now()
 
@@ -159,7 +146,6 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 		Mode:     Env,
 		logger:   logger,
 		handlers: make([]Handler, 0),
-		injectors: make([]Injector, 0),
 	}
 
 	tango.Use(handlers...)

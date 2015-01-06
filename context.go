@@ -16,10 +16,6 @@ type Handler interface {
 	Handle(*Context)
 }
 
-type Injector interface {
-	Inject(interface{})
-}
-
 type Context struct {
 	router   Router
 	handlers []Handler
