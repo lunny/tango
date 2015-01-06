@@ -3,13 +3,11 @@ package tango
 import (
 	"net/http"
 	"os"
-	"log"
 	"time"
 )
 
 const (
 	Dev = iota
-	Test
 	Prod
 )
 
@@ -18,13 +16,12 @@ var (
 
 	modes = []string{
 		"Dev",
-		"Test",
 		"Product",
 	}
 )
 
 func Version() string {
-	return "0.2.3.0105"
+	return "0.2.3.0106"
 }
 
 type Tango struct {
@@ -93,19 +90,11 @@ func (t *Tango) Run(addrs ...string) {
 		addr = addrs[0]
 	}
 
-	if t.logger != nil {
-		t.logger.Info("listening on", addr, modes[t.Mode])
-	}else {
-		log.Println("listening on", addr, modes[t.Mode])
-	}
+	t.logger.Info("listening on", addr, modes[t.Mode])
 
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
-		if t.logger != nil {
-			t.logger.Error(err)
-		} else {
-			log.Println(err)
-		}
+		t.logger.Error(err)
 	}
 }
 
