@@ -49,3 +49,25 @@ func Forbidden(content ...string) error {
 func Unauthorized(content ...string) error {
 	return Abort(http.StatusUnauthorized, content...)
 }
+
+func Errors() HandlerFunc {
+	return func(ctx *Context) {
+		switch res := ctx.Result.(type) {
+		case AbortError:
+			ctx.WriteHeader(res.Code())
+			ctx.Write([]byte(res.Error()))
+		case error:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(res.Error()))
+		case []byte:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write(res)
+		case string:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(res))
+		default:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(http.StatusText(http.StatusInternalServerError)))
+		}
+	}
+}

@@ -5,7 +5,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Package tango is a micro & pluggable web framework for Go.
 
-##### Current version: 0.2.4
+##### Current version: 0.2.5
 
 ## Getting Started
 
@@ -79,6 +79,8 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [dispatch](https://github.com/tango-contrib/dispatch) - Multiple Application support on one server
 - [tpongo2](https://github.com/tango-contrib/tpongo2) - [Pongo2](https://github.com/flosch/pongo2) teamplte engine support
 - [captcha](https://github.com/tango-contrib/captcha) - Captcha
+- [events](https://github.com/tango-contrib/events) - Before and After
+- [flash](https://github.com/tango-contrib/flash) - Share data between requests
 
 ## Getting Help
 

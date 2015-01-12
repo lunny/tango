@@ -1,4 +1,4 @@
-package tango
+	package tango
 
 import (
 	"io"
@@ -48,6 +48,7 @@ func Logging() HandlerFunc {
 		}
 
 		ctx.Debug("Started", ctx.Req().Method, p, "for", ctx.Req().RemoteAddr)
+		
 		if action := ctx.Action(); action != nil {
 			if l, ok := action.(LogInterface); ok {
 				l.SetLogger(ctx.Logger)
@@ -56,15 +57,20 @@ func Logging() HandlerFunc {
 
 		ctx.Next()
 
-		if ctx.Written() {
-			statusCode := ctx.Status()
-			escape := time.Now().Sub(start)
-
-			if statusCode >= 200 && statusCode < 400 {
-				ctx.Info(ctx.Req().Method, statusCode, escape, p)
-			} else {
-				ctx.Error(ctx.Req().Method, statusCode, escape, p)
+		if !ctx.Written() {
+			if ctx.Result == nil {
+				ctx.Result = NotFound()
 			}
+			ctx.HandleError()
+		}
+
+		statusCode := ctx.Status()
+		escape := time.Now().Sub(start)
+
+		if statusCode >= 200 && statusCode < 400 {
+			ctx.Info(ctx.Req().Method, statusCode, escape, p)
+		} else {
+			ctx.Error(ctx.Req().Method, statusCode, escape, p)
 		}
 	}
 }

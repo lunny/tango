@@ -3,7 +3,6 @@ package tango
 import (
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -21,7 +20,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.4.0106"
+	return "0.2.5.0112"
 }
 
 type Tango struct {
@@ -29,6 +28,7 @@ type Tango struct {
 	Mode     int
 	handlers []Handler
 	logger   Logger
+	ErrHandler Handler
 }
 
 func (t *Tango) Logger() Logger {
@@ -119,24 +119,29 @@ func (t *Tango) UseHandler(handler http.Handler) {
 }
 
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	start := time.Now()
-
 	ctx := NewContext(
 		t.Router,
 		t.handlers,
 		req,
 		NewResponseWriter(w),
 		t.logger,
+		Errors(),
 	)
 
 	ctx.Invoke()
 
+	// if there is no logging or error handle, so the last written check.
 	if !ctx.Written() {
-		if t.logger != nil {
-			ctx.WriteHeader(http.StatusNotFound)
-			escape := time.Now().Sub(start)
-			t.logger.Error(ctx.Req().Method, http.StatusNotFound, escape, req.URL.Path)
+		if ctx.Result == nil {
+			ctx.Result = NotFound()
 		}
+		ctx.HandleError()
+		p := req.URL.Path 
+		if len(req.URL.RawQuery) > 0 {
+			p = p + "?"+req.URL.RawQuery
+		}
+
+		t.logger.Error(req.Method, ctx.Status(), p)
 	}
 }
 
@@ -146,6 +151,7 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 		Mode:     Env,
 		logger:   logger,
 		handlers: make([]Handler, 0),
+		ErrHandler: Errors(),
 	}
 
 	tango.Use(handlers...)

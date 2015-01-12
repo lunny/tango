@@ -33,6 +33,7 @@ type Context struct {
 	action interface{}
 	Result interface{}
 	Logger
+	errHandler Handler
 }
 
 func NewContext(
@@ -40,7 +41,8 @@ func NewContext(
 	handlers []Handler,
 	req *http.Request,
 	resp ResponseWriter,
-	logger Logger) *Context {
+	logger Logger,
+	errHandler Handler) *Context {
 	return &Context{
 		router:         router,
 		handlers:       handlers,
@@ -48,7 +50,12 @@ func NewContext(
 		req:            req,
 		ResponseWriter: resp,
 		Logger: logger,
+		errHandler: errHandler,
 	}
+}
+
+func (ctx *Context) HandleError() {
+	ctx.errHandler.Handle(ctx)
 }
 
 func (ctx *Context) Req() *http.Request {
@@ -134,11 +141,15 @@ func (ctx *Context) Invoke() {
 		ctx.handlers[ctx.idx].Handle(ctx)
 	} else {
 		ctx.newAction()
+		// route is matched
 		if ctx.action != nil {
 			ret := ctx.route.method.Call(ctx.callArgs)
 			if len(ret) > 0 {
 				ctx.Result = ret[0].Interface()
 			}
+		// not route matched
+		} else {
+			ctx.NotFound()
 		}
 	}
 }
@@ -210,8 +221,8 @@ func (ctx *Context) NotFound(message ...string) error {
 // Once it has been called, any return value from the handler will
 // not be written to the response.
 func (ctx *Context) Abort(status int, body string) error {
-	ctx.WriteHeader(status)
-	ctx.Write([]byte(body))
+	ctx.Result = Abort(status, body)
+	ctx.HandleError()
 	return nil
 }
 

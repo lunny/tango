@@ -24,11 +24,10 @@ func Recovery(debug bool) HandlerFunc {
 				ctx.Logger.Error(content)
 
 				if !ctx.Written() {
-					ctx.WriteHeader(http.StatusInternalServerError)
 					if !debug {
 						content = http.StatusText(http.StatusInternalServerError)
 					}
-					ctx.Write([]byte(content))
+					ctx.Result = InternalServerError(content)
 				}
 			}
 		}()

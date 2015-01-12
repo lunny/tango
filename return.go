@@ -137,12 +137,8 @@ func Return() HandlerFunc {
 		}
 
 		switch res := ctx.Result.(type) {
-		case AbortError:
-			ctx.WriteHeader(res.Code())
-			ctx.Write([]byte(res.Error()))
-		case error:
-			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(res.Error()))
+		case AbortError, error:
+			ctx.HandleError()
 		case []byte:
 			ctx.WriteHeader(http.StatusOK)
 			ctx.Write(res)

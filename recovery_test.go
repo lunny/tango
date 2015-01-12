@@ -19,7 +19,12 @@ func TestRecovery(t *testing.T) {
 		panic("here is a panic!")
 	}))
 
-	n.ServeHTTP(recorder, (*http.Request)(nil))
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusInternalServerError)
 	refute(t, recorder.Body.Len(), 0)
 	refute(t, len(buff.String()), 0)
