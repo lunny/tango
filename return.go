@@ -48,7 +48,8 @@ type XmlString struct {
 func Return() HandlerFunc {
 	return func(ctx *Context) {
 		var rt int
-		if action := ctx.Action(); action != nil {
+		action := ctx.Action()
+		if action != nil {
 			if i, ok := action.(ResponseTyper); ok {
 				rt = i.ResponseType()
 			}
@@ -56,19 +57,15 @@ func Return() HandlerFunc {
 
 		ctx.Next()
 
-		// if has been write, then return
-		if ctx.Written() {
+		// if no route match or has been write, then return
+		if action == nil || ctx.Written() {
 			return
 		}
 
+		// if there is no return value or return nil
 		if isNil(ctx.Result) {
-			if ctx.Action() == nil {
-				// if there is no action match
-				ctx.Result = NotFound()
-			} else {
-				// there is an action but return nil, then we return blank page
-				ctx.Result = ""
-			}
+			// then we return blank page
+			ctx.Result = ""
 		}
 
 		if rt == JsonResponse {

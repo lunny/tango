@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"fmt"
 )
 
 func TestError1(t *testing.T) {
@@ -150,4 +151,56 @@ func TestError7(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusNotFound)
 	refute(t, len(buff.String()), 0)
+}
+
+var (
+	prefix = "<html><head>tango</head><body><div>"
+	suffix = fmt.Sprintf("</div><div>version: %s</div></body></html>", Version())
+)
+
+func TestError8(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.ErrHandler = HandlerFunc(func(ctx *Context) {
+		switch res := ctx.Result.(type) {
+		case AbortError:
+			ctx.WriteHeader(res.Code())
+			ctx.Write([]byte(prefix))
+			ctx.Write([]byte(res.Error()))
+		case error:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(prefix))
+			ctx.Write([]byte(res.Error()))
+		case []byte:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(prefix))
+			ctx.Write(res)
+		case string:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(prefix))
+			ctx.Write([]byte(res))
+		default:
+			ctx.WriteHeader(http.StatusInternalServerError)
+			ctx.Write([]byte(prefix))
+			ctx.Write([]byte(http.StatusText(http.StatusInternalServerError)))
+		}
+		ctx.Write([]byte(suffix))
+	})
+
+	o.Get("/", func() error {
+		return NotFound()
+	})
+
+	req, err := http.NewRequest("HEAD", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusNotFound)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), prefix+"Not Found"+suffix)
 }

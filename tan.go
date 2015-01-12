@@ -125,7 +125,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		req,
 		NewResponseWriter(w),
 		t.logger,
-		Errors(),
+		t.ErrHandler,
 	)
 
 	ctx.Invoke()
