@@ -20,36 +20,37 @@ func (a *abortError) Code() int {
 }
 
 func (a *abortError) Error() string {
-	return fmt.Sprintf("%v %v", a.code, a.content)
+	return fmt.Sprintf("%v", a.content)
 }
 
-func Abort(code int, content ...string) error {
+func Abort(code int, content ...string) AbortError {
 	if len(content) >= 1 {
 		return &abortError{code, content[0]}
 	}
 	return &abortError{code, http.StatusText(code)}
 }
 
-func NotFound(content ...string) error {
+func NotFound(content ...string) AbortError {
 	return Abort(http.StatusNotFound, content...)
 }
 
-func NotSupported(content ...string) error {
+func NotSupported(content ...string) AbortError {
 	return Abort(http.StatusMethodNotAllowed, content...)
 }
 
-func InternalServerError(content ...string) error {
+func InternalServerError(content ...string) AbortError {
 	return Abort(http.StatusInternalServerError, content...)
 }
 
-func Forbidden(content ...string) error {
+func Forbidden(content ...string) AbortError {
 	return Abort(http.StatusForbidden, content...)
 }
 
-func Unauthorized(content ...string) error {
+func Unauthorized(content ...string) AbortError {
 	return Abort(http.StatusUnauthorized, content...)
 }
 
+// default errorhandler, you can use your self handler
 func Errors() HandlerFunc {
 	return func(ctx *Context) {
 		switch res := ctx.Result.(type) {

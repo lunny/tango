@@ -75,12 +75,12 @@ func Return() HandlerFunc {
 			encoder := json.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/json")
 			switch res := ctx.Result.(type) {
-				case error:
+				case AbortError:
+					ctx.WriteHeader(res.Code())
 					encoder.Encode(map[string]string{
 						"err": res.Error(),
 					})
-				case AbortError:
-					ctx.WriteHeader(res.Code())
+				case error:
 					encoder.Encode(map[string]string{
 						"err": res.Error(),
 					})
@@ -107,12 +107,12 @@ func Return() HandlerFunc {
 			encoder := xml.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/xml")
 			switch res := ctx.Result.(type) {
-				case error:
+				case AbortError:
+					ctx.WriteHeader(res.Code())
 					encoder.Encode(XmlError{
 						Content: res.Error(),
 					})
-				case AbortError:
-					ctx.WriteHeader(res.Code())
+				case error:
 					encoder.Encode(XmlError{
 						Content: res.Error(),
 					})

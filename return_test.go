@@ -86,7 +86,7 @@ func (JsonReturn) Get() interface{} {
 	}
 }
 
-func TestReturnJson(t *testing.T) {
+func TestReturnJson1(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
@@ -130,6 +130,87 @@ func TestReturnJsonError(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
+}
+
+type JsonErrReturn2 struct {
+	Json
+}
+
+func (JsonErrReturn2) Get() error {
+	return Abort(http.StatusInternalServerError, "error")
+}
+
+func TestReturnJsonError2(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JsonErrReturn2))
+	
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusInternalServerError)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
+}
+
+type JsonReturn1 struct {
+	Json
+}
+
+func (JsonReturn1) Get() string {
+	return "return"
+}
+
+func TestReturnJson2(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JsonReturn1))
+	
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"content":"return"}`)
+}
+
+type JsonReturn2 struct {
+	Json
+}
+
+func (JsonReturn2) Get() []byte {
+	return []byte("return")
+}
+
+func TestReturnJson3(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JsonReturn2))
+	
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"content":"return"}`)
 }
 
 type XmlReturn struct {
