@@ -13,7 +13,7 @@ func TestStatic(t *testing.T) {
 	recorder.Body = buff
 
 	tg := New()
-	tg.Use(Static("./public", "", []string{"index.html", "index.htm"}))
+	tg.Use(Static())
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/test.html", nil)
 	if err != nil {
@@ -44,7 +44,7 @@ func TestStatic2(t *testing.T) {
 	recorder.Body = buff
 
 	tg := New()
-	tg.Use(Static("./public", "", []string{"index.html", "index.htm"}))
+	tg.Use(Static())
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/test.png", nil)
 	if err != nil {

@@ -176,7 +176,7 @@ func Classic(l ...Logger) *Tango {
 		Logging(),
 		Recovery(true),
 		Compresses([]string{".js", ".css", ".html", ".htm"}),
-		Static("./public", "public", []string{"index.html", "index.htm"}),
+		Static(StaticOptions{Prefix:"public"}),
 		Return(),
 		Responses(),
 		Requests(),

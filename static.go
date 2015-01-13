@@ -3,64 +3,91 @@ package tango
 import (
 	"os"
 	"path/filepath"
-	"net/http"
 	"strings"
 )
 
-func Static(rootPath, prefix string, indexFiles []string) HandlerFunc {
+type StaticOptions struct {
+	RootPath string
+	Prefix string
+	IndexFiles []string
+}
+
+func prepareStaticOptions(options []StaticOptions) StaticOptions {
+	var opt StaticOptions
+	if len(options) > 0 {
+		opt = options[0]
+	}
+
+	// Defaults
+	if len(opt.RootPath) == 0 {
+		opt.RootPath = "./public"
+	}
+	if len(opt.Prefix) == 0 {
+		opt.Prefix = ""
+	}
+	if len(opt.IndexFiles) == 0 {
+		opt.IndexFiles = []string{"index.html", "index.htm"}
+	}
+
+	return opt
+}
+
+func Static(opts ...StaticOptions) HandlerFunc {
 	return func(ctx *Context) {
 		if ctx.Req().Method != "GET" && ctx.Req().Method != "HEAD" {
 			ctx.Next()
 			return
 		}
 
+		opt := prepareStaticOptions(opts)
+
 		var rPath = ctx.Req().URL.Path
 		// if defined prefix, then only check prefix
-		if prefix != "" {
-			if !strings.HasPrefix(ctx.Req().URL.Path, "/"+prefix) {
+		if opt.Prefix != "" {
+			if !strings.HasPrefix(ctx.Req().URL.Path, "/"+opt.Prefix) {
 				ctx.Next()
 				return
 			} else {
-				if len("/"+prefix) == len(ctx.Req().URL.Path) {
+				if len("/"+opt.Prefix) == len(ctx.Req().URL.Path) {
 					rPath = ""
 				} else {
-					rPath = ctx.Req().URL.Path[len("/"+prefix):]
+					rPath = ctx.Req().URL.Path[len("/"+opt.Prefix):]
 				}
 			}
 		}
 
-		fPath, _ := filepath.Abs(filepath.Join(rootPath, rPath))
+		fPath, _ := filepath.Abs(filepath.Join(opt.RootPath, rPath))
 		finfo, err := os.Stat(fPath)
 		if err != nil {
 			if !os.IsNotExist(err) {
-				ctx.WriteHeader(http.StatusInternalServerError)
-				ctx.Write([]byte(err.Error()))
+				ctx.Result = InternalServerError(err.Error())
+				ctx.HandleError()
 				return
 			}
 		} else if !finfo.IsDir() {
 			err := ctx.ServeFile(fPath)
 			if err != nil {
-				ctx.WriteHeader(http.StatusInternalServerError)
-				ctx.Write([]byte(err.Error()))
+				ctx.Result = InternalServerError(err.Error())
+				ctx.HandleError()
 			}
 			return
 		} else {
 			// try serving index.html or index.htm
-			if len(indexFiles) > 0 {
-				for _, index := range indexFiles {
+			if len(opt.IndexFiles) > 0 {
+				for _, index := range opt.IndexFiles {
 					nPath := filepath.Join(fPath, index)
 					finfo, err = os.Stat(nPath)
 					if err != nil {
 						if !os.IsNotExist(err) {
-							ctx.WriteHeader(http.StatusInternalServerError)
-							ctx.Write([]byte(err.Error()))
+							ctx.Result = InternalServerError(err.Error())
+							ctx.HandleError()
 							return
 						}
 					} else if !finfo.IsDir() {
 						err = ctx.ServeFile(nPath)
 						if err != nil {
-							ctx.WriteHeader(http.StatusInternalServerError)
-							ctx.Write([]byte(err.Error()))
+							ctx.Result = InternalServerError(err.Error())
+							ctx.HandleError()
 						}
 						return
 					}
