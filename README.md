@@ -3,7 +3,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 ![Tango Logo](logo.png)
 
-Package tango is a micro & pluggable web framework for Go.
+Package tango is a micro-kernel & pluggable web framework for Go.
 
 ##### Current version: 0.2.6
 
@@ -36,9 +36,14 @@ package main
 
 import "github.com/lunny/tango"
 
-type Action struct {}
-func (Action) Get() string {
-    return "Hello tango!"
+type Action struct {
+    tango.Json
+}
+
+func (Action) Get() map[string]string {
+    return map[string]string{
+        "say": "Hello tango!",
+    }
 }
 
 func main() {
@@ -48,6 +53,8 @@ func main() {
 }
 ```
 
+This code will automatically convert returned map to a json because we has an embedded struct `tango.Json`.
+
 More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [Wiki](https://github.com/lunny/tango/wiki)
 
 ## Features
@@ -55,7 +62,7 @@ More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [
 - Powerful routing & Flexible routes combinations.
 - Directly integrate with existing services.
 - Easy to plugin/unplugin features with modular design.
-- High Performance dependency injection embbed.
+- High performance dependency injection embedded.
 
 ## Middlewares 
 
