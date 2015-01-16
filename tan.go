@@ -93,6 +93,22 @@ func (t *Tango) Run(addrs ...string) {
 	}
 }
 
+func (t *Tango) RunTLS(certFile, keyFile string, addrs ...string) {
+	var addr string
+	if len(addrs) == 0 {
+		addr = ":8000"
+	} else {
+		addr = addrs[0]
+	}
+
+	t.logger.Info("listening on https", addr, modes[t.Mode])
+
+	err := http.ListenAndServeTLS(addr, certFile, keyFile, t)
+	if err != nil {
+		t.logger.Error(err)
+	}
+}
+
 type HandlerFunc func(ctx *Context)
 func (h HandlerFunc) Handle(ctx *Context) {
 	h(ctx)

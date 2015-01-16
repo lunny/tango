@@ -1,6 +1,7 @@
 package tango
 
 import (
+	"bytes"
 	"reflect"
 	"regexp"
 	"strings"
@@ -54,29 +55,44 @@ type Route struct {
 	pool       *pool
 }
 
+var specialBytes = []byte(`\.+*?()|[]{}^$`)
+
+func pathType(s string) PathType {
+	for i := 0; i < len(s); i++ {
+		if s[i] == ':'{
+			return NamedPath
+		}
+		if bytes.IndexByte(specialBytes, s[i]) >= 0 {
+			return RegexpPath
+		}
+	}
+	return StaticPath
+}
+
 func NewRoute(r string, t reflect.Type,
 	method reflect.Value, tp RouteType) *Route {
-	var pathType = StaticPath
 	var cr *regexp.Regexp
 	var err error
-	if regexp.QuoteMeta(r) != r {
-		pathType = RegexpPath
+	var pathType = pathType(r)
+	if pathType == RegexpPath {
 		cr, err = regexp.Compile(r)
 		if err != nil {
 			panic("wrong route:"+err.Error())
 			return nil
 		}
-	} else if strings.Contains(r, ":") {
-		pathType = NamedPath
 	}
 
+	var pool *pool
+	if tp == StructRoute || tp == StructPtrRoute {
+		pool = newPool(PoolSize, t)
+	}
 	return &Route{
 		path: r,
 		regexp: cr,
 		pathType: pathType,
 		method: method,
 		routeType:  tp,
-		pool: newPool(PoolSize, t),
+		pool: pool,
 	}
 }
 
