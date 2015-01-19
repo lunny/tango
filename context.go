@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"net/url"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -17,45 +17,39 @@ type Handler interface {
 }
 
 type Context struct {
-	router   Router
-	handlers []Handler
+	tan *Tango
+	Logger
 
 	idx int
 	req *http.Request
 	ResponseWriter
-	route   *Route
-	params url.Values
+	route      *Route
+	params     url.Values
 	callArgs   []reflect.Value
-	matched bool
-	cookies *cookies
+	matched    bool
+	cookies    *cookies
 	secCookies *secureCookies
 
 	action interface{}
 	Result interface{}
-	Logger
-	errHandler Handler
 }
 
 func NewContext(
-	router Router,
-	handlers []Handler,
+	tan *Tango,
 	req *http.Request,
 	resp ResponseWriter,
-	logger Logger,
-	errHandler Handler) *Context {
+	logger Logger) *Context {
 	return &Context{
-		router:         router,
-		handlers:       handlers,
+		tan:            tan,
 		idx:            0,
 		req:            req,
 		ResponseWriter: resp,
-		Logger: logger,
-		errHandler: errHandler,
+		Logger:         logger,
 	}
 }
 
 func (ctx *Context) HandleError() {
-	ctx.errHandler.Handle(ctx)
+	ctx.tan.ErrHandler.Handle(ctx)
 }
 
 func (ctx *Context) Req() *http.Request {
@@ -103,7 +97,7 @@ func (ctx *Context) Action() interface{} {
 func (ctx *Context) newAction() {
 	if !ctx.matched {
 		reqPath := removeStick(ctx.Req().URL.Path)
-		ctx.route, ctx.params = ctx.router.Match(reqPath, ctx.Req().Method)
+		ctx.route, ctx.params = ctx.tan.Match(reqPath, ctx.Req().Method)
 		if ctx.route != nil {
 			vc := ctx.route.newAction()
 			ctx.action = vc.Interface()
@@ -115,7 +109,7 @@ func (ctx *Context) newAction() {
 			case FuncRoute:
 				ctx.callArgs = []reflect.Value{}
 			case FuncHttpRoute:
-				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter), 
+				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter),
 					reflect.ValueOf(ctx.Req())}
 			case FuncReqRoute:
 				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.Req())}
@@ -137,8 +131,8 @@ func (ctx *Context) Next() {
 }
 
 func (ctx *Context) Invoke() {
-	if ctx.idx < len(ctx.handlers) {
-		ctx.handlers[ctx.idx].Handle(ctx)
+	if ctx.idx < len(ctx.tan.handlers) {
+		ctx.tan.handlers[ctx.idx].Handle(ctx)
 	} else {
 		ctx.newAction()
 		// route is matched
@@ -150,7 +144,7 @@ func (ctx *Context) Invoke() {
 				// if no return value and not write anything
 				ctx.Write([]byte(""))
 			}
-		// not route matched
+			// not route matched
 		} else {
 			ctx.NotFound()
 		}

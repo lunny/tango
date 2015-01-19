@@ -20,14 +20,14 @@ var (
 )
 
 func Version() string {
-	return "0.2.6.0116"
+	return "0.2.7.0119"
 }
 
 type Tango struct {
 	Router
-	Mode     int
-	handlers []Handler
-	logger   Logger
+	Mode       int
+	handlers   []Handler
+	logger     Logger
 	ErrHandler Handler
 }
 
@@ -110,6 +110,7 @@ func (t *Tango) RunTLS(certFile, keyFile string, addrs ...string) {
 }
 
 type HandlerFunc func(ctx *Context)
+
 func (h HandlerFunc) Handle(ctx *Context) {
 	h(ctx)
 }
@@ -136,12 +137,10 @@ func (t *Tango) UseHandler(handler http.Handler) {
 
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx := NewContext(
-		t.Router,
-		t.handlers,
+		t,
 		req,
 		NewResponseWriter(w),
 		t.logger,
-		t.ErrHandler,
 	)
 
 	ctx.Invoke()
@@ -152,9 +151,9 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			ctx.Result = NotFound()
 		}
 		ctx.HandleError()
-		p := req.URL.Path 
+		p := req.URL.Path
 		if len(req.URL.RawQuery) > 0 {
-			p = p + "?"+req.URL.RawQuery
+			p = p + "?" + req.URL.RawQuery
 		}
 
 		t.logger.Error(req.Method, ctx.Status(), p)
@@ -163,10 +162,10 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	tango := &Tango{
-		Router:   NewRouter(),
-		Mode:     Env,
-		logger:   logger,
-		handlers: make([]Handler, 0),
+		Router:     NewRouter(),
+		Mode:       Env,
+		logger:     logger,
+		handlers:   make([]Handler, 0),
 		ErrHandler: Errors(),
 	}
 
@@ -192,7 +191,7 @@ func Classic(l ...Logger) *Tango {
 		Logging(),
 		Recovery(true),
 		Compresses([]string{".js", ".css", ".html", ".htm"}),
-		Static(StaticOptions{Prefix:"public"}),
+		Static(StaticOptions{Prefix: "public"}),
 		Return(),
 		Responses(),
 		Requests(),
