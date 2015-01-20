@@ -2,14 +2,17 @@ package tango
 
 import (
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
 
 type StaticOptions struct {
-	RootPath string
-	Prefix string
+	RootPath   string
+	Prefix     string
 	IndexFiles []string
+	ListDir    bool
+	FilterExts []string
 }
 
 func prepareStaticOptions(options []StaticOptions) StaticOptions {
@@ -22,9 +25,7 @@ func prepareStaticOptions(options []StaticOptions) StaticOptions {
 	if len(opt.RootPath) == 0 {
 		opt.RootPath = "./public"
 	}
-	if len(opt.Prefix) == 0 {
-		opt.Prefix = ""
-	}
+
 	if len(opt.IndexFiles) == 0 {
 		opt.IndexFiles = []string{"index.html", "index.htm"}
 	}
@@ -65,6 +66,20 @@ func Static(opts ...StaticOptions) HandlerFunc {
 				return
 			}
 		} else if !finfo.IsDir() {
+			if len(opt.FilterExts) > 0 {
+				var matched bool
+				for _, ext := range opt.FilterExts {
+					if filepath.Ext(fPath) == ext {
+						matched = true
+						break
+					}
+				}
+				if !matched {
+					ctx.Next()
+					return
+				}
+			}
+
 			err := ctx.ServeFile(fPath)
 			if err != nil {
 				ctx.Result = InternalServerError(err.Error())
@@ -92,6 +107,46 @@ func Static(opts ...StaticOptions) HandlerFunc {
 						return
 					}
 				}
+			}
+
+			// list dir files
+			if opt.ListDir {
+				ctx.Header().Set("Content-Type", "text/html")
+				ctx.Write([]byte(`<ul style="list-style-type:none;line-height:32px;">`))
+				rootPath, _ := filepath.Abs(opt.RootPath)
+				rPath, _ := filepath.Rel(rootPath, fPath)
+				if fPath != rootPath {
+					ctx.Write([]byte(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`))
+				}
+				err = filepath.Walk(fPath, func(p string, fi os.FileInfo, err error) error {
+					rPath, _ := filepath.Rel(fPath, p)
+					if rPath == "." || len(strings.Split(rPath, string(filepath.Separator))) > 1 {
+						return nil
+					}
+					rPath, _ = filepath.Rel(rootPath, p)
+					ps, _ := os.Stat(p)
+					if ps.IsDir() {
+						ctx.Write([]byte(`<li>┖ <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`))
+					} else {
+						if len(opt.FilterExts) > 0 {
+							var matched bool
+							for _, ext := range opt.FilterExts {
+								if filepath.Ext(p) == ext {
+									matched = true
+									break
+								}
+							}
+							if !matched {
+								return nil
+							}
+						}
+
+						ctx.Write([]byte(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`))
+					}
+					return nil
+				})
+				ctx.Write([]byte("</ul>"))
+				return
 			}
 		}
 
