@@ -31,6 +31,20 @@ type Tango struct {
 	ErrHandler Handler
 }
 
+var (
+	ClassicHandlers = []Handler{
+		Logging(),
+		Recovery(true),
+		Compresses([]string{".js", ".css", ".html", ".htm"}),
+		Static(StaticOptions{Prefix: "public"}),
+		Return(),
+		Responses(),
+		Requests(),
+		Param(),
+		Contexts(),
+	}
+)
+
 func (t *Tango) Logger() Logger {
 	return t.logger
 }
@@ -188,14 +202,6 @@ func Classic(l ...Logger) *Tango {
 
 	return NewWithLog(
 		logger,
-		Logging(),
-		Recovery(true),
-		Compresses([]string{".js", ".css", ".html", ".htm"}),
-		Static(StaticOptions{Prefix: "public"}),
-		Return(),
-		Responses(),
-		Requests(),
-		Param(),
-		Contexts(),
+		ClassicHandlers...,
 	)
 }
