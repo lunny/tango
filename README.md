@@ -81,7 +81,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - response - Inject response to action struct
 - [session](https://github.com/tango-contrib/session) - Session manager
 - [xsrf](https://github.com/tango-contrib/xsrf) - Generates and validates csrf tokens
-- [bind](https://github.com/tango-contrib/bind) - Bind and validates forms
+- [binding](https://github.com/tango-contrib/binding) - Bind and validates forms
 - [renders](https://github.com/tango-contrib/renders) - Go template engine
 - [dispatch](https://github.com/tango-contrib/dispatch) - Multiple Application support on one server
 - [tpongo2](https://github.com/tango-contrib/tpongo2) - [Pongo2](https://github.com/flosch/pongo2) teamplte engine support
