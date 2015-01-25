@@ -146,7 +146,9 @@ func (ctx *Context) Invoke() {
 			}
 			// not route matched
 		} else {
-			ctx.NotFound()
+			if !ctx.Written() {
+				ctx.NotFound()
+			}
 		}
 	}
 }
@@ -187,13 +189,12 @@ func (ctx *Context) Download(fpath string) error {
 	return err
 }
 
-func (ctx *Context) Redirect(url string, status ...int) error {
+func (ctx *Context) Redirect(url string, status ...int) {
 	s := http.StatusFound
 	if len(status) > 0 {
 		s = status[0]
 	}
 	http.Redirect(ctx.ResponseWriter, ctx.Req(), url, s)
-	return nil
 }
 
 // Notmodified writes a 304 HTTP response
@@ -206,21 +207,21 @@ func (ctx *Context) Unauthorized() {
 }
 
 // NotFound writes a 404 HTTP response
-func (ctx *Context) NotFound(message ...string) error {
+func (ctx *Context) NotFound(message ...string) {
 	if len(message) == 0 {
-		return ctx.Abort(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		ctx.Abort(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
 	}
-	return ctx.Abort(http.StatusNotFound, message[0])
+	ctx.Abort(http.StatusNotFound, message[0])
 }
 
 // Abort is a helper method that sends an HTTP header and an optional
 // body. It is useful for returning 4xx or 5xx errors.
 // Once it has been called, any return value from the handler will
 // not be written to the response.
-func (ctx *Context) Abort(status int, body string) error {
+func (ctx *Context) Abort(status int, body string) {
 	ctx.Result = Abort(status, body)
 	ctx.HandleError()
-	return nil
 }
 
 type Contexter interface {
