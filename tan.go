@@ -86,9 +86,7 @@ func (t *Tango) Any(url string, c interface{}) {
 }
 
 func (t *Tango) Use(handlers ...Handler) {
-	for _, handler := range handlers {
-		t.handlers = append(t.handlers, handler)
-	}
+	t.handlers = append(t.handlers, handlers...)
 }
 
 func (t *Tango) Run(addrs ...string) {
