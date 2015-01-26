@@ -1,19 +1,19 @@
-Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](https://drone.io/github.com/lunny/tango/latest) [![](http://gocover.io/_badge/github.com/lunny/tango)](http://gocover.io/github.com/lunny/tango) [简体中文](README_CN.md)
+Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](https://drone.io/github.com/lunny/tango/latest) [![](http://gocover.io/_badge/github.com/lunny/tango)](http://gocover.io/github.com/lunny/tango) [English](README.md)
 =======================
 
 ![Tango Logo](logo.png)
 
-Package tango is a micro-kernel & pluggable web framework for Go.
+Tango 是一个微内核易扩展的Go语言Web框架.
 
-##### Current version: 0.2.7
+##### 当前版本: 0.2.7
 
-## Getting Started
+## 简介
 
-To install Tango:
+安装Tango:
 
     go get github.com/lunny/tango
 
-The very basic usage of Tango:
+最简单的例子:
 
 ```go
 package main
@@ -29,7 +29,7 @@ func main() {
 }
 ```
 
-Then visit `http://localhost:8000` on your browser. Of course, tango support struct form also.
+然后在浏览器访问`http://localhost:8000`即可。当然了，tango其实对struct形式的支持更好。比如：
 
 ```go
 package main
@@ -53,22 +53,22 @@ func main() {
 }
 ```
 
-This code will automatically convert returned map to a json because we has an embedded struct `tango.Json`.
+这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json。具体返回可以参见以下文档。
 
-More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [Wiki](https://github.com/lunny/tango/wiki)
+源码文档 [godoc](http://godoc.org/github.com/lunny/tango) 和 [Wiki](https://github.com/lunny/tango/wiki)
 
-## Features
+## 特性
 
-- Powerful routing & Flexible routes combinations.
-- Directly integrate with existing services.
-- Easy to plugin/unplugin features with modular design.
-- High performance dependency injection embedded.
+- 强大而灵活的路由设计
+- 兼容已有的`http.Handler`
+- 模块化设计，可以很容易写出自定义插件
+- 高性能的依赖注入方式
 
-## Middlewares 
+## 中间件 
 
-Middlewares allow you easily plugin/unplugin features for your Tango applications.
+中间件让你像切面编程那样来操作你的Controller。
 
-There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
+目前已有很多 [中间件](https://github.com/tango-contrib)，可以帮助你来简化工作:
 
 - recovery - recover after panic
 - logger - log the request
@@ -89,14 +89,18 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [events](https://github.com/tango-contrib/events) - [![Build Status](https://drone.io/github.com/tango-contrib/events/status.png)](https://drone.io/github.com/tango-contrib/events/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/events)](http://gocover.io/github.com/tango-contrib/events) Before and After
 - [flash](https://github.com/tango-contrib/flash) - [![Build Status](https://drone.io/github.com/tango-contrib/flash/status.png)](https://drone.io/github.com/tango-contrib/flash/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/flash)](http://gocover.io/github.com/tango-contrib/flash) Share data between requests
 
-## Getting Help
+## 获得帮助
 
-- [API Reference](https://gowalker.org/github.com/lunny/tango)
+- [API文档](https://gowalker.org/github.com/lunny/tango)
 
-## Cases
+## 案例
 
 - [Wego](https://github.com/go-tango/wego)
 - [ABlog](https://github.com/fuxiaohei/ablog)
+
+## 讨论
+
+QQ群：369240307
 
 ## License
 
