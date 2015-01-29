@@ -2,24 +2,24 @@ package tango
 
 import (
 	"bytes"
+	"fmt"
+	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
-	"net/url"
-	"fmt"
-	"net/http"
 )
 
 type RouteType int
 
 const (
-	FuncRoute RouteType = iota + 1 	// func ()
-	FuncHttpRoute 					// func (http.ResponseWriter, *http.Request)
-	FuncReqRoute 					// func (*http.Request)
-	FuncResponseRoute 				// func (http.ResponseWriter)
-	FuncCtxRoute 					// func (*tango.Context)
-	StructRoute 					// func (st) Get()
-	StructPtrRoute 					// func (*struct) Get()
+	FuncRoute         RouteType = iota + 1 // func ()
+	FuncHttpRoute                          // func (http.ResponseWriter, *http.Request)
+	FuncReqRoute                           // func (*http.Request)
+	FuncResponseRoute                      // func (http.ResponseWriter)
+	FuncCtxRoute                           // func (*tango.Context)
+	StructRoute                            // func (st) <Get>()
+	StructPtrRoute                         // func (*struct) <Get>()
 )
 
 type PathType int
@@ -47,19 +47,19 @@ var (
 
 // Route
 type Route struct {
-	path       string          //path string
-	regexp     *regexp.Regexp  //path regexp
-	pathType   PathType
-	method     reflect.Value
-	routeType  RouteType
-	pool       *pool
+	path      string         //path string
+	regexp    *regexp.Regexp //path regexp
+	pathType  PathType
+	method    reflect.Value
+	routeType RouteType
+	pool      *pool
 }
 
 var specialBytes = []byte(`\.+*?()|[]{}^$`)
 
 func pathType(s string) PathType {
 	for i := 0; i < len(s); i++ {
-		if s[i] == ':'{
+		if s[i] == ':' {
 			return NamedPath
 		}
 		if bytes.IndexByte(specialBytes, s[i]) >= 0 {
@@ -77,7 +77,7 @@ func NewRoute(r string, t reflect.Type,
 	if pathType == RegexpPath {
 		cr, err = regexp.Compile(r)
 		if err != nil {
-			panic("wrong route:"+err.Error())
+			panic("wrong route:" + err.Error())
 			return nil
 		}
 	}
@@ -87,12 +87,12 @@ func NewRoute(r string, t reflect.Type,
 		pool = newPool(PoolSize, t)
 	}
 	return &Route{
-		path: r,
-		regexp: cr,
-		pathType: pathType,
-		method: method,
-		routeType:  tp,
-		pool: pool,
+		path:      r,
+		regexp:    cr,
+		pathType:  pathType,
+		method:    method,
+		routeType: tp,
+		pool:      pool,
 	}
 }
 
@@ -150,14 +150,14 @@ func (r *Route) try(path string) (url.Values, bool) {
 }
 
 type Router interface {
-	Route(methods []string, path string, handler interface{})
+	Route(methods interface{}, path string, handler interface{})
 	Match(requestPath, method string) (*Route, url.Values)
 }
 
 type router struct {
-	routes      map[string][]*Route
-	routesEq    map[string]map[string]*Route
-	routesName  map[string][]*Route
+	routes     map[string][]*Route
+	routesEq   map[string]map[string]*Route
+	routesName map[string][]*Route
 }
 
 func NewRouter() Router {
@@ -177,8 +177,8 @@ func NewRouter() Router {
 	}
 
 	return &router{
-		routesEq: routesEq,
-		routes: routes,
+		routesEq:   routesEq,
+		routes:     routes,
 		routesName: routesName,
 	}
 }
@@ -243,11 +243,44 @@ func removeStick(uri string) string {
 	return uri
 }
 
-func (router *router) Route(methods []string, url string, c interface{}) {
+func (router *router) Route(ms interface{}, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	if vc.Kind() == reflect.Func {
-		router.addFunc(methods, url, c)
+		if methods, ok := ms.([]string); ok {
+			router.addFunc(methods, url, c)
+		} else {
+			panic("unknow methods format")
+		}
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
+		var methods = make(map[string]string)
+
+		switch ms.(type) {
+		case string:
+			s := strings.Split(ms.(string), ":")
+			if len(s) == 1 {
+				methods[s[0]] = strings.Title(strings.ToLower(s[0]))
+			} else if len(s) == 2 {
+				methods[s[0]] = strings.TrimSpace(s[1])
+			} else {
+				panic("unknow methods format")
+			}
+		case []string:
+			for _, m := range ms.([]string) {
+				s := strings.Split(m, ":")
+				if len(s) == 1 {
+					methods[s[0]] = strings.Title(strings.ToLower(s[0]))
+				} else if len(s) == 2 {
+					methods[s[0]] = strings.TrimSpace(s[1])
+				} else {
+					panic("unknow format")
+				}
+			}
+		case map[string]string:
+			methods = ms.(map[string]string)
+		default:
+			panic("unsupported methods")
+		}
+
 		router.addStruct(methods, url, c)
 	} else {
 		panic("not support route type")
@@ -265,9 +298,9 @@ func (router *router) addRoute(m string, route *Route) {
 	}
 }
 
-/* 
+/*
 	Tango supports 5 form funcs
-	
+
 	func()
 	func(*Context)
 	func(http.ResponseWriter, *http.Request)
@@ -288,15 +321,15 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 			r = NewRoute(removeStick(url), t, vc, FuncCtxRoute)
 		} else if t.In(0) == reflect.TypeOf(new(http.Request)) {
 			r = NewRoute(removeStick(url), t, vc, FuncReqRoute)
-		} else if t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" && 
+		} else if t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" &&
 			t.In(0).PkgPath() == "net/http" {
 			r = NewRoute(removeStick(url), t, vc, FuncResponseRoute)
 		} else {
 			panic("no support function type")
 		}
-	} else if t.NumIn() == 2 && 
-		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" && 
-			t.In(0).PkgPath() == "net/http") && 
+	} else if t.NumIn() == 2 &&
+		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" &&
+			t.In(0).PkgPath() == "net/http") &&
 		t.In(1) == reflect.TypeOf(new(http.Request)) {
 		r = NewRoute(removeStick(url), t, vc, FuncHttpRoute)
 	} else {
@@ -307,16 +340,16 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 	}
 }
 
-func (router *router) addStruct(methods []string, url string, c interface{}) {
+func (router *router) addStruct(methods map[string]string, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type().Elem()
 
 	// added a default method Get, Post
-	for _, name := range methods {
-		newName := strings.Title(strings.ToLower(name))
-		if m, ok := t.MethodByName(newName); ok {
+	for name, method := range methods {
+		//newName := strings.Title(strings.ToLower(name))
+		if m, ok := t.MethodByName(method); ok {
 			router.addRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
-		} else if m, ok := vc.Type().MethodByName(newName); ok {
+		} else if m, ok := vc.Type().MethodByName(method); ok {
 			router.addRoute(name, NewRoute(removeStick(url), t, m.Func, StructRoute))
 		}
 	}

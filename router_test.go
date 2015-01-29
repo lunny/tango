@@ -1,10 +1,10 @@
 package tango
 
 import (
-	"testing"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 )
 
 type RouterNoMethodAction struct {
@@ -75,11 +75,11 @@ type RouterSpecAction struct {
 	a string
 }
 
-func (RouterSpecAction) Method1() string{
+func (RouterSpecAction) Method1() string {
 	return "1"
 }
 
-func (r *RouterSpecAction) Method2() string{
+func (r *RouterSpecAction) Method2() string {
 	return r.a
 }
 
@@ -187,4 +187,167 @@ func TestRouterFunc(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "func(*http.Request)")
+}
+
+type Router4Action struct {
+	Params
+}
+
+func (r *Router4Action) Get() string {
+	return r.Params.Get(":name1") + "-" + r.Params.Get(":name2")
+}
+
+func TestRouter4(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/:name1-:name2", new(Router4Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar-foobar2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "foobar-foobar2")
+}
+
+type Router5Action struct {
+}
+
+func (r *Router5Action) Get() string {
+	return "router5"
+}
+
+func TestRouter5(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Route("GET", "/", new(Router5Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router5")
+}
+
+type Router6Action struct {
+}
+
+func (r *Router6Action) MyMethod() string {
+	return "router6"
+}
+
+func TestRouter6(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Route("GET:MyMethod", "/", new(Router6Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router6")
+}
+
+type Router7Action struct {
+}
+
+func (r *Router7Action) MyGet() string {
+	return "router7-get"
+}
+
+func (r *Router7Action) Post() string {
+	return "router7-post"
+}
+
+func TestRouter7(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Route([]string{"GET:MyGet", "POST"}, "/", new(Router7Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router7-get")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("POST", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router7-post")
+}
+
+type Router8Action struct {
+}
+
+func (r *Router8Action) MyGet() string {
+	return "router8-get"
+}
+
+func (r *Router8Action) Post() string {
+	return "router8-post"
+}
+
+func TestRouter8(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Route(map[string]string{"GET": "MyGet", "POST": "Post"}, "/", new(Router8Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router8-get")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("POST", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "router8-post")
 }
