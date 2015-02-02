@@ -96,6 +96,7 @@ func main() {
 ## 案例
 
 - [Wego](https://github.com/go-tango/wego)
+- [DBWeb](https://github.com/lunny/dbweb)
 - [ABlog](https://github.com/fuxiaohei/ablog)
 
 ## 讨论

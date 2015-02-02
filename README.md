@@ -96,6 +96,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 ## Cases
 
 - [Wego](https://github.com/go-tango/wego)
+- [DBWeb](https://github.com/lunny/dbweb)
 - [ABlog](https://github.com/fuxiaohei/ablog)
 
 ## License
