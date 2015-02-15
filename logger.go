@@ -1,4 +1,4 @@
-	package tango
+package tango
 
 import (
 	"io"
@@ -35,6 +35,7 @@ type LogInterface interface {
 type Log struct {
 	Logger
 }
+
 func (l *Log) SetLogger(log Logger) {
 	l.Logger = log
 }
@@ -42,13 +43,13 @@ func (l *Log) SetLogger(log Logger) {
 func Logging() HandlerFunc {
 	return func(ctx *Context) {
 		start := time.Now()
-		p := ctx.Req().URL.Path 
+		p := ctx.Req().URL.Path
 		if len(ctx.Req().URL.RawQuery) > 0 {
-			p = p + "?"+ctx.Req().URL.RawQuery
+			p = p + "?" + ctx.Req().URL.RawQuery
 		}
 
 		ctx.Debug("Started", ctx.Req().Method, p, "for", ctx.Req().RemoteAddr)
-		
+
 		if action := ctx.Action(); action != nil {
 			if l, ok := action.(LogInterface); ok {
 				l.SetLogger(ctx.Logger)
@@ -70,7 +71,7 @@ func Logging() HandlerFunc {
 		if statusCode >= 200 && statusCode < 400 {
 			ctx.Info(ctx.Req().Method, statusCode, escape, p)
 		} else {
-			ctx.Error(ctx.Req().Method, statusCode, escape, p)
+			ctx.Error(ctx.Req().Method, statusCode, escape, p, ctx.Result)
 		}
 	}
 }

@@ -55,7 +55,7 @@ func main() {
 
 这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json。具体返回可以参见以下文档。
 
-源码文档 [godoc](http://godoc.org/github.com/lunny/tango) 和 [Wiki](https://github.com/lunny/tango/wiki)
+源码文档 [godoc](http://godoc.org/github.com/lunny/tango) 和 [Wiki](https://github.com/lunny/tango/wiki/ZH_Home)
 
 ## 特性
 
@@ -71,7 +71,6 @@ func main() {
 目前已有很多 [中间件](https://github.com/tango-contrib)，可以帮助你来简化工作:
 
 - recovery - recover after panic
-- logger - log the request
 - compress - Gzip & Deflate compression
 - static - Serves static files
 - logger - Log the request & inject Logger to action struct

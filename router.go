@@ -246,14 +246,16 @@ func removeStick(uri string) string {
 func (router *router) Route(ms interface{}, url string, c interface{}) {
 	vc := reflect.ValueOf(c)
 	if vc.Kind() == reflect.Func {
-		if methods, ok := ms.([]string); ok {
-			router.addFunc(methods, url, c)
-		} else {
+		switch ms.(type) {
+		case string:
+			router.addFunc([]string{ms.(string)}, url, c)
+		case []string:
+			router.addFunc(ms.([]string), url, c)
+		default:
 			panic("unknow methods format")
 		}
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
 		var methods = make(map[string]string)
-
 		switch ms.(type) {
 		case string:
 			s := strings.Split(ms.(string), ":")
@@ -295,6 +297,8 @@ func (router *router) addRoute(m string, route *Route) {
 		router.routesName[m] = append(router.routesName[m], route)
 	case RegexpPath:
 		router.routes[m] = append(router.routes[m], route)
+	default:
+		panic("should not here")
 	}
 }
 
@@ -346,7 +350,6 @@ func (router *router) addStruct(methods map[string]string, url string, c interfa
 
 	// added a default method Get, Post
 	for name, method := range methods {
-		//newName := strings.Title(strings.ToLower(name))
 		if m, ok := t.MethodByName(method); ok {
 			router.addRoute(name, NewRoute(removeStick(url), t, m.Func, StructPtrRoute))
 		} else if m, ok := vc.Type().MethodByName(method); ok {

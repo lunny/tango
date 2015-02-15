@@ -71,7 +71,6 @@ Middlewares allow you easily plugin/unplugin features for your Tango application
 There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
 
 - recovery - recover after panic
-- logger - log the request
 - compress - Gzip & Deflate compression
 - static - Serves static files
 - logger - Log the request & inject Logger to action struct
