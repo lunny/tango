@@ -55,7 +55,7 @@ type Route struct {
 	pool      *pool
 }
 
-var specialBytes = []byte(`\.+*?()|[]{}^$`)
+var specialBytes = []byte(`\+*?()|[]{}^$`)
 
 func pathType(s string) PathType {
 	for i := 0; i < len(s); i++ {
