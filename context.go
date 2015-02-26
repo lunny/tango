@@ -140,9 +140,6 @@ func (ctx *Context) Invoke() {
 			ret := ctx.route.method.Call(ctx.callArgs)
 			if len(ret) > 0 {
 				ctx.Result = ret[0].Interface()
-			} else if !ctx.Written() {
-				// if no return value and not write anything
-				ctx.Write([]byte(""))
 			}
 			// not route matched
 		} else {

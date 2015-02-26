@@ -20,7 +20,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.8.0315"
+	return "0.2.8.0326"
 }
 
 type Tango struct {
@@ -159,14 +159,23 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// if there is no logging or error handle, so the last written check.
 	if !ctx.Written() {
-		if ctx.Result == nil {
-			ctx.Result = NotFound()
-		}
-		ctx.HandleError()
 		p := req.URL.Path
 		if len(req.URL.RawQuery) > 0 {
 			p = p + "?" + req.URL.RawQuery
 		}
+
+		if ctx.matched {
+			if ctx.Result == nil {
+				ctx.Write([]byte(""))
+				t.logger.Info(req.Method, ctx.Status(), p)
+				return
+			}
+		}
+
+		if ctx.Result == nil {
+			ctx.Result = NotFound()
+		}
+		ctx.HandleError()
 
 		t.logger.Error(req.Method, ctx.Status(), p)
 	}
