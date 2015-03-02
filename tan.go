@@ -164,12 +164,13 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			p = p + "?" + req.URL.RawQuery
 		}
 
-		if ctx.matched {
+		if ctx.Route() != nil {
 			if ctx.Result == nil {
 				ctx.Write([]byte(""))
 				t.logger.Info(req.Method, ctx.Status(), p)
 				return
 			}
+			panic("result should be handler before")
 		}
 
 		if ctx.Result == nil {
