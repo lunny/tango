@@ -5,7 +5,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Package tango is a micro-kernel & pluggable web framework for Go.
 
-##### Current version: 0.2.8
+##### Current version: v0.2.8 [Version History](https://github.com/lunny/tango/releases)
 
 ## Getting Started
 
