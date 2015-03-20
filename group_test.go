@@ -157,3 +157,94 @@ func TestGroup4(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "/2")
 }
+
+func TestGroup5(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	var handlerGroup bool
+	o.Group("/api", func(g *Group) {
+		g.Use(HandlerFunc(func (ctx *Context) {
+			handlerGroup = true
+			ctx.Next()
+		}))
+		g.Get("/1", func() string {
+			return "/1"
+		})
+	})
+	o.Post("/2", func() string {
+		return "/2"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/api/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/1")
+	expect(t, handlerGroup, true)
+
+	handlerGroup = false
+	buff.Reset()
+	req, err = http.NewRequest("POST", "http://localhost:8000/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/2")
+	expect(t, handlerGroup, false)
+}
+
+func TestGroup6(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	var handlerGroup bool
+	g := NewGroup()
+	g.Use(HandlerFunc(func (ctx *Context) {
+		handlerGroup = true
+		ctx.Next()
+	}))
+	g.Get("/1", func() string {
+		return "/1"
+	})
+
+	o := Classic()
+	o.Group("/api", g)
+	o.Post("/2", func() string {
+		return "/2"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/api/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/1")
+	expect(t, handlerGroup, true)
+
+	handlerGroup = false
+	buff.Reset()
+	req, err = http.NewRequest("POST", "http://localhost:8000/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/2")
+	expect(t, handlerGroup, false)
+}

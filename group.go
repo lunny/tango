@@ -13,12 +13,18 @@ type groupRouter struct {
 
 type Group struct {
 	routers []groupRouter
+	handlers []Handler
 }
 
 func NewGroup() *Group {
 	return &Group{
 		routers : make([]groupRouter, 0),
+		handlers: make([]Handler, 0),
 	}
+}
+
+func (g *Group) Use(handlers ...Handler) {
+	g.handlers = append(g.handlers, handlers...)
 }
 
 func (g *Group) Get(url string, c interface{}) {
@@ -87,6 +93,9 @@ func getGroup(o interface{}) *Group {
 func (t *Tango) addGroup(p string, g *Group) {
 	for _, r := range g.routers {
 		t.Route(r.methods, path.Join(p, r.url), r.c)
+	}
+	for _, h := range g.handlers {
+		t.Use(Prefix(p, h))
 	}
 }
 
