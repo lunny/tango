@@ -2,8 +2,8 @@
 
 ## v0.2.9
 
-* Add Prefix handler to wrap a handler filtered by request url prefix
-* Add Use method for Group for supporting apply middleware with group and resolved #2
+* Add `Prefix` handler to wrap a handler filtered by request url prefix
+* Add `Use` method for `Group` for supporting apply middleware with group and resolved #2
 
 ## v0.2.8
 
