@@ -20,7 +20,7 @@ var (
 )
 
 func Version() string {
-	return "0.3.0.0403"
+	return "0.3.1.0403"
 }
 
 type Tango struct {
@@ -35,7 +35,7 @@ var (
 	ClassicHandlers = []Handler{
 		Logging(),
 		Recovery(true),
-		Compresses([]string{".js", ".css", ".html", ".htm"}),
+		Compresses([]string{}),
 		Static(StaticOptions{Prefix: "public"}),
 		Return(),
 		Param(),
