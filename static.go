@@ -26,6 +26,12 @@ func prepareStaticOptions(options []StaticOptions) StaticOptions {
 		opt.RootPath = "./public"
 	}
 
+	if len(opt.Prefix) > 0 {
+		if opt.Prefix[0] != '/' {
+			opt.Prefix = "/" + opt.Prefix
+		}
+	}
+
 	if len(opt.IndexFiles) == 0 {
 		opt.IndexFiles = []string{"index.html", "index.htm"}
 	}
@@ -45,14 +51,14 @@ func Static(opts ...StaticOptions) HandlerFunc {
 		var rPath = ctx.Req().URL.Path
 		// if defined prefix, then only check prefix
 		if opt.Prefix != "" {
-			if !strings.HasPrefix(ctx.Req().URL.Path, "/"+opt.Prefix) {
+			if !strings.HasPrefix(ctx.Req().URL.Path, opt.Prefix) {
 				ctx.Next()
 				return
 			} else {
-				if len("/"+opt.Prefix) == len(ctx.Req().URL.Path) {
+				if len(opt.Prefix) == len(ctx.Req().URL.Path) {
 					rPath = ""
 				} else {
-					rPath = ctx.Req().URL.Path[len("/"+opt.Prefix):]
+					rPath = ctx.Req().URL.Path[len(opt.Prefix):]
 				}
 			}
 		}

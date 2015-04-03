@@ -20,7 +20,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.9.0403"
+	return "0.2.10.0403"
 }
 
 type Tango struct {
@@ -97,7 +97,7 @@ func (t *Tango) Run(addrs ...string) {
 		addr = addrs[0]
 	}
 
-	t.logger.Info("listening on", addr, modes[t.Mode])
+	t.logger.Info("listening on http", addr, modes[t.Mode])
 
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
