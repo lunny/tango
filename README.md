@@ -13,37 +13,28 @@ To install Tango:
 
     go get github.com/lunny/tango
 
-The very basic usage of Tango:
+A classic usage of Tango below:
 
 ```go
 package main
 
-import "github.com/lunny/tango"
+import (
+    "errors"
 
-func main() {
-    t := tango.Classic()
-    t.Get("/", func() string {
-        return "Hello tango!"
-    })
-    t.Run()
-}
-```
-
-Then visit `http://localhost:8000` on your browser. Of course, tango support struct form also.
-
-```go
-package main
-
-import "github.com/lunny/tango"
+    "github.com/lunny/tango"
+)
 
 type Action struct {
     tango.Json
 }
 
-func (Action) Get() map[string]string {
-    return map[string]string{
-        "say": "Hello tango!",
+func (Action) Get() interface{} {
+    if true {
+        return map[string]string{
+            "say": "Hello tango!",
+        }
     }
+    return errors.New("something error")
 }
 
 func main() {
@@ -53,7 +44,17 @@ func main() {
 }
 ```
 
-This code will automatically convert returned map to a json because we has an embedded struct `tango.Json`.
+Then visit `http://localhost:8000` on your browser. You will get
+```
+{"say":"Hello tango!"}
+```
+
+If you change `true` after `if` to `false`, then you will get
+```
+{"err":"something error"}
+```
+
+This code will automatically convert returned map or error to a json because we has an embedded struct `tango.Json`.
 
 More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [Wiki](https://github.com/lunny/tango/wiki)
 

@@ -390,6 +390,9 @@ func (router *router) Match(reqPath, allowMethod string) (*Route, url.Values) {
 		var args = make(url.Values)
 		// for regexp :0 -> first match param :1 -> the second
 		for i, arg := range match[1:] {
+			if name := r.regexp.SubexpNames()[i+1]; len(name) > 0 {
+				args.Add(":"+name, arg)
+			}
 			args.Add(fmt.Sprintf(":%d", i), arg)
 		}
 

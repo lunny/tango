@@ -13,37 +13,28 @@ Tango 是一个微内核易扩展的Go语言Web框架.
 
     go get github.com/lunny/tango
 
-最简单的例子:
+一个经典的Tango例子如下：
 
 ```go
 package main
 
-import "github.com/lunny/tango"
+import (
+    "errors"
 
-func main() {
-    t := tango.Classic()
-    t.Get("/", func() string {
-        return "Hello tango!"
-    })
-    t.Run()
-}
-```
-
-然后在浏览器访问`http://localhost:8000`即可。当然了，tango其实对struct形式的支持更好。比如：
-
-```go
-package main
-
-import "github.com/lunny/tango"
+    "github.com/lunny/tango"
+)
 
 type Action struct {
     tango.Json
 }
 
-func (Action) Get() map[string]string {
-    return map[string]string{
-        "say": "Hello tango!",
+func (Action) Get() interface{} {
+    if true {
+        return map[string]string{
+            "say": "Hello tango!",
+        }
     }
+    return errors.New("something error")
 }
 
 func main() {
@@ -51,6 +42,16 @@ func main() {
     t.Get("/", new(Action))
     t.Run()
 }
+```
+
+然后在浏览器访问`http://localhost:8000`, 将会得到一个json返回
+```
+{"say":"Hello tango!"}
+```
+
+如果将上述例子中的 `true` 改为 `false`, 将会得到一个json返回
+```
+{"err":"something error"}
 ```
 
 这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json。具体返回可以参见以下文档。
