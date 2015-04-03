@@ -5,7 +5,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Package tango is a micro-kernel & pluggable web framework for Go.
 
-##### Current version: v0.2.10 [Version History](https://github.com/lunny/tango/releases)
+##### Current version: v0.3.0 [Version History](https://github.com/lunny/tango/releases)
 
 ## Getting Started
 
@@ -77,8 +77,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - logger - Log the request & inject Logger to action struct
 - param - get the router parameters
 - return - Handle the returned value smartlly
-- request - Inject request to action struct
-- response - Inject response to action struct
+- context - Inject context to action struct
 - [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager
 - [xsrf](https://github.com/tango-contrib/xsrf) - [![Build Status](https://drone.io/github.com/tango-contrib/xsrf/status.png)](https://drone.io/github.com/tango-contrib/xsrf/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/xsrf)](http://gocover.io/github.com/tango-contrib/xsrf) Generates and validates csrf tokens
 - [binding](https://github.com/tango-contrib/binding) - [![Build Status](https://drone.io/github.com/tango-contrib/binding/status.png)](https://drone.io/github.com/tango-contrib/binding/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/binding)](http://gocover.io/github.com/tango-contrib/binding) Bind and validates forms

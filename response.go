@@ -77,31 +77,3 @@ func (rw *responseWriter) Flush() {
 		flusher.Flush()
 	}
 }
-
-type Responser interface {
-	SetResponse(ResponseWriter)
-}
-
-type HttpResponser interface {
-	SetResponse(http.ResponseWriter)
-}
-
-type Resp struct {
-	ResponseWriter
-}
-
-func (resp *Resp) SetResponse(r ResponseWriter) {
-	resp.ResponseWriter = r
-}
-
-func Responses() HandlerFunc {
-	return func(ctx *Context) {
-		if action := ctx.Action(); action != nil {
-			if s, ok := action.(Responser); ok {
-				s.SetResponse(ctx)
-			}
-		}
-
-		ctx.Next()
-	}
-}

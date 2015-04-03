@@ -20,7 +20,7 @@ var (
 )
 
 func Version() string {
-	return "0.2.10.0403"
+	return "0.3.0.0403"
 }
 
 type Tango struct {
@@ -38,8 +38,6 @@ var (
 		Compresses([]string{".js", ".css", ".html", ".htm"}),
 		Static(StaticOptions{Prefix: "public"}),
 		Return(),
-		Responses(),
-		Requests(),
 		Param(),
 		Contexts(),
 	}
