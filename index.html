@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Tango by lunny</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Tango</h1>
+      <h2 class="project-tagline">Micro-kernel &amp; pluggable web framework for Go</h2>
+      <a href="https://github.com/lunny/tango" class="btn">View on GitHub</a>
+      <a href="https://github.com/lunny/tango/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/lunny/tango/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="tango---简体中文" class="anchor" href="#tango---%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tango <a href="https://drone.io/github.com/lunny/tango/latest"><img src="https://drone.io/github.com/lunny/tango/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/lunny/tango"><img src="http://gocover.io/_badge/github.com/lunny/tango" alt=""></a> <a href="README_CN.md">简体中文</a>
+</h1>
+
+<p><img src="logo.png" alt="Tango Logo"></p>
+
+<p>Package tango is a micro-kernel &amp; pluggable web framework for Go.</p>
+
+<h5>
+<a id="current-version-v030-version-history" class="anchor" href="#current-version-v030-version-history" aria-hidden="true"><span class="octicon octicon-link"></span></a>Current version: v0.3.0 <a href="https://github.com/lunny/tango/releases">Version History</a>
+</h5>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>To install Tango:</p>
+
+<pre><code>go get github.com/lunny/tango
+</code></pre>
+
+<p>A classic usage of Tango below:</p>
+
+<div class="highlight highlight-go"><pre><span class="pl-k">package</span> main
+
+<span class="pl-k">import</span> (
+    <span class="pl-s"><span class="pl-pds">"</span>errors<span class="pl-pds">"</span></span>
+
+    <span class="pl-s"><span class="pl-pds">"</span>github.com/lunny/tango<span class="pl-pds">"</span></span>
+)
+
+<span class="pl-k">type</span> <span class="pl-v">Action</span> <span class="pl-k">struct</span> {
+    tango.<span class="pl-smi">Json</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(<span class="pl-v">Action</span>) <span class="pl-en">Get</span></span>() <span class="pl-v">interface</span>{} {
+    <span class="pl-k">if</span> <span class="pl-c1">true</span> {
+        <span class="pl-k">return</span> <span class="pl-k">map</span>[<span class="pl-k">string</span>]<span class="pl-k">string</span>{
+            <span class="pl-s"><span class="pl-pds">"</span>say<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Hello tango!<span class="pl-pds">"</span></span>,
+        }
+    }
+    <span class="pl-k">return</span> errors.<span class="pl-c1">New</span>(<span class="pl-s"><span class="pl-pds">"</span>something error<span class="pl-pds">"</span></span>)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">main</span>() {
+    <span class="pl-smi">t</span> <span class="pl-k">:=</span> tango.<span class="pl-c1">Classic</span>()
+    t.<span class="pl-c1">Get</span>(<span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>, <span class="pl-c1">new</span>(Action))
+    t.<span class="pl-c1">Run</span>()
+}</pre></div>
+
+<p>Then visit <code>http://localhost:8000</code> on your browser. You will get</p>
+
+<pre><code>{"say":"Hello tango!"}
+</code></pre>
+
+<p>If you change <code>true</code> after <code>if</code> to <code>false</code>, then you will get</p>
+
+<pre><code>{"err":"something error"}
+</code></pre>
+
+<p>This code will automatically convert returned map or error to a json because we has an embedded struct <code>tango.Json</code>.</p>
+
+<p>More document, please see <a href="http://godoc.org/github.com/lunny/tango">godoc</a> and <a href="https://github.com/lunny/tango/wiki">Wiki</a></p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Powerful routing &amp; Flexible routes combinations.</li>
+<li>Directly integrate with existing services.</li>
+<li>Easy to plugin/unplugin features with modular design.</li>
+<li>High performance dependency injection embedded.</li>
+</ul>
+
+<h2>
+<a id="middlewares" class="anchor" href="#middlewares" aria-hidden="true"><span class="octicon octicon-link"></span></a>Middlewares</h2>
+
+<p>Middlewares allow you easily plugin/unplugin features for your Tango applications.</p>
+
+<p>There are already many <a href="https://github.com/tango-contrib">middlewares</a> to simplify your work:</p>
+
+<ul>
+<li>recovery - recover after panic</li>
+<li>compress - Gzip &amp; Deflate compression</li>
+<li>static - Serves static files</li>
+<li>logger - Log the request &amp; inject Logger to action struct</li>
+<li>param - get the router parameters</li>
+<li>return - Handle the returned value smartlly</li>
+<li>context - Inject context to action struct</li>
+<li>
+<a href="https://github.com/tango-contrib/session">session</a> - <a href="https://drone.io/github.com/tango-contrib/session/latest"><img src="https://drone.io/github.com/tango-contrib/session/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/session"><img src="http://gocover.io/_badge/github.com/tango-contrib/session" alt=""></a> Session manager</li>
+<li>
+<a href="https://github.com/tango-contrib/xsrf">xsrf</a> - <a href="https://drone.io/github.com/tango-contrib/xsrf/latest"><img src="https://drone.io/github.com/tango-contrib/xsrf/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/xsrf"><img src="http://gocover.io/_badge/github.com/tango-contrib/xsrf" alt=""></a> Generates and validates csrf tokens</li>
+<li>
+<a href="https://github.com/tango-contrib/binding">binding</a> - <a href="https://drone.io/github.com/tango-contrib/binding/latest"><img src="https://drone.io/github.com/tango-contrib/binding/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/binding"><img src="http://gocover.io/_badge/github.com/tango-contrib/binding" alt=""></a> Bind and validates forms</li>
+<li>
+<a href="https://github.com/tango-contrib/renders">renders</a> - <a href="https://drone.io/github.com/tango-contrib/renders/latest"><img src="https://drone.io/github.com/tango-contrib/renders/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/renders"><img src="http://gocover.io/_badge/github.com/tango-contrib/renders" alt=""></a> Go template engine</li>
+<li>
+<a href="https://github.com/tango-contrib/dispatch">dispatch</a> - <a href="https://drone.io/github.com/tango-contrib/dispatch/latest"><img src="https://drone.io/github.com/tango-contrib/dispatch/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/dispatch"><img src="http://gocover.io/_badge/github.com/tango-contrib/dispatch" alt=""></a> Multiple Application support on one server</li>
+<li>
+<a href="https://github.com/tango-contrib/tpongo2">tpongo2</a> - <a href="https://drone.io/github.com/tango-contrib/tpongo2/latest"><img src="https://drone.io/github.com/tango-contrib/tpongo2/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/tpongo2"><img src="http://gocover.io/_badge/github.com/tango-contrib/tpongo2" alt=""></a> <a href="https://github.com/flosch/pongo2">Pongo2</a> teamplte engine support</li>
+<li>
+<a href="https://github.com/tango-contrib/captcha">captcha</a> - <a href="https://drone.io/github.com/tango-contrib/captcha/latest"><img src="https://drone.io/github.com/tango-contrib/captcha/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/captcha"><img src="http://gocover.io/_badge/github.com/tango-contrib/captcha" alt=""></a> Captcha</li>
+<li>
+<a href="https://github.com/tango-contrib/events">events</a> - <a href="https://drone.io/github.com/tango-contrib/events/latest"><img src="https://drone.io/github.com/tango-contrib/events/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/events"><img src="http://gocover.io/_badge/github.com/tango-contrib/events" alt=""></a> Before and After</li>
+<li>
+<a href="https://github.com/tango-contrib/flash">flash</a> - <a href="https://drone.io/github.com/tango-contrib/flash/latest"><img src="https://drone.io/github.com/tango-contrib/flash/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/flash"><img src="http://gocover.io/_badge/github.com/tango-contrib/flash" alt=""></a> Share data between requests</li>
+<li>
+<a href="https://github.com/tango-contrib/debug">debug</a> - <a href="https://drone.io/github.com/tango-contrib/debug/latest"><img src="https://drone.io/github.com/tango-contrib/debug/status.png" alt="Build Status"></a> <a href="http://gocover.io/github.com/tango-contrib/debug"><img src="http://gocover.io/_badge/github.com/tango-contrib/debug" alt=""></a> show detail debug infomaton on log</li>
+</ul>
+
+<h2>
+<a id="getting-help" class="anchor" href="#getting-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Help</h2>
+
+<ul>
+<li><a href="https://gowalker.org/github.com/lunny/tango">API Reference</a></li>
+</ul>
+
+<h2>
+<a id="cases" class="anchor" href="#cases" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cases</h2>
+
+<ul>
+<li><a href="https://github.com/go-tango/wego">Wego</a></li>
+<li><a href="https://github.com/go-xorm/dbweb">DBWeb</a></li>
+<li><a href="https://github.com/fuxiaohei/ablog">ABlog</a></li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>This project is under BSD License. See the <a href="LICENSE">LICENSE</a> file for the full license text.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/lunny/tango">Tango</a> is maintained by <a href="https://github.com/lunny">lunny</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
