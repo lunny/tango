@@ -39,7 +39,7 @@ type Param2Action struct {
 }
 
 func (p *Param2Action) Get() string {
-	return p.Params.Get(":0")
+	return p.Params.Get(":name")
 }
 
 func TestParams2(t *testing.T) {
@@ -48,7 +48,7 @@ func TestParams2(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/(.*)", new(Param2Action))
+	o.Get("/(:name.*)", new(Param2Action))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {

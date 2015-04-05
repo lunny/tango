@@ -21,15 +21,16 @@ type ResponseWriter interface {
 	Size() int
 }
 
-// NewResponseWriter creates a ResponseWriter that wraps an http.ResponseWriter
-func NewResponseWriter(rw http.ResponseWriter) ResponseWriter {
-	return &responseWriter{rw, 0, 0}
-}
-
 type responseWriter struct {
 	http.ResponseWriter
 	status int
 	size   int
+}
+
+func (rw *responseWriter) reset(w http.ResponseWriter) {
+	rw.ResponseWriter = w
+	rw.status = 0
+	rw.size = 0
 }
 
 func (rw *responseWriter) WriteHeader(s int) {

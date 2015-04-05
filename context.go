@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -24,28 +23,24 @@ type Context struct {
 	req *http.Request
 	ResponseWriter
 	route      *Route
-	params     url.Values
+	params     Params
 	callArgs   []reflect.Value
 	matched    bool
-	cookies    *cookies
-	secCookies *secureCookies
 
 	action interface{}
 	Result interface{}
 }
 
-func NewContext(
-	tan *Tango,
-	req *http.Request,
-	resp ResponseWriter,
-	logger Logger) *Context {
-	return &Context{
-		tan:            tan,
-		idx:            0,
-		req:            req,
-		ResponseWriter: resp,
-		Logger:         logger,
-	}
+func (ctx *Context) reset(req *http.Request, resp ResponseWriter) {
+	ctx.req = req
+	ctx.ResponseWriter = resp
+	ctx.idx = 0
+	ctx.route = nil
+	ctx.params = nil
+	ctx.callArgs = nil
+	ctx.matched = false
+	ctx.action = nil
+	ctx.Result = nil
 }
 
 func (ctx *Context) HandleError() {
@@ -57,26 +52,20 @@ func (ctx *Context) Req() *http.Request {
 }
 
 func (ctx *Context) SecureCookies(secret string) Cookies {
-	if ctx.secCookies == nil {
-		ctx.secCookies = &secureCookies{
-			&cookies{
-				ctx.req,
-				ctx.ResponseWriter,
-			},
-			secret,
-		}
+	return &secureCookies{
+		&cookies{
+			ctx.req,
+			ctx.ResponseWriter,
+		},
+		secret,
 	}
-	return ctx.secCookies
 }
 
 func (ctx *Context) Cookies() Cookies {
-	if ctx.cookies == nil {
-		ctx.cookies = &cookies{
-			ctx.req,
-			ctx.ResponseWriter,
-		}
+	return &cookies{
+		ctx.req,
+		ctx.ResponseWriter,
 	}
-	return ctx.cookies
 }
 
 func (ctx *Context) Route() *Route {
@@ -84,9 +73,9 @@ func (ctx *Context) Route() *Route {
 	return ctx.route
 }
 
-func (ctx *Context) Params() url.Values {
+func (ctx *Context) Params() *Params {
 	ctx.newAction()
-	return ctx.params
+	return &ctx.params
 }
 
 func (ctx *Context) Action() interface{} {

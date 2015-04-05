@@ -3,6 +3,7 @@ package tango
 import (
 	"net/http"
 	"os"
+	"sync"
 )
 
 const (
@@ -20,7 +21,7 @@ var (
 )
 
 func Version() string {
-	return "0.3.1.0403"
+	return "0.4.0.0405"
 }
 
 type Tango struct {
@@ -29,6 +30,8 @@ type Tango struct {
 	handlers   []Handler
 	logger     Logger
 	ErrHandler Handler
+	ctxPool sync.Pool
+	respPool sync.Pool
 }
 
 var (
@@ -146,12 +149,11 @@ func (t *Tango) UseHandler(handler http.Handler) {
 }
 
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	ctx := NewContext(
-		t,
-		req,
-		NewResponseWriter(w),
-		t.logger,
-	)
+	resp := t.respPool.Get().(*responseWriter)
+	resp.reset(w)
+
+	ctx := t.ctxPool.Get().(*Context)
+	ctx.reset(req, resp)
 
 	ctx.Invoke()
 
@@ -166,6 +168,8 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			if ctx.Result == nil {
 				ctx.Write([]byte(""))
 				t.logger.Info(req.Method, ctx.Status(), p)
+				t.ctxPool.Put(ctx)
+				t.respPool.Put(resp)
 				return
 			}
 			panic("result should be handler before")
@@ -178,10 +182,13 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 		t.logger.Error(req.Method, ctx.Status(), p)
 	}
+
+	t.ctxPool.Put(ctx)
+	t.respPool.Put(resp)
 }
 
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
-	tango := &Tango{
+	tan := &Tango{
 		Router:     NewRouter(),
 		Mode:       Env,
 		logger:     logger,
@@ -189,9 +196,20 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 		ErrHandler: Errors(),
 	}
 
-	tango.Use(handlers...)
+	tan.ctxPool.New = func() interface{} {
+		return &Context{
+			tan:            tan,
+			Logger: tan.logger,
+		}
+	}
 
-	return tango
+	tan.respPool.New = func() interface{} {
+		return &responseWriter{}
+	}
+
+	tan.Use(handlers...)
+
+	return tan
 }
 
 func New(handlers ...Handler) *Tango {

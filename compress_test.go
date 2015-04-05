@@ -71,7 +71,9 @@ func TestCompressNon(t *testing.T) {
 }
 
 func TestCompressStatic(t *testing.T) {
-	o := Classic()
+	o := New()
+	o.Use(Compresses([]string{".html"}))
+	o.Use(ClassicHandlers...)
 	testCompress(t, o, "http://localhost:8000/public/test.html", 
 		"hello tango", "gzip")
 }

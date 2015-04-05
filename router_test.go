@@ -83,26 +83,6 @@ func (r *RouterSpecAction) Method2() string {
 	return r.a
 }
 
-/*
-func TestRouter3(t *testing.T) {
-	buff := bytes.NewBufferString("")
-	recorder := httptest.NewRecorder()
-	recorder.Body = buff
-
-	o := Classic()
-	o.Get("/1", new(RouterSpecAction).Method1)
-	o.Get("/2", new(RouterSpecAction).Method2)
-
-	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
-	if err != nil {
-		t.Error(err)
-	}
-
-	o.ServeHTTP(recorder, req)
-	expect(t, recorder.Code, http.StatusOK)
-	refute(t, len(buff.String()), 0)
-}*/
-
 func TestRouterFunc(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
@@ -357,7 +337,7 @@ type Regex1Action struct {
 }
 
 func (r *Regex1Action) Get() string {
-	return r.Params.Get(":0")
+	return r.Params.Get(":name")
 }
 
 func TestRouter9(t *testing.T) {
@@ -366,34 +346,7 @@ func TestRouter9(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/([a-zA-Z]+)", new(Regex1Action))
-
-	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
-	if err != nil {
-		t.Error(err)
-	}
-
-	o.ServeHTTP(recorder, req)
-	expect(t, recorder.Code, http.StatusOK)
-	expect(t, buff.String(), "foobar")
-	refute(t, len(buff.String()), 0)
-}
-
-type Regex2Action struct {
-	Params
-}
-
-func (r *Regex2Action) Get() string {
-	return r.Params.Get(":first")
-}
-
-func TestRouter10(t *testing.T) {
-	buff := bytes.NewBufferString("")
-	recorder := httptest.NewRecorder()
-	recorder.Body = buff
-
-	o := Classic()
-	o.Get("/(?P<first>[a-zA-Z]+)", new(Regex2Action))
+	o.Get("/(:name[a-zA-Z]+)", new(Regex1Action))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {

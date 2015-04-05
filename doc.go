@@ -31,8 +31,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - logger - Log the request & inject Logger to action struct
 - param - get the router parameters
 - return - Handle the returned value smartlly
-- request - Inject request to action struct
-- response - Inject response to action struct
+- ctx - Inject context to action struct
 
 - [session](https://github.com/tango-contrib/session) - Session manager, with stores support: 
   * Memory - memory as a session store
