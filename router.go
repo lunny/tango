@@ -335,6 +335,7 @@ func (r *router) Match(url, method string) (*Route, Params) {
 	return nil, nil
 }
 
+// add node nodes[i] to parent node p
 func (r *router) addnode(p *node, nodes []*node, i int) *node {
 	if len(p.edges) == 0 {
 		p.edges = make([]*node, 0)
@@ -347,10 +348,17 @@ func (r *router) addnode(p *node, nodes []*node, i int) *node {
 			return pc
 		}
 	}
+	// static route will be put the first, so it will be match first.
+	if nodes[i].tp == snode {
+		p.edges = append([]*node{nodes[i]}, p.edges...)
+		return p.edges[0]
+	}
+
 	p.edges = append(p.edges, nodes[i])
 	return p.edges[len(p.edges)-1]
 }
 
+// validate parsed nodes, all non-static route should have static route children.
 func validNodes(nodes []*node) bool {
 	if len(nodes) == 0 {
 		return false
@@ -360,10 +368,12 @@ func validNodes(nodes []*node) bool {
 		if lastTp.tp != snode && node.tp != snode {
 			return false
 		}
+		lastTp = node
 	}
 	return true
 }
 
+// add nodes to trees
 func (r *router) addnodes(method string, nodes []*node) {
 	cn := r.trees[method]
 	var p *node = cn
