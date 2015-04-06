@@ -73,9 +73,9 @@ func (ctx *Context) Route() *Route {
 	return ctx.route
 }
 
-func (ctx *Context) Params() Params {
+func (ctx *Context) Params() *Params {
 	ctx.newAction()
-	return ctx.params
+	return &ctx.params
 }
 
 func (ctx *Context) Action() interface{} {
