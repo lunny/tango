@@ -51,7 +51,7 @@ func NewRoute(t reflect.Type,
 	}
 	return &Route{
 		routeType: tp,
-		method: method,
+		method:    method,
 		pool:      pool,
 	}
 }
@@ -100,26 +100,25 @@ func isAlnum(ch byte) bool {
 }
 
 type (
-	executor interface{}
 	router struct {
 		trees map[string]*node
 	}
 	ntype byte
-	node struct {
-		tp      ntype // Type of node it contains
-		handle  *Route // executor
-		regexp 	*regexp.Regexp // regexp if tp is rnode
-		content string // static content or named
-		edges   edges // children
+	node  struct {
+		tp      ntype          // Type of node it contains
+		handle  *Route         // executor
+		regexp  *regexp.Regexp // regexp if tp is rnode
+		content string         // static content or named
+		edges   edges          // children
 	}
 	edges []*node
 )
 
 const (
 	snode ntype = iota // static, should equal
-	nnode // named node, match a non-/ is ok
-	anode // catch-all node, match any
-	rnode // regex node, should match
+	nnode              // named node, match a non-/ is ok
+	anode              // catch-all node, match any
+	rnode              // regex node, should match
 )
 
 func (n *node) equal(o *node) bool {
@@ -135,13 +134,13 @@ func NewRouter() (r *router) {
 	}
 	for _, m := range SupportMethods {
 		r.trees[m] = &node{
-			edges:  edges{},
+			edges: edges{},
 		}
 	}
 	return
 }
 
-//   /:name1/:name2 /:name1-:name2 /:name1:name2 /(:name1)sss(:name2)
+//   /:name1/:name2 /:name1-:name2 /(:name1)sss(:name2)
 //   /(*name) /(:name[0-9]+) /(:name[a-z]+)
 func parseNodes(path string) []*node {
 	var i, j int
@@ -150,7 +149,7 @@ func parseNodes(path string) []*node {
 	var bracket int
 	for ; i < l; i++ {
 		if path[i] == ':' {
-			nodes = append(nodes, &node{tp: snode, content: path[j:i-bracket]})
+			nodes = append(nodes, &node{tp: snode, content: path[j : i-bracket]})
 			j = i
 			var regex string
 			if bracket == 1 {
@@ -173,9 +172,9 @@ func parseNodes(path string) []*node {
 			}
 
 			if len(regex) > 0 {
-				nodes = append(nodes, &node{tp: rnode, 
-					regexp: regexp.MustCompile("("+regex+")"),
-					content: path[j:i-len(regex)]})
+				nodes = append(nodes, &node{tp: rnode,
+					regexp:  regexp.MustCompile("(" + regex + ")"),
+					content: path[j : i-len(regex)]})
 			} else {
 				nodes = append(nodes, &node{tp: nnode, content: path[j:i]})
 			}
@@ -213,7 +212,7 @@ func parseNodes(path string) []*node {
 	}
 
 	nodes = append(nodes, &node{
-		tp: snode,
+		tp:      snode,
 		content: path[j:i],
 	})
 
@@ -222,7 +221,7 @@ func parseNodes(path string) []*node {
 
 func printNode(i int, node *node) {
 	for _, c := range node.edges {
-		for j:=0;j<i;j++ {
+		for j := 0; j < i; j++ {
 			fmt.Print(" ")
 		}
 		fmt.Println(c.content, c.handle)
@@ -242,7 +241,7 @@ func (r *router) addRoute(method, path string, h *Route) {
 	nodes := parseNodes(path)
 	nodes[len(nodes)-1].handle = h
 	if !validNodes(nodes) {
-		panic("express is not allowed")
+		panic(fmt.Sprintln("express", path, "is not supported"))
 	}
 	r.addnodes(method, nodes)
 }
@@ -336,13 +335,13 @@ func (r *router) Match(url, method string) (*Route, Params) {
 	return nil, nil
 }
 
-func (r *router) addnode(p *node, nodes []*node, i int) *node{
+func (r *router) addnode(p *node, nodes []*node, i int) *node {
 	if len(p.edges) == 0 {
 		p.edges = make([]*node, 0)
 	}
 	for _, pc := range p.edges {
 		if pc.equal(nodes[i]) {
-			if i == len(nodes) - 1 {
+			if i == len(nodes)-1 {
 				pc.handle = nodes[i].handle
 			}
 			return pc

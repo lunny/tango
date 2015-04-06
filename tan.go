@@ -21,7 +21,7 @@ var (
 )
 
 func Version() string {
-	return "0.4.0.0405"
+	return "0.4.1.0406"
 }
 
 type Tango struct {
@@ -30,8 +30,8 @@ type Tango struct {
 	handlers   []Handler
 	logger     Logger
 	ErrHandler Handler
-	ctxPool sync.Pool
-	respPool sync.Pool
+	ctxPool    sync.Pool
+	respPool   sync.Pool
 }
 
 var (
@@ -198,7 +198,7 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 
 	tan.ctxPool.New = func() interface{} {
 		return &Context{
-			tan:            tan,
+			tan:    tan,
 			Logger: tan.logger,
 		}
 	}

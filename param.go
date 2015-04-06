@@ -8,8 +8,8 @@ type (
 	Params []param
 )
 
-func (p *Params) Get(key string) string {
-	for _, v := range *p {
+func (p Params) Get(key string) string {
+	for _, v := range p {
 		if v.Name == key {
 			return v.Value
 		}
@@ -29,7 +29,7 @@ func Param() HandlerFunc {
 	return func(ctx *Context) {
 		if action := ctx.Action(); action != nil {
 			if p, ok := action.(Paramer); ok {
-				p.SetParams(*ctx.Params())
+				p.SetParams(ctx.Params())
 			}
 		}
 		ctx.Next()
