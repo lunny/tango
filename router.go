@@ -265,14 +265,10 @@ func (r *router) matchNode(n *node, url string, params Params) (*Route, Params) 
 			return n.handle, params
 		}
 		for _, c := range n.edges {
-			if c.tp == snode {
-				idx := strings.Index(url, c.content)
-				if idx > -1 {
-					params = append(params, param{n.content, url[:idx]})
-					return r.matchNode(c, url[idx:], params)
-				}
-			} else {
-				panic("should be snode")
+			idx := strings.Index(url, c.content)
+			if idx > -1 {
+				params = append(params, param{n.content, url[:idx]})
+				return r.matchNode(c, url[idx:], params)
 			}
 		}
 	} else if n.tp == nnode {
@@ -293,14 +289,10 @@ func (r *router) matchNode(n *node, url string, params Params) (*Route, Params) 
 			return n.handle, params
 		}
 		for _, c := range n.edges {
-			if c.tp == snode {
-				idx := strings.Index(url, c.content)
-				if idx > -1 {
-					params = append(params, param{n.content, url[:idx]})
-					return r.matchNode(c, url[idx:], params)
-				}
-			} else {
-				panic("should be snode")
+			idx := strings.Index(url, c.content)
+			if idx > -1 {
+				params = append(params, param{n.content, url[:idx]})
+				return r.matchNode(c, url[idx:], params)
 			}
 		}
 	} else if n.tp == rnode {
@@ -309,14 +301,10 @@ func (r *router) matchNode(n *node, url string, params Params) (*Route, Params) 
 			return n.handle, params
 		}
 		for _, c := range n.edges {
-			if c.tp == snode {
-				idx := strings.Index(url, c.content)
-				if idx > -1 && n.regexp.MatchString(url[:idx]) {
-					params = append(params, param{n.content, url[:idx]})
-					return r.matchNode(c, url[idx:], params)
-				}
-			} else {
-				panic("should be snode")
+			idx := strings.Index(url, c.content)
+			if idx > -1 && n.regexp.MatchString(url[:idx]) {
+				params = append(params, param{n.content, url[:idx]})
+				return r.matchNode(c, url[idx:], params)
 			}
 		}
 	}
@@ -325,7 +313,7 @@ func (r *router) matchNode(n *node, url string, params Params) (*Route, Params) 
 
 func (r *router) Match(url, method string) (*Route, Params) {
 	cn := r.trees[method]
-	var params = make(Params, 0)
+	var params = make(Params, 0, strings.Count(url, "/"))
 	for _, n := range cn.edges {
 		e, p := r.matchNode(n, url, params)
 		if e != nil {
