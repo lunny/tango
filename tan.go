@@ -21,7 +21,7 @@ var (
 )
 
 func Version() string {
-	return "0.4.2.0407"
+	return "0.4.2.0408"
 }
 
 type Tango struct {
