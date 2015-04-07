@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sort"
 )
 
 type RouteType byte
@@ -113,6 +114,25 @@ type (
 	}
 	edges []*node
 )
+
+func (e edges) Len() int      { return len(e) }
+
+func (e edges) Swap(i, j int) { e[i], e[j] = e[j], e[i] }
+
+// static route will be put the first, so it will be match first.
+// two static route, content longer is first.
+func (e edges) Less(i, j int) bool {
+	if e[i].tp == snode {
+		if e[j].tp == snode {
+			return len(e[i].content) > len(e[j].content)
+		}
+		return true
+	}
+	if e[j].tp == snode {
+		return false
+	}
+	return true
+}
 
 const (
 	snode ntype = iota // static, should equal
@@ -244,6 +264,7 @@ func (r *router) addRoute(method, path string, h *Route) {
 		panic(fmt.Sprintln("express", path, "is not supported"))
 	}
 	r.addnodes(method, nodes)
+	//r.printTrees()
 }
 
 func (r *router) matchNode(n *node, url string, params Params) (*Route, Params) {
@@ -328,6 +349,7 @@ func (r *router) addnode(p *node, nodes []*node, i int) *node {
 	if len(p.edges) == 0 {
 		p.edges = make([]*node, 0)
 	}
+
 	for _, pc := range p.edges {
 		if pc.equal(nodes[i]) {
 			if i == len(nodes)-1 {
@@ -336,14 +358,10 @@ func (r *router) addnode(p *node, nodes []*node, i int) *node {
 			return pc
 		}
 	}
-	// static route will be put the first, so it will be match first.
-	if nodes[i].tp == snode {
-		p.edges = append([]*node{nodes[i]}, p.edges...)
-		return p.edges[0]
-	}
 
 	p.edges = append(p.edges, nodes[i])
-	return p.edges[len(p.edges)-1]
+	sort.Sort(p.edges)
+	return nodes[i]
 }
 
 // validate parsed nodes, all non-static route should have static route children.
