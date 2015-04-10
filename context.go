@@ -175,6 +175,22 @@ func (ctx *Context) Download(fpath string) error {
 	return err
 }
 
+func (ctx *Context) SaveToFile(formName, savePath string) error {
+	file, _, err := ctx.Req().FormFile(formName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	f, err := os.OpenFile(savePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = io.Copy(f, file)
+	return err
+}
+
 func (ctx *Context) Redirect(url string, status ...int) {
 	s := http.StatusFound
 	if len(status) > 0 {

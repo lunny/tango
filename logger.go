@@ -20,11 +20,7 @@ type Logger interface {
 
 func NewLogger(out io.Writer) Logger {
 	l := log.New(out, "[tango] ", log.Ldefault())
-	if Env == Dev {
-		l.SetOutputLevel(log.Ldebug)
-	} else {
-		l.SetOutputLevel(log.Linfo)
-	}
+	l.SetOutputLevel(log.Ldebug)
 	return l
 }
 

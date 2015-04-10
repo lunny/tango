@@ -6,27 +6,12 @@ import (
 	"sync"
 )
 
-const (
-	Dev = iota
-	Prod
-)
-
-var (
-	Env = Dev
-
-	modes = []string{
-		"Dev",
-		"Product",
-	}
-)
-
 func Version() string {
-	return "0.4.2.0408"
+	return "0.4.3.0410"
 }
 
 type Tango struct {
 	Router
-	Mode       int
 	handlers   []Handler
 	logger     Logger
 	ErrHandler Handler
@@ -98,7 +83,7 @@ func (t *Tango) Run(addrs ...string) {
 		addr = addrs[0]
 	}
 
-	t.logger.Info("listening on http", addr, modes[t.Mode])
+	t.logger.Info("listening on http", addr)
 
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
@@ -114,7 +99,7 @@ func (t *Tango) RunTLS(certFile, keyFile string, addrs ...string) {
 		addr = addrs[0]
 	}
 
-	t.logger.Info("listening on https", addr, modes[t.Mode])
+	t.logger.Info("listening on https", addr)
 
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, t)
 	if err != nil {
@@ -190,7 +175,6 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	tan := &Tango{
 		Router:     NewRouter(),
-		Mode:       Env,
 		logger:     logger,
 		handlers:   make([]Handler, 0),
 		ErrHandler: Errors(),
