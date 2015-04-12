@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
-	"strings"
 	"sort"
+	"strings"
 )
 
 type RouteType byte
@@ -111,12 +111,12 @@ type (
 		regexp  *regexp.Regexp // regexp if tp is rnode
 		content string         // static content or named
 		edges   edges          // children
-		path string // executor path
+		path    string         // executor path
 	}
 	edges []*node
 )
 
-func (e edges) Len() int      { return len(e) }
+func (e edges) Len() int { return len(e) }
 
 func (e edges) Swap(i, j int) { e[i], e[j] = e[j], e[i] }
 
@@ -294,10 +294,6 @@ func (r *router) matchNode(n *node, url string, params *Params) *node {
 			}
 		}
 	} else if n.tp == anode {
-		if len(n.edges) == 0 {
-			*params = append(*params, param{n.content, url})
-			return n
-		}
 		for _, c := range n.edges {
 			idx := strings.LastIndex(url, c.content)
 			if idx > -1 {
@@ -305,6 +301,8 @@ func (r *router) matchNode(n *node, url string, params *Params) *node {
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
+		*params = append(*params, param{n.content, url})
+		return n
 	} else if n.tp == nnode {
 		idx := strings.IndexByte(url, '/')
 		if idx > -1 {
@@ -318,10 +316,6 @@ func (r *router) matchNode(n *node, url string, params *Params) *node {
 			return nil
 		}
 
-		if len(n.edges) == 0 {
-			*params = append(*params, param{n.content, url})
-			return n
-		}
 		for _, c := range n.edges {
 			idx := strings.Index(url, c.content)
 			if idx > -1 {
@@ -329,6 +323,8 @@ func (r *router) matchNode(n *node, url string, params *Params) *node {
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
+		*params = append(*params, param{n.content, url})
+		return n
 	} else if n.tp == rnode {
 		if len(n.edges) == 0 && n.regexp.MatchString(url) {
 			*params = append(*params, param{n.content, url})
