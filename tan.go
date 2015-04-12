@@ -7,7 +7,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.3.0410"
+	return "0.4.3.0412"
 }
 
 type Tango struct {
@@ -163,6 +163,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if ctx.Result == nil {
 			ctx.Result = NotFound()
 		}
+
 		ctx.HandleError()
 
 		t.logger.Error(req.Method, ctx.Status(), p)

@@ -24,6 +24,8 @@ func (p *Params) Set(key, value string) {
 			return
 		}
 	}
+
+	*p = append(*p, param{key, value})
 }
 
 type Paramer interface {
