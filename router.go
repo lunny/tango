@@ -201,14 +201,15 @@ func parseNodes(path string) []*node {
 			}
 			i = i + bracket
 			j = i
+			bracket = 0
 			if i == l {
 				return nodes
 			}
 		} else if path[i] == '*' {
-			nodes = append(nodes, &node{tp: snode, content: path[j:i]})
+			nodes = append(nodes, &node{tp: snode, content: path[j : i-bracket]})
 			j = i
 			if bracket == 1 {
-				for ; i < l && ')' == path[i]; i++ {
+				for ; i < l && ')' != path[i]; i++ {
 				}
 			} else {
 				i = i + 1
@@ -216,6 +217,8 @@ func parseNodes(path string) []*node {
 				}
 			}
 			nodes = append(nodes, &node{tp: anode, content: path[j:i]})
+			i = i + bracket
+			bracket = 0
 			j = i
 			if i == l {
 				return nodes
@@ -280,16 +283,16 @@ func (r *router) addRoute(method, path string, h *Route) {
 	//r.printTrees()
 }
 
-func (r *router) matchNode(n *node, url string, params *Params) *node {
+func (r *router) matchNode(n *node, url string, params Params) (*node, Params) {
 	if n.tp == snode {
 		if strings.HasPrefix(url, n.content) {
 			if len(url) == len(n.content) {
-				return n
+				return n, params
 			}
 			for _, c := range n.edges {
-				e := r.matchNode(c, url[len(n.content):], params)
+				e, newParams := r.matchNode(c, url[len(n.content):], params)
 				if e != nil {
-					return e
+					return e, newParams
 				}
 			}
 		}
@@ -297,58 +300,55 @@ func (r *router) matchNode(n *node, url string, params *Params) *node {
 		for _, c := range n.edges {
 			idx := strings.LastIndex(url, c.content)
 			if idx > -1 {
-				*params = append(*params, param{n.content, url[:idx]})
+				params = append(params, param{n.content, url[:idx]})
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
-		*params = append(*params, param{n.content, url})
-		return n
+		return n, append(params, param{n.content, url})
 	} else if n.tp == nnode {
 		idx := strings.IndexByte(url, '/')
 		if idx > -1 {
 			for _, c := range n.edges {
-				h := r.matchNode(c, url[idx:], params)
+				h, newParams := r.matchNode(c, url[idx:], params)
 				if h != nil {
-					*params = append(*params, param{n.content, url[:idx]})
-					return h
+					return h, append([]param{param{n.content, url[:idx]}}, newParams...)
 				}
 			}
-			return nil
+			return nil, params
 		}
 
 		for _, c := range n.edges {
 			idx := strings.Index(url, c.content)
 			if idx > -1 {
-				*params = append(*params, param{n.content, url[:idx]})
+				params = append(params, param{n.content, url[:idx]})
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
-		*params = append(*params, param{n.content, url})
-		return n
+		params = append(params, param{n.content, url})
+		return n, params
 	} else if n.tp == rnode {
 		if len(n.edges) == 0 && n.regexp.MatchString(url) {
-			*params = append(*params, param{n.content, url})
-			return n
+			params = append(params, param{n.content, url})
+			return n, params
 		}
 		for _, c := range n.edges {
 			idx := strings.Index(url, c.content)
 			if idx > -1 && n.regexp.MatchString(url[:idx]) {
-				*params = append(*params, param{n.content, url[:idx]})
+				params = append(params, param{n.content, url[:idx]})
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
 	}
-	return nil
+	return nil, params
 }
 
 func (r *router) Match(url, method string) (*Route, Params) {
 	cn := r.trees[method]
 	var params = make(Params, 0, strings.Count(url, "/"))
 	for _, n := range cn.edges {
-		e := r.matchNode(n, url, &params)
+		e, newParams := r.matchNode(n, url, params)
 		if e != nil {
-			//fmt.Println("matched:", e.path, params)
-			return e.handle, params
+			return e.handle, newParams
 		}
 	}
 	return nil, nil

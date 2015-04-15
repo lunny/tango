@@ -7,7 +7,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.3.0414"
+	return "0.4.4.0415"
 }
 
 type Tango struct {
@@ -83,7 +83,7 @@ func (t *Tango) Run(addrs ...string) {
 		addr = addrs[0]
 	}
 
-	t.logger.Info("listening on http", addr)
+	t.logger.Info("Listen on http", addr)
 
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
@@ -99,7 +99,7 @@ func (t *Tango) RunTLS(certFile, keyFile string, addrs ...string) {
 		addr = addrs[0]
 	}
 
-	t.logger.Info("listening on https", addr)
+	t.logger.Info("Listen on https", addr)
 
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, t)
 	if err != nil {

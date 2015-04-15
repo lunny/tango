@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 )
 
@@ -357,4 +358,191 @@ func TestRouter9(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	expect(t, buff.String(), "foobar")
 	refute(t, len(buff.String()), 0)
+}
+
+var (
+	parsedResult = map[string][]*node{
+		"/": []*node{
+			{content: "/", tp: snode},
+		},
+		"/static/css/bootstrap.css": []*node{
+			{content: "/static", tp: snode},
+			{content: "/css", tp: snode},
+			{content: "/bootstrap.css", tp: snode},
+		},
+		"/:name": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+		},
+		"/sss:name": []*node{
+			{content: "/sss", tp: snode},
+			{content: ":name", tp: nnode},
+		},
+		"/(:name)": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+		},
+		"/(:name)/sss": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+			{content: "/sss", tp: snode},
+		},
+		"/:name-:value": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+			{content: "-", tp: snode},
+			{content: ":value", tp: nnode},
+		},
+		"/(:name)ssss(:value)": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+			{content: "ssss", tp: snode},
+			{content: ":value", tp: nnode},
+		},
+		"/(:name[0-9]+)": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: rnode, regexp: regexp.MustCompile("([0-9]+)")},
+		},
+		"/*name": []*node{
+			{content: "/", tp: snode},
+			{content: "*name", tp: anode},
+		},
+		"/*name/ssss": []*node{
+			{content: "/", tp: snode},
+			{content: "*name", tp: anode},
+			{content: "/ssss", tp: snode},
+		},
+		"/(*name)ssss": []*node{
+			{content: "/", tp: snode},
+			{content: "*name", tp: anode},
+			{content: "ssss", tp: snode},
+		},
+		"/:name-(:name2[a-z]+)": []*node{
+			{content: "/", tp: snode},
+			{content: ":name", tp: nnode},
+			{content: "-", tp: snode},
+			{content: ":name2", tp: rnode, regexp: regexp.MustCompile("([a-z]+)")},
+		},
+	}
+)
+
+func TestParseNode(t *testing.T) {
+	for p, r := range parsedResult {
+		res := parseNodes(p)
+		if len(r) != len(res) {
+			t.Fatalf("%v 's result %v is not equal %v", p, r, res)
+		}
+		for i := 0; i < len(r); i++ {
+			if r[i].content != res[i].content ||
+				r[i].tp != res[i].tp {
+				t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+			}
+
+			if r[i].tp != rnode {
+				if r[i].regexp != nil {
+					t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+				}
+			} else {
+				if r[i].regexp == nil {
+					t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+				}
+			}
+		}
+	}
+}
+
+type result struct {
+	url    string
+	match  bool
+	params Params
+}
+
+var (
+	matchResult = map[string][]result{
+		"/": []result{
+			{"/", true, Params{}},
+			{"/s", false, Params{}},
+			{"/123", false, Params{}},
+		},
+		"/ss/tt": []result{
+			{"/ss/tt", true, Params{}},
+			{"/s", false, Params{}},
+			{"/ss", false, Params{}},
+		},
+		"/:name": []result{
+			{"/s", true, Params{{":name", "s"}}},
+			{"/", false, Params{}},
+			{"/123/s", false, Params{}},
+		},
+		"/:name1/:name2/:name3": []result{
+			{"/1/2/3", true, Params{{":name1", "1"}, {":name2", "2"}, {":name3", "3"}}},
+			{"/1/2", false, Params{}},
+		},
+		"/*name": []result{
+			{"/s", true, Params{{"*name", "s"}}},
+			{"/123/s", true, Params{{"*name", "123/s"}}},
+			{"/", false, Params{}},
+		},
+		"/(*name)ssss": []result{
+			{"/sssss", true, Params{{"*name", "s"}}},
+			{"/123/ssss", true, Params{{"*name", "123/"}}},
+			{"/", false, Params{}},
+			{"/ss", false, Params{}},
+		},
+		"/(:name[0-9]+)": []result{
+			{"/123", true, Params{{":name", "123"}}},
+			{"/sss", false, Params{}},
+		},
+		"/ss(:name[0-9]+)": []result{
+			{"/ss123", true, Params{{":name", "123"}}},
+			{"/sss", false, Params{}},
+		},
+		"/:name1-(:name2[0-9]+)": []result{
+			{"/ss-123", true, Params{{":name1", "ss"}, {":name2", "123"}}},
+			{"/sss", false, Params{}},
+		},
+		"/(:name1)00(:name2[0-9]+)": []result{
+			{"/ss00123", true, Params{{":name1", "ss"}, {":name2", "123"}}},
+			{"/sss", false, Params{}},
+		},
+		"/(:name1)!(:name2[0-9]+)!(:name3.*)": []result{
+			{"/ss!123!456", true, Params{{":name1", "ss"}, {":name2", "123"}, {":name3", "456"}}},
+			{"/sss", false, Params{}},
+		},
+	}
+)
+
+type Action struct {
+}
+
+func (Action) Get() string {
+	return "get"
+}
+
+func TestRouterSingle(t *testing.T) {
+	for k, m := range matchResult {
+		r := New()
+		r.Route("GET", k, new(Action))
+
+		for _, res := range m {
+			handler, params := r.Match(res.url, "GET")
+			if res.match {
+				if handler == nil {
+					t.Fatal(k, res, "handler", handler, "should not be nil")
+				}
+				for i, v := range params {
+					if res.params[i].Name != v.Name {
+						t.Fatal(k, res, "params name", v, "not equal", res.params[i])
+					}
+					if res.params[i].Value != v.Value {
+						t.Fatal(k, res, "params value", v, "not equal", res.params[i])
+					}
+				}
+			} else {
+				if handler != nil {
+					t.Fatal(k, res, "handler", handler, "should be nil")
+				}
+			}
+		}
+	}
 }
