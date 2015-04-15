@@ -13,7 +13,6 @@ func TestDir1(t *testing.T) {
 	recorder.Body = buff
 
 	tg := New()
-	//tg.Get("/test.html", File("./public/test.html"))
 	tg.Get("/:name", Dir("./public"))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/test.html", nil)
