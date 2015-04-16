@@ -477,6 +477,7 @@ var (
 		"/:name1/:name2/:name3": []result{
 			{"/1/2/3", true, Params{{":name1", "1"}, {":name2", "2"}, {":name3", "3"}}},
 			{"/1/2", false, Params{}},
+			{"/1/2/3/", false, Params{}},
 		},
 		"/*name": []result{
 			{"/s", true, Params{{"*name", "s"}}},
@@ -489,12 +490,22 @@ var (
 			{"/", false, Params{}},
 			{"/ss", false, Params{}},
 		},
+		"/111(*name)ssss": []result{
+			{"/111sssss", true, Params{{"*name", "s"}}},
+			{"/111/123/ssss", true, Params{{"*name", "/123/"}}},
+			{"/", false, Params{}},
+			{"/ss", false, Params{}},
+		},
 		"/(:name[0-9]+)": []result{
 			{"/123", true, Params{{":name", "123"}}},
 			{"/sss", false, Params{}},
 		},
 		"/ss(:name[0-9]+)": []result{
 			{"/ss123", true, Params{{":name", "123"}}},
+			{"/sss", false, Params{}},
+		},
+		"/ss(:name[0-9]+)tt": []result{
+			{"/ss123tt", true, Params{{":name", "123"}}},
 			{"/sss", false, Params{}},
 		},
 		"/:name1-(:name2[0-9]+)": []result{
@@ -541,6 +552,138 @@ func TestRouterSingle(t *testing.T) {
 			} else {
 				if handler != nil {
 					t.Fatal(k, res, "handler", handler, "should be nil")
+				}
+			}
+		}
+	}
+}
+
+type testCase struct {
+	routers []string
+	results []result
+}
+
+var (
+	matchResult2 = []testCase{
+		{
+			[]string{"/"},
+			[]result{
+				{"/", true, Params{}},
+				{"/s", false, Params{}},
+				{"/123", false, Params{}},
+			},
+		},
+
+		{
+			[]string{"/admin", "/:name"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin", true, Params{}},
+				{"/s", true, Params{param{":name", "s"}}},
+				{"/123", true, Params{param{":name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/:name", "/admin"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin", true, Params{}},
+				{"/s", true, Params{param{":name", "s"}}},
+				{"/123", true, Params{param{":name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/admin", "/*name"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin", true, Params{}},
+				{"/s", true, Params{param{"*name", "s"}}},
+				{"/123", true, Params{param{"*name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/*name", "/admin"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin", true, Params{}},
+				{"/s", true, Params{param{"*name", "s"}}},
+				{"/123", true, Params{param{"*name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/*name", "/:name"},
+			[]result{
+				{"/", false, Params{}},
+				{"/s", true, Params{param{"*name", "s"}}},
+				{"/123", true, Params{param{"*name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/:name", "/*name"},
+			[]result{
+				{"/", false, Params{}},
+				{"/s", true, Params{param{":name", "s"}}},
+				{"/123", true, Params{param{":name", "123"}}},
+				{"/123/1", true, Params{param{"*name", "123/1"}}},
+			},
+		},
+
+		{
+			[]string{"/admin/ui", "/*name", "/:name"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin/ui", true, Params{}},
+				{"/s", true, Params{param{"*name", "s"}}},
+				{"/123", true, Params{param{"*name", "123"}}},
+			},
+		},
+
+		{
+			[]string{"/admin/ui", "/:name1/:name2"},
+			[]result{
+				{"/", false, Params{}},
+				{"/admin/ui", true, Params{}},
+				{"/s", false, Params{}},
+				{"/admin/ui2", true, Params{param{":name1", "admin"}, param{":name2", "ui2"}}},
+				{"/123/s", true, Params{param{":name1", "123"}, param{":name2", "s"}}},
+			},
+		},
+	}
+)
+
+func TestRouterMultiple(t *testing.T) {
+	for _, kase := range matchResult2 {
+		r := New()
+		for _, k := range kase.routers {
+			r.Route("GET", k, new(Action))
+		}
+
+		for _, res := range kase.results {
+			handler, params := r.Match(res.url, "GET")
+			if res.match {
+				if handler == nil {
+					t.Fatal(kase.routers, res, "handler", handler, "should not be nil")
+				}
+
+				if len(res.params) != len(params) {
+					t.Fatal(kase.routers, res, "params", params, "not equal", res.params)
+				}
+				for i, v := range params {
+					if res.params[i].Name != v.Name {
+						t.Fatal(kase.routers, res, "params name", v, "not equal", res.params[i])
+					}
+					if res.params[i].Value != v.Value {
+						t.Fatal(kase.routers, res, "params value", v, "not equal", res.params[i])
+					}
+				}
+			} else {
+				if handler != nil {
+					t.Fatal(kase.routers, res, "handler", handler, "should be nil")
 				}
 			}
 		}

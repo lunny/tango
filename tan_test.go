@@ -1,14 +1,14 @@
 package tango
 
 import (
-	"reflect"
-	"testing"
 	"bytes"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
+	"testing"
 	"time"
-	"io/ioutil"
 )
 
 func TestTan1(t *testing.T) {
@@ -77,6 +77,29 @@ func TestTan3(t *testing.T) {
 	expect(t, resp.StatusCode, http.StatusOK)
 	expect(t, string(bs), Version())
 }
+
+/*
+func TestTan4(t *testing.T) {
+	o := Classic()
+	o.Get("/", func() string {
+		return Version()
+	})
+	go o.RunTLS("./public/cert.pem", "./public/key.pem", ":5050")
+
+	time.Sleep(100 * time.Millisecond)
+
+	resp, err := http.Get("https://localhost:5050/")
+	if err != nil {
+		t.Error(err)
+	}
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expect(t, resp.StatusCode, http.StatusOK)
+	expect(t, string(bs), Version())
+}*/
 
 /* Test Helpers */
 func expect(t *testing.T, a interface{}, b interface{}) {

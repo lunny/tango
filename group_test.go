@@ -50,10 +50,10 @@ func TestGroup2(t *testing.T) {
 	recorder.Body = buff
 
 	g := NewGroup()
-	g.Get("/1", func() string {
+	g.Any("/1", func() string {
 		return "/1"
 	})
-	g.Post("/2", func() string {
+	g.Options("/2", func() string {
 		return "/2"
 	})
 
@@ -71,7 +71,7 @@ func TestGroup2(t *testing.T) {
 	expect(t, buff.String(), "/1")
 
 	buff.Reset()
-	req, err = http.NewRequest("POST", "http://localhost:8000/api/2", nil)
+	req, err = http.NewRequest("OPTIONS", "http://localhost:8000/api/2", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -89,17 +89,17 @@ func TestGroup3(t *testing.T) {
 
 	o := Classic()
 	o.Group("/api", func(g *Group) {
-	    g.Group("/v1", func(cg *Group) {
-	        cg.Get("/1", func() string {
-		    return "/1"
-	        })
-	        cg.Post("/2", func() string {
-		    return "/2"
-	        })
-	    })
+		g.Group("/v1", func(cg *Group) {
+			cg.Trace("/1", func() string {
+				return "/1"
+			})
+			cg.Patch("/2", func() string {
+				return "/2"
+			})
+		})
 	})
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/api/v1/1", nil)
+	req, err := http.NewRequest("TRACE", "http://localhost:8000/api/v1/1", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -110,7 +110,7 @@ func TestGroup3(t *testing.T) {
 	expect(t, buff.String(), "/1")
 
 	buff.Reset()
-	req, err = http.NewRequest("POST", "http://localhost:8000/api/v1/2", nil)
+	req, err = http.NewRequest("PATCH", "http://localhost:8000/api/v1/2", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -128,15 +128,15 @@ func TestGroup4(t *testing.T) {
 
 	o := Classic()
 	o.Group("", func(g *Group) {
-		g.Get("/api/1", func() string {
+		g.Delete("/api/1", func() string {
 			return "/1"
 		})
-		g.Post("/api/2", func() string {
+		g.Head("/api/2", func() string {
 			return "/2"
 		})
 	})
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/api/1", nil)
+	req, err := http.NewRequest("DELETE", "http://localhost:8000/api/1", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -147,7 +147,7 @@ func TestGroup4(t *testing.T) {
 	expect(t, buff.String(), "/1")
 
 	buff.Reset()
-	req, err = http.NewRequest("POST", "http://localhost:8000/api/2", nil)
+	req, err = http.NewRequest("HEAD", "http://localhost:8000/api/2", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -166,11 +166,11 @@ func TestGroup5(t *testing.T) {
 	o := Classic()
 	var handlerGroup bool
 	o.Group("/api", func(g *Group) {
-		g.Use(HandlerFunc(func (ctx *Context) {
+		g.Use(HandlerFunc(func(ctx *Context) {
 			handlerGroup = true
 			ctx.Next()
 		}))
-		g.Get("/1", func() string {
+		g.Put("/1", func() string {
 			return "/1"
 		})
 	})
@@ -178,7 +178,7 @@ func TestGroup5(t *testing.T) {
 		return "/2"
 	})
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/api/1", nil)
+	req, err := http.NewRequest("PUT", "http://localhost:8000/api/1", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -210,7 +210,7 @@ func TestGroup6(t *testing.T) {
 
 	var handlerGroup bool
 	g := NewGroup()
-	g.Use(HandlerFunc(func (ctx *Context) {
+	g.Use(HandlerFunc(func(ctx *Context) {
 		handlerGroup = true
 		ctx.Next()
 	}))
