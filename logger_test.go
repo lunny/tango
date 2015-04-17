@@ -1,15 +1,15 @@
 package tango
 
 import (
-	"testing"
 	"bytes"
-	"net/http/httptest"
 	"net/http"
+	"net/http/httptest"
+	"testing"
 
 	"github.com/lunny/log"
 )
 
-func TestLogger(t *testing.T) {
+func TestLogger1(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 
@@ -27,4 +27,31 @@ func TestLogger(t *testing.T) {
 	n.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusNotFound)
 	refute(t, len(buff.String()), 0)
+}
+
+type LoggerAction struct {
+	Log
+}
+
+func (l *LoggerAction) Get() string {
+	return "log"
+}
+
+func TestLogger2(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	n := Classic()
+	n.Get("/", new(LoggerAction))
+
+	req, err := http.NewRequest("GET", "http://localhost:3000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "log")
 }

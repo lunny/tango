@@ -60,12 +60,6 @@ func Errors() HandlerFunc {
 		case error:
 			ctx.WriteHeader(http.StatusInternalServerError)
 			ctx.Write([]byte(res.Error()))
-		case []byte:
-			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write(res)
-		case string:
-			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(res))
 		default:
 			ctx.WriteHeader(http.StatusInternalServerError)
 			ctx.Write([]byte(http.StatusText(http.StatusInternalServerError)))

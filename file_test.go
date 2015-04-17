@@ -34,7 +34,7 @@ func TestDir2(t *testing.T) {
 	tg := New()
 	tg.Get("/", Dir("./public"))
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/test.html", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
 	}

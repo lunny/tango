@@ -1,16 +1,16 @@
 package tango
 
 import (
-	"net/http"
-	"time"
-	"fmt"
-	"strings"
-	"crypto/sha1"
-	"crypto/hmac"
-	"strconv"
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func isValidCookieValue(p []byte) bool {
@@ -46,7 +46,7 @@ type Cookies interface {
 }
 
 type cookies struct {
-	req *http.Request
+	req  *http.Request
 	resp http.ResponseWriter
 }
 
@@ -74,13 +74,14 @@ func (c *cookies) Get(key string) *http.Cookie {
 }
 
 func (c *cookies) Set(ck *http.Cookie) {
- 	http.SetCookie(c.resp, ck)
+	http.SetCookie(c.resp, ck)
 }
 
 func (c *cookies) Expire(key string, expire time.Time) {
 	ck := c.Get(key)
 	if ck != nil {
 		ck.Expires = expire
+		ck.MaxAge = int(expire.Sub(time.Now()).Seconds())
 		c.Set(ck)
 	}
 }
@@ -138,17 +139,19 @@ func (c *secureCookies) Get(key string) *http.Cookie {
 	return ck
 }
 
+func secCookieValue(secret string, vb []byte) string {
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	sig := getCookieSig(secret, vb, timestamp)
+	return strings.Join([]string{string(vb), timestamp, sig}, "|")
+}
+
 func NewSecureCookie(secret, name string, val string, age ...int64) *http.Cookie {
 	var buf bytes.Buffer
 	encoder := base64.NewEncoder(base64.StdEncoding, &buf)
 	encoder.Write([]byte(val))
 	encoder.Close()
 
-	vs := buf.String()
-	vb := buf.Bytes()
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	sig := getCookieSig(secret, vb, timestamp)
-	cookie := strings.Join([]string{vs, timestamp, sig}, "|")
+	cookie := secCookieValue(secret, buf.Bytes())
 	return NewCookie(name, cookie, age...)
 }
 
@@ -156,6 +159,7 @@ func (c *secureCookies) Expire(key string, expire time.Time) {
 	ck := c.Get(key)
 	if ck != nil {
 		ck.Expires = expire
+		ck.Value = secCookieValue(c.secret, []byte(ck.Value))
 		c.Set(ck)
 	}
 }

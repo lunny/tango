@@ -1,11 +1,13 @@
 package tango
 
 import (
-	"testing"
 	"bytes"
-	"strings"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+	"testing"
+	"time"
 )
 
 func TestCookie1(t *testing.T) {
@@ -64,6 +66,57 @@ func TestCookie3(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", func(ctx *Context) string {
+		ctx.Cookies().Expire("expire", time.Now())
+		return "test"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req.AddCookie(NewCookie("expire", "test"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "test")
+	fmt.Println(recorder.Header().Get("Set-Cookie"))
+	expect(t, strings.Split(recorder.Header().Get("Set-Cookie"), ";")[0], "expire=test")
+}
+
+func TestCookie4(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) string {
+		ctx.Cookies().Del("ttttt")
+		return "test"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req.AddCookie(NewCookie("ttttt", "test"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "test")
+	expect(t, recorder.Header().Get("Set-Cookie"), "ttttt=test; Max-Age=0")
+}
+
+func TestCookie5(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) string {
 		ck := ctx.SecureCookies("sssss").Get("name")
 		if ck != nil {
 			return ck.Value
@@ -83,7 +136,7 @@ func TestCookie3(t *testing.T) {
 	expect(t, buff.String(), "test")
 }
 
-func TestCookie4(t *testing.T) {
+func TestCookie6(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
@@ -109,4 +162,54 @@ func TestCookie4(t *testing.T) {
 	name, value := s[0], s[1]
 	expect(t, name, "name")
 	expect(t, parseSecureCookie("ttttt", value), "test")
+}
+
+func TestCookie7(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) string {
+		ctx.SecureCookies("ttttt").Expire("expire", time.Now())
+		return "test"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req.AddCookie(NewSecureCookie("ttttt", "expire", "test"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "test")
+	expect(t, strings.Split(recorder.Header().Get("Set-Cookie"), "|")[0], "expire=test")
+}
+
+func TestCookie8(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) string {
+		ctx.SecureCookies("ttttt").Del("ttttt")
+		return "test"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req.AddCookie(NewSecureCookie("ttttt", "ttttt", "test"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "test")
+	expect(t, strings.Split(recorder.Header().Get("Set-Cookie"), "|")[0], "ttttt=test")
 }

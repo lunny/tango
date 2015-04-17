@@ -71,13 +71,13 @@ Middlewares allow you easily plugin/unplugin features for your Tango application
 
 There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
 
-- recovery - recover after panic
-- compress - Gzip & Deflate compression
-- static - Serves static files
-- logger - Log the request & inject Logger to action struct
-- param - get the router parameters
-- return - Handle the returned value smartlly
-- context - Inject context to action struct
+- [recovery](https://github.com/lunny/tango/wiki/Recovery) - recover after panic
+- [compress](https://github.com/lunny/tango/wiki/Compress) - Gzip & Deflate compression
+- [static](https://github.com/lunny/tango/wiki/Static) - Serves static files
+- [logger](https://github.com/lunny/tango/wiki/Logger) - Log the request & inject Logger to action struct
+- [param](https://github.com/lunny/tango/wiki/Params) - get the router parameters
+- [return](https://github.com/lunny/tango/wiki/Return) - Handle the returned value smartlly
+- [context](https://github.com/lunny/tango/wiki/Context) - Inject context to action struct
 - [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager
 - [xsrf](https://github.com/tango-contrib/xsrf) - [![Build Status](https://drone.io/github.com/tango-contrib/xsrf/status.png)](https://drone.io/github.com/tango-contrib/xsrf/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/xsrf)](http://gocover.io/github.com/tango-contrib/xsrf) Generates and validates csrf tokens
 - [binding](https://github.com/tango-contrib/binding) - [![Build Status](https://drone.io/github.com/tango-contrib/binding/status.png)](https://drone.io/github.com/tango-contrib/binding/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/binding)](http://gocover.io/github.com/tango-contrib/binding) Bind and validates forms

@@ -1,12 +1,12 @@
 package tango
 
 import (
-	"testing"
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"fmt"
+	"testing"
 )
 
 func TestError1(t *testing.T) {
@@ -174,14 +174,6 @@ func TestError8(t *testing.T) {
 			ctx.WriteHeader(http.StatusInternalServerError)
 			ctx.Write([]byte(prefix))
 			ctx.Write([]byte(res.Error()))
-		case []byte:
-			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(prefix))
-			ctx.Write(res)
-		case string:
-			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(prefix))
-			ctx.Write([]byte(res))
 		default:
 			ctx.WriteHeader(http.StatusInternalServerError)
 			ctx.Write([]byte(prefix))

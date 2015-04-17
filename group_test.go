@@ -248,3 +248,28 @@ func TestGroup6(t *testing.T) {
 	expect(t, buff.String(), "/2")
 	expect(t, handlerGroup, false)
 }
+
+func TestGroup7(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	var isPanic bool
+	defer func() {
+		if err := recover(); err != nil {
+			isPanic = true
+		}
+		expect(t, isPanic, true)
+	}()
+
+	o := Classic()
+	o.Group("/api", func() {
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/api/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+}

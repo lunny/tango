@@ -121,3 +121,44 @@ func TestParams4(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "name")
 }
+
+func TestParams5(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) {
+		ctx.Params().Set(":name", "test")
+		ctx.Write([]byte(ctx.Params().Get(":name")))
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "test")
+}
+
+func TestParams6(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(ctx *Context) {
+		ctx.Write([]byte(ctx.Params().Get(":name")))
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "")
+}
