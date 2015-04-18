@@ -3,9 +3,9 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 ![Tango Logo](logo.png)
 
-Package tango is a micro-kernel & pluggable web framework for Go.
+Package tango is a micro & pluggable web framework for Go.
 
-##### Current version: v0.4.4 [Version History](https://github.com/lunny/tango/releases)
+##### Current version: v0.4.4   [Version History](https://github.com/lunny/tango/releases)
 
 ## Getting Started
 
@@ -62,12 +62,12 @@ More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [
 
 - Powerful routing & Flexible routes combinations.
 - Directly integrate with existing services.
-- Easy to plugin/unplugin features with modular design.
+- Easy to plugin features with modular design.
 - High performance dependency injection embedded.
 
 ## Middlewares 
 
-Middlewares allow you easily plugin/unplugin features for your Tango applications.
+Middlewares allow you easily plugin features for your Tango applications.
 
 There are already many [middlewares](https://github.com/tango-contrib) to simplify your work:
 
@@ -92,6 +92,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 
 ## Getting Help
 
+- [Wiki](https://github.com/lunny/tango/wiki)
 - [API Reference](https://gowalker.org/github.com/lunny/tango)
 
 ## Cases

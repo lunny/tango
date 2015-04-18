@@ -5,7 +5,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Tango 是一个微内核易扩展的Go语言Web框架.
 
-##### 当前版本: v0.4.4 [版本更新记录](https://github.com/lunny/tango/releases)
+##### 当前版本: v0.4.4   [版本更新记录](https://github.com/lunny/tango/releases)
 
 ## 简介
 
@@ -90,8 +90,9 @@ func main() {
 - [debug](https://github.com/tango-contrib/debug) - [![Build Status](https://drone.io/github.com/tango-contrib/debug/status.png)](https://drone.io/github.com/tango-contrib/debug/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/debug)](http://gocover.io/github.com/tango-contrib/debug) show detail debug infomaton on log
 - [basicauth](https://github.com/tango-contrib/basicauth) - [![Build Status](https://drone.io/github.com/tango-contrib/basicauth/status.png)](https://drone.io/github.com/tango-contrib/basicauth/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/basicauth)](http://gocover.io/github.com/tango-contrib/basicauth) basicauth middleware
 
-## 获得帮助
+## 文档
 
+- [Wiki](https://github.com/lunny/tango/wiki/ZH_Home)
 - [API文档](https://gowalker.org/github.com/lunny/tango)
 
 ## 案例

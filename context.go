@@ -114,11 +114,13 @@ func (ctx *Context) newAction() {
 	}
 }
 
+// WARNING: don't invoke this method on action
 func (ctx *Context) Next() {
 	ctx.idx += 1
 	ctx.Invoke()
 }
 
+// WARNING: don't invoke this method on action
 func (ctx *Context) Invoke() {
 	if ctx.idx < len(ctx.tan.handlers) {
 		ctx.tan.handlers[ctx.idx].Handle(ctx)
