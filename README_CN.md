@@ -56,8 +56,6 @@ func main() {
 
 这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json。具体返回可以参见以下文档。
 
-源码文档 [godoc](http://godoc.org/github.com/lunny/tango) 和 [Wiki](https://github.com/lunny/tango/wiki/ZH_Home)
-
 ## 特性
 
 - 强大而灵活的路由设计
@@ -67,9 +65,9 @@ func main() {
 
 ## 中间件 
 
-中间件让你像切面编程那样来操作你的Controller。
+中间件让你像AOP编程那样来操作你的Controller。
 
-目前已有很多 [中间件](https://github.com/tango-contrib)，可以帮助你来简化工作:
+目前已有很多 [中间件 - github.com/tango-contrib](https://github.com/tango-contrib)，可以帮助你来简化工作:
 
 - [recovery](https://github.com/lunny/tango/wiki/ZH_Recovery) - recover after panic
 - [compress](https://github.com/lunny/tango/wiki/ZH_Compress) - Gzip & Deflate compression
@@ -90,10 +88,12 @@ func main() {
 - [debug](https://github.com/tango-contrib/debug) - [![Build Status](https://drone.io/github.com/tango-contrib/debug/status.png)](https://drone.io/github.com/tango-contrib/debug/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/debug)](http://gocover.io/github.com/tango-contrib/debug) show detail debug infomaton on log
 - [basicauth](https://github.com/tango-contrib/basicauth) - [![Build Status](https://drone.io/github.com/tango-contrib/basicauth/status.png)](https://drone.io/github.com/tango-contrib/basicauth/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/basicauth)](http://gocover.io/github.com/tango-contrib/basicauth) basicauth middleware
 
-## 文档
+## 获得帮助
 
 - [Wiki](https://github.com/lunny/tango/wiki/ZH_Home)
 - [API文档](https://gowalker.org/github.com/lunny/tango)
+- [中文论坛](https://groups.google.com/forum/#!forum/go-tango)
+- [英文论坛](https://groups.google.com/forum/#!forum/go-tango)
 
 ## 案例
 

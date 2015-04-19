@@ -56,8 +56,6 @@ If you change `true` after `if` to `false`, then you will get
 
 This code will automatically convert returned map or error to a json because we has an embedded struct `tango.Json`.
 
-More document, please see [godoc](http://godoc.org/github.com/lunny/tango) and [Wiki](https://github.com/lunny/tango/wiki)
-
 ## Features
 
 - Powerful routing & Flexible routes combinations.
@@ -94,6 +92,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 
 - [Wiki](https://github.com/lunny/tango/wiki)
 - [API Reference](https://gowalker.org/github.com/lunny/tango)
+- [Discuss](https://groups.google.com/forum/#!forum/go-tango)
 
 ## Cases
 
