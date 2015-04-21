@@ -634,6 +634,17 @@ var (
 		},
 
 		{
+			[]string{"/*name", "/*name/123"},
+			[]result{
+				{"/", false, Params{}},
+				{"/123", true, Params{param{"*name", "123"}}},
+				{"/s", true, Params{param{"*name", "s"}}},
+				{"/abc/123", true, Params{param{"*name", "abc"}}},
+				{"/name1/name2/123", true, Params{param{"*name", "name1/name2"}}},
+			},
+		},
+
+		{
 			[]string{"/admin/ui", "/*name", "/:name"},
 			[]result{
 				{"/", false, Params{}},

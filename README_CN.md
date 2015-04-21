@@ -9,7 +9,7 @@ Tango 是一个微内核易扩展的Go语言Web框架.
 
 ## 简介
 
-安装Tango:
+安装Tango：
 
     go get github.com/lunny/tango
 
@@ -60,7 +60,7 @@ func main() {
 
 - 强大而灵活的路由设计
 - 兼容已有的`http.Handler`
-- 模块化设计，可以很容易写出自定义插件
+- 模块化设计，可以很容易写出自己的中间件
 - 高性能的依赖注入方式
 
 ## 中间件 
