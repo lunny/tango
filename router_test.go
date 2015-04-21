@@ -655,6 +655,16 @@ var (
 		},
 
 		{
+			[]string{"/(:id[0-9]+)", "/(:id[0-9]+)/edit", "/(:id[0-9]+)/del"},
+			[]result{
+				{"/1", true, Params{param{":id", "1"}}},
+				{"/admin/ui", false, Params{}},
+				{"/2/edit", true, Params{param{":id", "2"}}},
+				{"/3/del", true, Params{param{":id", "3"}}},
+			},
+		},
+
+		{
 			[]string{"/admin/ui", "/:name1/:name2"},
 			[]result{
 				{"/", false, Params{}},

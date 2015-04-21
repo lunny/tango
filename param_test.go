@@ -51,7 +51,7 @@ func TestParams2(t *testing.T) {
 	o := Classic()
 	o.Get("/(:name.*)", new(Param2Action))
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/foobar/1", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -59,7 +59,7 @@ func TestParams2(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	expect(t, buff.String(), "foobar/1")
+	expect(t, buff.String(), "foobar")
 }
 
 type Param3Action struct {
@@ -81,7 +81,7 @@ func TestParams3(t *testing.T) {
 	o := Classic()
 	o.Get("/(:name.*)", new(Param3Action))
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/foobar/1", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -111,7 +111,7 @@ func TestParams4(t *testing.T) {
 	o := Classic()
 	o.Get("/(:name.*)", new(Param4Action))
 
-	req, err := http.NewRequest("GET", "http://localhost:8000/foobar/1", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8000/foobar", nil)
 	if err != nil {
 		t.Error(err)
 	}
