@@ -5,7 +5,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Tango 是一个微内核易扩展的Go语言Web框架.
 
-##### 当前版本: v0.4.4   [版本更新记录](https://github.com/lunny/tango/releases)
+##### 当前版本: v0.4.5   [版本更新记录](https://github.com/lunny/tango/releases)
 
 ## 简介
 
