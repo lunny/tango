@@ -1,11 +1,15 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestRecovery(t *testing.T) {

@@ -1,7 +1,5 @@
-// package nodb is a high performance embedded NoSQL.
-//
-// Copyright 2014 lunny. All rights reserved.
-// Use of this source code is governed by a BSD
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // Tango is a micro & pluggable web framework for Go language.

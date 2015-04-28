@@ -1,13 +1,17 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
 	"bytes"
+	"encoding/xml"
+	"errors"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"errors"
 	"strings"
-	"encoding/xml"
+	"testing"
 )
 
 type MyReturn struct {
@@ -93,7 +97,7 @@ func TestReturnJson1(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(JsonReturn))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -120,7 +124,7 @@ func TestReturnJsonError(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(JsonErrReturn))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -147,7 +151,7 @@ func TestReturnJsonError2(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(JsonErrReturn2))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -174,7 +178,7 @@ func TestReturnJson2(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(JsonReturn1))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -201,7 +205,7 @@ func TestReturnJson3(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(JsonReturn2))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -218,18 +222,18 @@ type XmlReturn struct {
 }
 
 type Address struct {
-    City, State string
+	City, State string
 }
 type Person struct {
-    XMLName   xml.Name `xml:"person"`
-    Id        int      `xml:"id,attr"`
-    FirstName string   `xml:"name>first"`
-    LastName  string   `xml:"name>last"`
-    Age       int      `xml:"age"`
-    Height    float32  `xml:"height,omitempty"`
-    Married   bool
-    Address
-    Comment string `xml:",comment"`
+	XMLName   xml.Name `xml:"person"`
+	Id        int      `xml:"id,attr"`
+	FirstName string   `xml:"name>first"`
+	LastName  string   `xml:"name>last"`
+	Age       int      `xml:"age"`
+	Height    float32  `xml:"height,omitempty"`
+	Married   bool
+	Address
+	Comment string `xml:",comment"`
 }
 
 func (XmlReturn) Get() interface{} {
@@ -246,7 +250,7 @@ func TestReturnXml(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(XmlReturn))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)
@@ -273,7 +277,7 @@ func TestReturnXmlError(t *testing.T) {
 
 	o := Classic()
 	o.Get("/", new(XmlErrReturn))
-	
+
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
 		t.Error(err)

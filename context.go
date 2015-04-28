@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -128,7 +132,22 @@ func (ctx *Context) Invoke() {
 		ctx.newAction()
 		// route is matched
 		if ctx.action != nil {
-			ret := ctx.route.method.Call(ctx.callArgs)
+			var ret []reflect.Value
+			switch fn := ctx.route.raw.(type) {
+			case func(*Context):
+				fn(ctx)
+			case func(*http.Request, http.ResponseWriter):
+				fn(ctx.req, ctx.ResponseWriter)
+			case func():
+				fn()
+			case func(*http.Request):
+				fn(ctx.req)
+			case func(http.ResponseWriter):
+				fn(ctx.ResponseWriter)
+			default:
+				ret = ctx.route.method.Call(ctx.callArgs)
+			}
+
 			if len(ret) > 0 {
 				ctx.Result = ret[0].Interface()
 			}

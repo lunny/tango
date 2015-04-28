@@ -1,20 +1,24 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
-	"testing"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 )
 
-type PrefixAction struct{
+type PrefixAction struct {
 }
 
 func (PrefixAction) Get() string {
 	return "Prefix"
 }
 
-type NoPrefixAction struct{
+type NoPrefixAction struct {
 }
 
 func (NoPrefixAction) Get() string {
@@ -61,4 +65,3 @@ func TestPrefix(t *testing.T) {
 	expect(t, buff.String(), "NoPrefix")
 	expect(t, isPrefix, false)
 }
-

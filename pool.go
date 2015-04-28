@@ -1,24 +1,28 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
-	"sync"
 	"reflect"
+	"sync"
 )
 
 type pool struct {
 	size int
-	tp reflect.Type
+	tp   reflect.Type
 	pool reflect.Value
-	cur int
+	cur  int
 	lock sync.Mutex
 }
 
 func newPool(size int, tp reflect.Type) *pool {
 	return &pool{
 		size: size,
-		cur: 0,
+		cur:  0,
 		pool: reflect.MakeSlice(reflect.SliceOf(tp), size, size),
-		tp: reflect.SliceOf(tp),
+		tp:   reflect.SliceOf(tp),
 	}
 }
 

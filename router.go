@@ -39,18 +39,20 @@ var (
 
 // Route
 type Route struct {
+	raw       interface{}
 	method    reflect.Value
 	routeType RouteType
 	pool      *pool
 }
 
-func NewRoute(t reflect.Type,
+func NewRoute(v interface{}, t reflect.Type,
 	method reflect.Value, tp RouteType) *Route {
 	var pool *pool
 	if tp == StructRoute || tp == StructPtrRoute {
 		pool = newPool(PoolSize, t)
 	}
 	return &Route{
+		raw:       v,
 		routeType: tp,
 		method:    method,
 		pool:      pool,
@@ -505,7 +507,7 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 		panic("no support function type")
 	}
 
-	var r = NewRoute(t, vc, rt)
+	var r = NewRoute(c, t, vc, rt)
 	url = removeStick(url)
 	for _, m := range methods {
 		router.addRoute(m, url, r)
@@ -519,9 +521,9 @@ func (router *router) addStruct(methods map[string]string, url string, c interfa
 	// added a default method Get, Post
 	for name, method := range methods {
 		if m, ok := t.MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(t, m.Func, StructPtrRoute))
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute))
 		} else if m, ok := vc.Type().MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(t, m.Func, StructRoute))
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute))
 		}
 	}
 }

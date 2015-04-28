@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -17,12 +21,14 @@ type ResponseTyper interface {
 	ResponseType() int
 }
 
-type Json struct {}
+type Json struct{}
+
 func (Json) ResponseType() int {
 	return JsonResponse
 }
 
-type Xml struct {}
+type Xml struct{}
+
 func (Xml) ResponseType() int {
 	return XmlResponse
 }
@@ -36,13 +42,13 @@ func isNil(a interface{}) bool {
 }
 
 type XmlError struct {
-	XMLName   xml.Name `xml:"err"`
-	Content string `xml:"content"`
+	XMLName xml.Name `xml:"err"`
+	Content string   `xml:"content"`
 }
 
 type XmlString struct {
-	XMLName   xml.Name `xml:"string"`
-	Content string `xml:"content"`
+	XMLName xml.Name `xml:"string"`
+	Content string   `xml:"content"`
 }
 
 func Return() HandlerFunc {
@@ -72,31 +78,31 @@ func Return() HandlerFunc {
 			encoder := json.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/json")
 			switch res := ctx.Result.(type) {
-				case AbortError:
-					ctx.WriteHeader(res.Code())
+			case AbortError:
+				ctx.WriteHeader(res.Code())
+				encoder.Encode(map[string]string{
+					"err": res.Error(),
+				})
+			case error:
+				encoder.Encode(map[string]string{
+					"err": res.Error(),
+				})
+			case string:
+				encoder.Encode(map[string]string{
+					"content": res,
+				})
+			case []byte:
+				encoder.Encode(map[string]string{
+					"content": string(res),
+				})
+			default:
+				err := encoder.Encode(ctx.Result)
+				if err != nil {
+					ctx.Result = err
 					encoder.Encode(map[string]string{
-						"err": res.Error(),
+						"err": err.Error(),
 					})
-				case error:
-					encoder.Encode(map[string]string{
-						"err": res.Error(),
-					})
-				case string:
-					encoder.Encode(map[string]string{
-						"content": res,
-					})
-				case []byte:
-					encoder.Encode(map[string]string{
-						"content": string(res),
-					})
-				default:
-					err := encoder.Encode(ctx.Result)
-					if err != nil {
-						ctx.Result = err
-						encoder.Encode(map[string]string{
-							"err": err.Error(),
-						})
-					}
+				}
 			}
 
 			return
@@ -104,31 +110,31 @@ func Return() HandlerFunc {
 			encoder := xml.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/xml")
 			switch res := ctx.Result.(type) {
-				case AbortError:
-					ctx.WriteHeader(res.Code())
+			case AbortError:
+				ctx.WriteHeader(res.Code())
+				encoder.Encode(XmlError{
+					Content: res.Error(),
+				})
+			case error:
+				encoder.Encode(XmlError{
+					Content: res.Error(),
+				})
+			case string:
+				encoder.Encode(XmlString{
+					Content: res,
+				})
+			case []byte:
+				encoder.Encode(XmlString{
+					Content: string(res),
+				})
+			default:
+				err := encoder.Encode(ctx.Result)
+				if err != nil {
+					ctx.Result = err
 					encoder.Encode(XmlError{
-						Content: res.Error(),
+						Content: err.Error(),
 					})
-				case error:
-					encoder.Encode(XmlError{
-						Content: res.Error(),
-					})
-				case string:
-					encoder.Encode(XmlString{
-						Content: res,
-					})
-				case []byte:
-					encoder.Encode(XmlString{
-						Content: string(res),
-					})
-				default:
-					err := encoder.Encode(ctx.Result)
-					if err != nil {
-						ctx.Result = err
-						encoder.Encode(XmlError{
-							Content: err.Error(),
-						})
-					}
+				}
 			}
 			return
 		}

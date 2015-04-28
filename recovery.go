@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -11,7 +15,7 @@ func Recovery(debug bool) HandlerFunc {
 		defer func() {
 			if e := recover(); e != nil {
 				content := fmt.Sprintf("Handler crashed with error: %v", e)
-				for i := 1; ;i += 1 {
+				for i := 1; ; i += 1 {
 					_, file, line, ok := runtime.Caller(i)
 					if !ok {
 						break

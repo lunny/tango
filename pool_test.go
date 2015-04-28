@@ -1,11 +1,15 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
-	"testing"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"sync"
+	"testing"
 )
 
 type PoolAction struct {
@@ -18,12 +22,12 @@ func (PoolAction) Get() string {
 func TestPool(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(PoolAction))
-	
+
 	var wg sync.WaitGroup
 	// default pool size is 800
-	for i:=0; i< 1000; i++ {
+	for i := 0; i < 1000; i++ {
 		wg.Add(1)
-		go func(){
+		go func() {
 			buff := bytes.NewBufferString("")
 			recorder := httptest.NewRecorder()
 			recorder.Body = buff

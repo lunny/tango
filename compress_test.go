@@ -1,14 +1,18 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
-	"fmt"
-	"testing"
 	"bytes"
-	"compress/gzip"
 	"compress/flate"
+	"compress/gzip"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 )
 
 type CompressExample struct {
@@ -45,28 +49,28 @@ func (NoCompress) Get() string {
 func TestCompressAuto(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(CompressExample))
-	testCompress(t, o, "http://localhost:8000/", 
+	testCompress(t, o, "http://localhost:8000/",
 		"This is a auto compress text", "gzip")
 }
 
 func TestCompressGzip(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(GZipExample))
-	testCompress(t, o, "http://localhost:8000/", 
+	testCompress(t, o, "http://localhost:8000/",
 		"This is a gzip compress text", "gzip")
 }
 
 func TestCompressDeflate(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(DeflateExample))
-	testCompress(t, o, "http://localhost:8000/", 
+	testCompress(t, o, "http://localhost:8000/",
 		"This is a deflate compress text", "deflate")
 }
 
 func TestCompressNon(t *testing.T) {
 	o := Classic()
 	o.Get("/", new(NoCompress))
-	testCompress(t, o, "http://localhost:8000/", 
+	testCompress(t, o, "http://localhost:8000/",
 		"This is a non-compress text", "")
 }
 
@@ -74,7 +78,7 @@ func TestCompressStatic(t *testing.T) {
 	o := New()
 	o.Use(Compresses([]string{".html"}))
 	o.Use(ClassicHandlers...)
-	testCompress(t, o, "http://localhost:8000/public/test.html", 
+	testCompress(t, o, "http://localhost:8000/public/test.html",
 		"hello tango", "gzip")
 }
 

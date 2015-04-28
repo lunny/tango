@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -24,22 +28,25 @@ type Compresser interface {
 	CompressType() string
 }
 
-type GZip struct {}
+type GZip struct{}
+
 func (GZip) CompressType() string {
 	return "gzip"
 }
 
-type Deflate struct {}
+type Deflate struct{}
+
 func (Deflate) CompressType() string {
 	return "deflate"
 }
 
-type Compress struct {}
+type Compress struct{}
+
 func (Compress) CompressType() string {
 	return "auto"
 }
 
-func Compresses(exts []string) HandlerFunc{
+func Compresses(exts []string) HandlerFunc {
 	extsmap := make(map[string]bool)
 	for _, ext := range exts {
 		extsmap[strings.ToLower(ext)] = true

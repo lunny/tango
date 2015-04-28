@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -7,7 +11,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.5.0421"
+	return "0.4.5.0428"
 }
 
 type Tango struct {

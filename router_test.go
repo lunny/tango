@@ -1,3 +1,7 @@
+// Copyright 2015 The Tango Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package tango
 
 import (
@@ -709,4 +713,25 @@ func TestRouterMultiple(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestRouter10(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	r := New()
+	r.Get("/", func(ctx *Context) {
+		ctx.Write([]byte("test"))
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	r.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "test")
+	refute(t, len(buff.String()), 0)
 }
