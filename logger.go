@@ -66,12 +66,11 @@ func Logging() HandlerFunc {
 		}
 
 		statusCode := ctx.Status()
-		escape := time.Now().Sub(start)
 
 		if statusCode >= 200 && statusCode < 400 {
-			ctx.Info(ctx.Req().Method, statusCode, escape, p)
+			ctx.Info(ctx.Req().Method, statusCode, time.Since(start), p)
 		} else {
-			ctx.Error(ctx.Req().Method, statusCode, escape, p, ctx.Result)
+			ctx.Error(ctx.Req().Method, statusCode, time.Since(start), p, ctx.Result)
 		}
 	}
 }

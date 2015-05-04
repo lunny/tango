@@ -17,6 +17,7 @@ import (
 type ResponseWriter interface {
 	http.ResponseWriter
 	http.Flusher
+	http.Hijacker
 	// Status returns the status code of the response or 0 if the response has not been written.
 	Status() int
 	// Written returns whether or not the ResponseWriter has been written.

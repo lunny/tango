@@ -59,6 +59,10 @@ func NewRoute(v interface{}, t reflect.Type,
 	}
 }
 
+func (r *Route) Raw() interface{} {
+	return r.raw
+}
+
 func (r *Route) Method() reflect.Value {
 	return r.method
 }

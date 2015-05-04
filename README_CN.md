@@ -98,6 +98,7 @@ func main() {
 
 - [Wego](https://github.com/go-tango/wego)
 - [DBWeb](https://github.com/go-xorm/dbweb)
+- [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)
 - [ABlog](https://github.com/fuxiaohei/ablog)
 - [Gos](https://github.com/go-tango/gos)
 
