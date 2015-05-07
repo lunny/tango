@@ -167,18 +167,20 @@ func (ctx *Context) ServeFile(path string) error {
 
 func (ctx *Context) ServeXml(obj interface{}) error {
 	encoder := xml.NewEncoder(ctx)
+	ctx.Header().Set("Content-Type", "application/xml")
 	err := encoder.Encode(obj)
-	if err == nil {
-		ctx.Header().Set("Content-Type", "application/xml")
+	if err != nil {
+		ctx.Header().Del("Content-Type")
 	}
 	return err
 }
 
 func (ctx *Context) ServeJson(obj interface{}) error {
 	encoder := json.NewEncoder(ctx)
+	ctx.Header().Set("Content-Type", "application/json")
 	err := encoder.Encode(obj)
-	if err == nil {
-		ctx.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		ctx.Header().Del("Content-Type")
 	}
 	return err
 }
