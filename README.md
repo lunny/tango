@@ -96,9 +96,9 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 ## Cases
 
 - [Wego](https://github.com/go-tango/wego)
-- [DBWeb](https://github.com/go-xorm/dbweb)
+- [dbweb](https://github.com/go-xorm/dbweb)
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)
-- [ABlog](https://github.com/fuxiaohei/ablog)
+- [FXH Blog](https://github.com/gofxh/blog)
 - [Gos](https://github.com/go-tango/gos)
 
 ## License
