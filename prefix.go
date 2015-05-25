@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// TODO: regex prefix
 func Prefix(prefix string, handler Handler) HandlerFunc {
 	return func(ctx *Context) {
 		if strings.HasPrefix(ctx.Req().URL.Path, prefix) {

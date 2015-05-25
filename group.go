@@ -4,11 +4,6 @@
 
 package tango
 
-import (
-	"path"
-	"reflect"
-)
-
 type groupRouter struct {
 	methods []string
 	url     string
@@ -74,38 +69,39 @@ func (g *Group) Route(methods []string, url string, c interface{}) {
 func (g *Group) Group(p string, o interface{}) {
 	gr := getGroup(o)
 	for _, gchild := range gr.routers {
-		g.Route(gchild.methods, path.Join(p, gchild.url), gchild.c)
+		g.Route(gchild.methods, joinRoute(p, gchild.url), gchild.c)
 	}
 }
 
 func getGroup(o interface{}) *Group {
-	vc := reflect.ValueOf(o)
-	tp := vc.Type()
 	var g *Group
-	if tp == gt {
-		g = o.(*Group)
-	} else if tp.Kind() == reflect.Func &&
-		tp.NumIn() == 1 && tp.In(0) == gt {
+	var gf func(*Group)
+	var ok bool
+	if g, ok = o.(*Group); ok {
+	} else if gf, ok = o.(func(*Group)); ok {
 		g = NewGroup()
-		vc.Call([]reflect.Value{reflect.ValueOf(g)})
+		gf(g)
 	} else {
 		panic("not allowed group parameter")
 	}
 	return g
 }
 
+func joinRoute(p, url string) string {
+	if len(p) == 0 || p == "/" {
+		return url
+	}
+	return p + url
+}
+
 func (t *Tango) addGroup(p string, g *Group) {
 	for _, r := range g.routers {
-		t.Route(r.methods, path.Join(p, r.url), r.c)
+		t.Route(r.methods, joinRoute(p, r.url), r.c)
 	}
 	for _, h := range g.handlers {
 		t.Use(Prefix(p, h))
 	}
 }
-
-var (
-	gt = reflect.TypeOf(new(Group))
-)
 
 func (t *Tango) Group(p string, o interface{}) {
 	t.addGroup(p, getGroup(o))
