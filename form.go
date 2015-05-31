@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"html/template"
 )
 
 type Forms http.Request
@@ -14,6 +15,22 @@ func (f *Forms) String(key string) (string, error) {
 	(*http.Request)(f).ParseForm()
 	if v, ok := (*http.Request)(f).Form[key]; ok {
 		return v[0], nil
+	}
+	return "", errors.New("not exist")
+}
+
+func (f *Forms) Strings(key string) ([]string, error) {
+	(*http.Request)(f).ParseForm()
+	if v, ok := (*http.Request)(f).Form[key]; ok {
+		return v, nil
+	}
+	return nil, errors.New("not exist")
+}
+
+func (f *Forms) Escape(key string) (string, error) {
+	(*http.Request)(f).ParseForm()
+	if v, ok := (*http.Request)(f).Form[key]; ok {
+		return template.HTMLEscapeString(v[0]), nil
 	}
 	return "", errors.New("not exist")
 }
@@ -62,6 +79,28 @@ func (f *Forms) MustString(key string, defs ...string) string {
 	(*http.Request)(f).ParseForm()
 	if v, ok := (*http.Request)(f).Form[key]; ok {
 		return v[0]
+	}
+	if len(defs) > 0 {
+		return defs[0]
+	}
+	return ""
+}
+
+func (f *Forms) MustStrings(key string, defs ...[]string) []string {
+	(*http.Request)(f).ParseForm()
+	if v, ok := (*http.Request)(f).Form[key]; ok {
+		return v
+	}
+	if len(defs) > 0 {
+		return defs[0]
+	}
+	return []string{}
+}
+
+func (f *Forms) MustEscape(key string, defs ...string) string {
+	(*http.Request)(f).ParseForm()
+	if v, ok := (*http.Request)(f).Form[key]; ok {
+		return template.HTMLEscapeString(v[0])
 	}
 	if len(defs) > 0 {
 		return defs[0]
