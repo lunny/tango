@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.5.0525"
+	return "0.4.6.0531"
 }
 
 type Tango struct {
@@ -127,7 +127,6 @@ func GetAddress(args ...interface{}) string {
 
 // Run the http server. Listening on os.GetEnv("PORT") or 8000 by default.
 func (t *Tango) Run(args ...interface{}) {
-
 	addr := GetAddress(args...)
 	t.logger.Info("Listening on http", addr)
 
@@ -135,11 +134,9 @@ func (t *Tango) Run(args ...interface{}) {
 	if err != nil {
 		t.logger.Error(err)
 	}
-
 }
 
 func (t *Tango) RunTLS(certFile, keyFile string, args ...interface{}) {
-
 	addr := GetAddress(args...)
 
 	t.logger.Info("Listening on https", addr)
@@ -181,6 +178,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	resp.reset(w)
 
 	ctx := t.ctxPool.Get().(*Context)
+	ctx.tan = t
 	ctx.reset(req, resp)
 
 	ctx.Invoke()

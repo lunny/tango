@@ -57,19 +57,17 @@ func (ctx *Context) Req() *http.Request {
 
 func (ctx *Context) SecureCookies(secret string) Cookies {
 	return &secureCookies{
-		&cookies{
-			ctx.req,
-			ctx.ResponseWriter,
-		},
+		(*cookies)(ctx),
 		secret,
 	}
 }
 
 func (ctx *Context) Cookies() Cookies {
-	return &cookies{
-		ctx.req,
-		ctx.ResponseWriter,
-	}
+	return (*cookies)(ctx)
+}
+
+func (ctx *Context) Forms() *Forms {
+	return (*Forms)(ctx.req)
 }
 
 func (ctx *Context) Route() *Route {
