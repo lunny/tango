@@ -11,20 +11,11 @@ type Forms http.Request
 var _ Set = &Forms{}
 
 func (f *Forms) String(key string) (string, error) {
+	(*http.Request)(f).ParseForm()
 	if v, ok := (*http.Request)(f).Form[key]; ok {
 		return v[0], nil
 	}
 	return "", errors.New("not exist")
-}
-
-func (f *Forms) MustString(key string, defs ...string) string {
-	if v, ok := (*http.Request)(f).Form[key]; ok {
-		return v[0]
-	}
-	if len(defs) > 0 {
-		return defs[0]
-	}
-	return ""
 }
 
 func (f *Forms) Int(key string) (int, error) {
@@ -65,6 +56,17 @@ func (f *Forms) Float32(key string) (float32, error) {
 
 func (f *Forms) Float64(key string) (float64, error) {
 	return strconv.ParseFloat((*http.Request)(f).FormValue(key), 64)
+}
+
+func (f *Forms) MustString(key string, defs ...string) string {
+	(*http.Request)(f).ParseForm()
+	if v, ok := (*http.Request)(f).Form[key]; ok {
+		return v[0]
+	}
+	if len(defs) > 0 {
+		return defs[0]
+	}
+	return ""
 }
 
 func (f *Forms) MustInt(key string, defs ...int) int {
