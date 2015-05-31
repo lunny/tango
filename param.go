@@ -7,6 +7,7 @@ package tango
 import (
 	"errors"
 	"strconv"
+	"html/template"
 )
 
 type (
@@ -37,16 +38,13 @@ func (p *Params) String(key string) (string, error) {
 	return "", errors.New("not exist")
 }
 
-func (p *Params) MustString(key string, defs ...string) string {
+func (p *Params) Escape(key string) (string, error) {
 	for _, v := range *p {
 		if v.Name == key {
-			return v.Value
+			return template.HTMLEscapeString(v.Value), nil
 		}
 	}
-	if len(defs) > 0 {
-		return defs[0]
-	}
-	return ""
+	return "", errors.New("not exist")
 }
 
 func (p *Params) Int(key string) (int, error) {
@@ -87,6 +85,30 @@ func (p *Params) Float32(key string) (float32, error) {
 
 func (p *Params) Float64(key string) (float64, error) {
 	return strconv.ParseFloat(p.Get(key), 64)
+}
+
+func (p *Params) MustString(key string, defs ...string) string {
+	for _, v := range *p {
+		if v.Name == key {
+			return v.Value
+		}
+	}
+	if len(defs) > 0 {
+		return defs[0]
+	}
+	return ""
+}
+
+func (p *Params) MustEscape(key string, defs ...string) string {
+	for _, v := range *p {
+		if v.Name == key {
+			return template.HTMLEscapeString(v.Value)
+		}
+	}
+	if len(defs) > 0 {
+		return defs[0]
+	}
+	return ""
 }
 
 func (p *Params) MustInt(key string, defs ...int) int {
