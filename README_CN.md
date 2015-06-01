@@ -17,7 +17,7 @@ Tango 是一个微内核易扩展的Go语言Web框架.
     go get github.com/lunny/tango
 
 ## 开发文档
-- [快速入门](https://github.com/lunny/tango/wiki/ZH_Home)
+- [快速入门](https://github.com/lunny/tango/wiki/QuickStart)
 - [帮助文档](https://github.com/lunny/tango/wiki/ZH_Home)
 - [API文档](https://gowalker.org/github.com/lunny/tango)
 
