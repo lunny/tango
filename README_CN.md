@@ -29,7 +29,7 @@ Tango 是一个微内核易扩展的Go语言Web框架.
 - [Gos](https://github.com/go-tango/gos)
 
 ## 讨论
-QQ群：369240307
+- QQ群：369240307
 - [中文论坛](https://groups.google.com/forum/#!forum/go-tango)
 - [英文论坛](https://groups.google.com/forum/#!forum/go-tango)
 
