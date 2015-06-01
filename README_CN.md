@@ -22,7 +22,7 @@ Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设
 - [API文档](https://gowalker.org/github.com/lunny/tango)
 
 ## 使用案例
-- [Wego](https://github.com/go-tango/wego)  使用tango和xorm开发的论坛
+- [Wego](https://github.com/go-tango/wego)  结合[xorm](http://www.xorm.io/)开发的论坛
 - [DBWeb](https://github.com/go-xorm/dbweb) 基于Web的数据库管理工具
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news) RSS聚合程序
 - [FXH Blog](https://github.com/gofxh/blog) 博客
