@@ -16,21 +16,19 @@ Tango 是一个微内核易扩展的Go语言Web框架.
 - 丰富的中间件实现AOP编程风格，灵活定制框架功能
 
 ## 安装Tango：
-
     go get github.com/lunny/tango
 
 ## 开发文档
-
 - [快速入门](https://github.com/lunny/tango/wiki/ZH_Home)
 - [开发文档](https://github.com/lunny/tango/wiki/ZH_Home)
 - [API文档](https://gowalker.org/github.com/lunny/tango)
 
+## 交流
 QQ群：369240307
 - [中文论坛](https://groups.google.com/forum/#!forum/go-tango)
 - [英文论坛](https://groups.google.com/forum/#!forum/go-tango)
 
 ## 案例
-
 - [Wego](https://github.com/go-tango/wego)
 - [DBWeb](https://github.com/go-xorm/dbweb)
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)
@@ -39,7 +37,5 @@ QQ群：369240307
 
 ## 讨论
 
-
 ## License
-
 This project is under BSD License. See the [LICENSE](LICENSE) file for the full license text.
