@@ -500,7 +500,7 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 			t.In(0).PkgPath() == "net/http" {
 			rt = FuncResponseRoute
 		} else {
-			panic("no support function type")
+			panic(fmt.Sprintln("no support function type", methods, url, c))
 		}
 	} else if t.NumIn() == 2 &&
 		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" &&
@@ -508,7 +508,7 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 		t.In(1) == reflect.TypeOf(new(http.Request)) {
 		rt = FuncHttpRoute
 	} else {
-		panic("no support function type")
+		panic(fmt.Sprintln("no support function type", methods, url, c))
 	}
 
 	var r = NewRoute(c, t, vc, rt)
