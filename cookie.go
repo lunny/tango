@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"html/template"
 )
 
 func isValidCookieValue(p []byte) bool {
@@ -54,16 +55,17 @@ type Set interface {
 	Float64(key string) (float64, error)
 	Bool(key string) (bool, error)
 
-	MustString(key string, defs ...string) string
-	MustInt(key string, defs ...int) int 
-	MustInt32(key string, defs ...int32) int32 
-	MustInt64(key string, defs ...int64) int64 
-	MustUint(key string, defs ...uint) uint
-	MustUint32(key string, defs ...uint32) uint32 
-	MustUint64(key string, defs ...uint64) uint64 
-	MustFloat32(key string, defs ...float32) float32
-	MustFloat64(key string, defs ...float64) float64 
-	MustBool(key string, defs ...bool) bool
+	MustString(key string, defaults ...string) string
+	MustEscape(key string, defaults ...string) string
+	MustInt(key string, defaults ...int) int
+	MustInt32(key string, defaults ...int32) int32
+	MustInt64(key string, defaults ...int64) int64
+	MustUint(key string, defaults ...uint) uint
+	MustUint32(key string, defaults ...uint32) uint32
+	MustUint64(key string, defaults ...uint64) uint64
+	MustFloat32(key string, defaults ...float32) float32
+	MustFloat64(key string, defaults ...float64) float64
+	MustBool(key string, defaults ...bool) bool
 }
 
 type Cookies interface {
@@ -202,150 +204,205 @@ func (c *cookies) Bool(key string) (bool, error) {
 	return strconv.ParseBool(ck.Value)
 }
 
-func (c *cookies) MustString(key string, defs ...string) string {
+func (c *cookies) MustString(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return ""
 	}
 	return ck.Value
 }
 
-func (c *cookies) MustInt(key string, defs ...int) int {
+func (c *cookies) MustEscape(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
+		}
+		return ""
+	}
+	return template.HTMLEscapeString(ck.Value)
+}
+
+func (c *cookies) MustInt(key string, defaults ...int) int {
+	ck, err := c.req.Cookie(key)
+	if err != nil {
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.Atoi(ck.Value)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *cookies) MustInt32(key string, defs ...int32) int32 {
+func (c *cookies) MustInt32(key string, defaults ...int32) int32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseInt(ck.Value, 10, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return int32(v)
 }
 
-func (c *cookies) MustInt64(key string, defs ...int64) int64 {
+func (c *cookies) MustInt64(key string, defaults ...int64) int64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseInt(ck.Value, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *cookies) MustUint(key string, defs ...uint) uint {
+func (c *cookies) MustUint(key string, defaults ...uint) uint {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseUint(ck.Value, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return uint(v)
 }
 
-func (c *cookies) MustUint32(key string, defs ...uint32) uint32 {
+func (c *cookies) MustUint32(key string, defaults ...uint32) uint32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseUint(ck.Value, 10, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return uint32(v)
 }
 
-func (c *cookies) MustUint64(key string, defs ...uint64) uint64 {
+func (c *cookies) MustUint64(key string, defaults ...uint64) uint64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseUint(ck.Value, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *cookies) MustFloat32(key string, defs ...float32) float32 {
+func (c *cookies) MustFloat32(key string, defaults ...float32) float32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseFloat(ck.Value, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return float32(v)
 }
 
-func (c *cookies) MustFloat64(key string, defs ...float64) float64 {
+func (c *cookies) MustFloat64(key string, defaults ...float64) float64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	v, err := strconv.ParseFloat(ck.Value, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *cookies) MustBool(key string, defs ...bool) bool {
+func (c *cookies) MustBool(key string, defaults ...bool) bool {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return false
 	}
 	v, err := strconv.ParseBool(ck.Value)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
+}
+
+func (ctx *Context) Cookie(key string, defaults ...string) string {
+	return ctx.Cookies().MustString(key, defaults...)
+}
+
+func (ctx *Context) CookieEscape(key string, defaults ...string) string {
+	return ctx.Cookies().MustEscape(key, defaults...)
+}
+
+func (ctx *Context) CookieInt(key string, defaults ...int) int {
+	return ctx.Cookies().MustInt(key, defaults...)
+}
+
+func (ctx *Context) CookieInt32(key string, defaults ...int32) int32 {
+	return ctx.Cookies().MustInt32(key, defaults...)
+}
+
+func (ctx *Context) CookieInt64(key string, defaults ...int64) int64 {
+	return ctx.Cookies().MustInt64(key, defaults...)
+}
+
+func (ctx *Context) CookieUint(key string, defaults ...uint) uint {
+	return ctx.Cookies().MustUint(key, defaults...)
+}
+
+func (ctx *Context) CookieUint32(key string, defaults ...uint32) uint32 {
+	return ctx.Cookies().MustUint32(key, defaults...)
+}
+
+func (ctx *Context) CookieUint64(key string, defaults ...uint64) uint64 {
+	return ctx.Cookies().MustUint64(key, defaults...)
+}
+
+func (ctx *Context) CookieFloat32(key string, defaults ...float32) float32 {
+	return ctx.Cookies().MustFloat32(key, defaults...)
+}
+
+func (ctx *Context) CookieFloat64(key string, defaults ...float64) float64 {
+	return ctx.Cookies().MustFloat64(key, defaults...)
+}
+
+func (ctx *Context) CookieBool(key string, defaults ...bool) bool {
+	return ctx.Cookies().MustBool(key, defaults...)
 }
 
 func getCookieSig(key string, val []byte, timestamp string) string {
@@ -493,11 +550,11 @@ func (c *secureCookies) Bool(key string) (bool, error) {
 	return strconv.ParseBool(s)
 }
 
-func (c *secureCookies) MustString(key string, defs ...string) string {
+func (c *secureCookies) MustString(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return ""
 	}
@@ -505,146 +562,158 @@ func (c *secureCookies) MustString(key string, defs ...string) string {
 	return s
 }
 
-func (c *secureCookies) MustInt(key string, defs ...int) int {
+func (c *secureCookies) MustEscape(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
+		}
+		return ""
+	}
+	s := parseSecureCookie(c.secret, ck.Value)
+	return template.HTMLEscapeString(s)
+}
+
+func (c *secureCookies) MustInt(key string, defaults ...int) int {
+	ck, err := c.req.Cookie(key)
+	if err != nil {
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.Atoi(s)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *secureCookies) MustInt32(key string, defs ...int32) int32 {
+func (c *secureCookies) MustInt32(key string, defaults ...int32) int32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseInt(s, 10, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return int32(v)
 }
 
-func (c *secureCookies) MustInt64(key string, defs ...int64) int64 {
+func (c *secureCookies) MustInt64(key string, defaults ...int64) int64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseInt(s, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *secureCookies) MustUint(key string, defs ...uint) uint {
+func (c *secureCookies) MustUint(key string, defaults ...uint) uint {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseUint(s, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return uint(v)
 }
 
-func (c *secureCookies) MustUint32(key string, defs ...uint32) uint32 {
+func (c *secureCookies) MustUint32(key string, defaults ...uint32) uint32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseUint(s, 10, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return uint32(v)
 }
 
-func (c *secureCookies) MustUint64(key string, defs ...uint64) uint64 {
+func (c *secureCookies) MustUint64(key string, defaults ...uint64) uint64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseUint(s, 10, 64)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *secureCookies) MustFloat32(key string, defs ...float32) float32 {
+func (c *secureCookies) MustFloat32(key string, defaults ...float32) float32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseFloat(s, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return float32(v)
 }
 
-func (c *secureCookies) MustFloat64(key string, defs ...float64) float64 {
+func (c *secureCookies) MustFloat64(key string, defaults ...float64) float64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return 0
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseFloat(s, 32)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }
 
-func (c *secureCookies) MustBool(key string, defs ...bool) bool {
+func (c *secureCookies) MustBool(key string, defaults ...bool) bool {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
-		if len(defs) > 0 {
-			return defs[0]
+		if len(defaults) > 0 {
+			return defaults[0]
 		}
 		return false
 	}
 	s := parseSecureCookie(c.secret, ck.Value)
 	v, err := strconv.ParseBool(s)
-	if len(defs) > 0 && err != nil {
-		return defs[0]
+	if len(defaults) > 0 && err != nil {
+		return defaults[0]
 	}
 	return v
 }

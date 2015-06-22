@@ -1381,3 +1381,293 @@ func TestCookie50(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "1")
 }
+
+type Cookie51Action struct {
+	Ctx
+}
+
+func (a *Cookie51Action) Get() string {
+	v := a.CookieInt("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie51(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie51Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie52Action struct {
+	Ctx
+}
+
+func (a *Cookie52Action) Get() string {
+	v := a.CookieInt32("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie52(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie52Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie53Action struct {
+	Ctx
+}
+
+func (a *Cookie53Action) Get() string {
+	v := a.CookieInt64("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie53(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie53Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie54Action struct {
+	Ctx
+}
+
+func (a *Cookie54Action) Get() string {
+	v := a.CookieUint("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie54(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie54Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie55Action struct {
+	Ctx
+}
+
+func (a *Cookie55Action) Get() string {
+	v := a.CookieUint32("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie55(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie55Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie56Action struct {
+	Ctx
+}
+
+func (a *Cookie56Action) Get() string {
+	v := a.CookieUint64("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestCookie56(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie56Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Cookie57Action struct {
+	Ctx
+}
+
+func (a *Cookie57Action) Get() string {
+	v := a.CookieFloat32("test")
+	return fmt.Sprintf("%.2f", v)
+}
+
+func TestCookie57(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie57Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Cookie58Action struct {
+	Ctx
+}
+
+func (a *Cookie58Action) Get() string {
+	v := a.CookieFloat64("test")
+	return fmt.Sprintf("%.2f", v)
+}
+
+func TestCookie58(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie58Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Cookie59Action struct {
+	Ctx
+}
+
+func (a *Cookie59Action) Get() string {
+	v := a.CookieBool("test")
+	return fmt.Sprintf("%v", v)
+}
+
+func TestCookie59(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie59Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "true")
+}
+
+type Cookie60Action struct {
+	Ctx
+}
+
+func (a *Cookie60Action) Get() string {
+	v := a.Cookie("test")
+	return fmt.Sprintf("%s", v)
+}
+
+func TestCookie60(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Cookie60Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.AddCookie(NewCookie("test", "1"))
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}

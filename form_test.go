@@ -567,3 +567,283 @@ func TestForm20(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "1")
 }
+
+type Form21Action struct {
+	Ctx
+}
+
+func (a *Form21Action) Get() string {
+	v := a.FormInt("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm21(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form21Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form22Action struct {
+	Ctx
+}
+
+func (a *Form22Action) Get() string {
+	v := a.FormInt32("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm22(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form22Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form23Action struct {
+	Ctx
+}
+
+func (a *Form23Action) Get() string {
+	v := a.FormInt64("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm23(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form23Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form24Action struct {
+	Ctx
+}
+
+func (a *Form24Action) Get() string {
+	v := a.FormUint("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm24(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form24Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form25Action struct {
+	Ctx
+}
+
+func (a *Form25Action) Get() string {
+	v := a.FormUint32("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm25(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form25Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form26Action struct {
+	Ctx
+}
+
+func (a *Form26Action) Get() string {
+	v := a.FormUint64("test")
+	return fmt.Sprintf("%d", v)
+}
+
+func TestForm26(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form26Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Form27Action struct {
+	Ctx
+}
+
+func (a *Form27Action) Get() string {
+	v := a.FormFloat32("test")
+	return fmt.Sprintf("%.2f", v)
+}
+
+func TestForm27(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form27Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Form28Action struct {
+	Ctx
+}
+
+func (a *Form28Action) Get() string {
+	v := a.FormFloat64("test")
+	return fmt.Sprintf("%.2f", v)
+}
+
+func TestForm28(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form28Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Form29Action struct {
+	Ctx
+}
+
+func (a *Form29Action) Get() string {
+	v := a.FormBool("test")
+	return fmt.Sprintf("%v", v)
+}
+
+func TestForm29(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form29Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "true")
+}
+
+type Form30Action struct {
+	Ctx
+}
+
+func (a *Form30Action) Get() string {
+	v := a.Form("test")
+	return fmt.Sprintf("%s", v)
+}
+
+func TestForm30(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Form30Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/?test=1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}

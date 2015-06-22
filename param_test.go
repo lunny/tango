@@ -726,3 +726,283 @@ func TestParams26(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "1")
 }
+
+type Param25Action struct {
+	Ctx
+}
+
+func (p *Param25Action) Get() string {
+	i := p.ParamInt(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams27(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param25Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param26Action struct {
+	Ctx
+}
+
+func (p *Param26Action) Get() string {
+	i := p.ParamInt32(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams28(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param26Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param27Action struct {
+	Ctx
+}
+
+func (p *Param27Action) Get() string {
+	i := p.ParamInt64(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams29(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param27Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param28Action struct {
+	Ctx
+}
+
+func (p *Param28Action) Get() string {
+	i := p.ParamFloat32(":name")
+	return fmt.Sprintf("%.2f", i)
+}
+
+func TestParams30(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param28Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Param29Action struct {
+	Ctx
+}
+
+func (p *Param29Action) Get() string {
+	i := p.ParamFloat64(":name")
+	return fmt.Sprintf("%.2f", i)
+}
+
+func TestParams31(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param29Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1.00")
+}
+
+type Param30Action struct {
+	Ctx
+}
+
+func (p *Param30Action) Get() string {
+	i := p.ParamUint(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams32(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param30Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param31Action struct {
+	Ctx
+}
+
+func (p *Param31Action) Get() string {
+	i := p.ParamUint32(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams33(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param31Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param32Action struct {
+	Ctx
+}
+
+func (p *Param32Action) Get() string {
+	i := p.ParamUint64(":name")
+	return fmt.Sprintf("%d", i)
+}
+
+func TestParams34(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param32Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
+
+type Param33Action struct {
+	Ctx
+}
+
+func (p *Param33Action) Get() string {
+	i := p.ParamBool(":name")
+	return fmt.Sprintf("%v", i)
+}
+
+func TestParams35(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param33Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "true")
+}
+
+type Param34Action struct {
+	Ctx
+}
+
+func (p *Param34Action) Get() string {
+	i := p.Param(":name")
+	return fmt.Sprintf("%v", i)
+}
+
+func TestParams36(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/(:name[0-9]+)", new(Param34Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "1")
+}
