@@ -28,7 +28,7 @@ type Tango struct {
 var (
 	ClassicHandlers = []Handler{
 		Logging(),
-		Recovery(true),
+		Recovery(false),
 		Compresses([]string{}),
 		Static(StaticOptions{Prefix: "public"}),
 		Return(),
