@@ -11,6 +11,11 @@ import (
 	"reflect"
 )
 
+type StatusResult struct {
+	Code int
+	Result interface{}
+}
+
 const (
 	AutoResponse = iota
 	JsonResponse
@@ -74,10 +79,17 @@ func Return() HandlerFunc {
 			ctx.Result = ""
 		}
 
+		var result = ctx.Result
+		if res, ok := ctx.Result.(*StatusResult); ok {
+			ctx.WriteHeader(res.Code)
+			result = res.Result
+		}
+
 		if rt == JsonResponse {
 			encoder := json.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/json")
-			switch res := ctx.Result.(type) {
+
+			switch res := result.(type) {
 			case AbortError:
 				ctx.WriteHeader(res.Code())
 				encoder.Encode(map[string]string{
@@ -96,7 +108,7 @@ func Return() HandlerFunc {
 					"content": string(res),
 				})
 			default:
-				err := encoder.Encode(ctx.Result)
+				err := encoder.Encode(result)
 				if err != nil {
 					ctx.Result = err
 					encoder.Encode(map[string]string{
@@ -109,7 +121,7 @@ func Return() HandlerFunc {
 		} else if rt == XmlResponse {
 			encoder := xml.NewEncoder(ctx)
 			ctx.Header().Set("Content-Type", "application/xml")
-			switch res := ctx.Result.(type) {
+			switch res := result.(type) {
 			case AbortError:
 				ctx.WriteHeader(res.Code())
 				encoder.Encode(XmlError{
@@ -128,7 +140,7 @@ func Return() HandlerFunc {
 					Content: string(res),
 				})
 			default:
-				err := encoder.Encode(ctx.Result)
+				err := encoder.Encode(result)
 				if err != nil {
 					ctx.Result = err
 					encoder.Encode(XmlError{
@@ -139,7 +151,7 @@ func Return() HandlerFunc {
 			return
 		}
 
-		switch res := ctx.Result.(type) {
+		switch res := result.(type) {
 		case AbortError, error:
 			ctx.HandleError()
 		case []byte:

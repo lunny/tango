@@ -146,8 +146,12 @@ func (ctx *Context) Invoke() {
 				ret = ctx.route.method.Call(ctx.callArgs)
 			}
 
-			if len(ret) > 0 {
+			if len(ret) == 1 {
 				ctx.Result = ret[0].Interface()
+			} else if len(ret) == 2 {
+				if code, ok := ret[0].Interface().(int); ok {
+					ctx.Result = &StatusResult{code, ret[1].Interface()}
+				}
 			}
 			// not route matched
 		} else {
