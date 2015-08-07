@@ -169,7 +169,7 @@ func (ctx *Context) ServeFile(path string) error {
 
 func (ctx *Context) ServeXml(obj interface{}) error {
 	encoder := xml.NewEncoder(ctx)
-	ctx.Header().Set("Content-Type", "application/xml")
+	ctx.Header().Set("Content-Type", "application/xml; charset=UTF-8")
 	err := encoder.Encode(obj)
 	if err != nil {
 		ctx.Header().Del("Content-Type")
@@ -179,7 +179,7 @@ func (ctx *Context) ServeXml(obj interface{}) error {
 
 func (ctx *Context) ServeJson(obj interface{}) error {
 	encoder := json.NewEncoder(ctx)
-	ctx.Header().Set("Content-Type", "application/json")
+	ctx.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	err := encoder.Encode(obj)
 	if err != nil {
 		ctx.Header().Del("Content-Type")
