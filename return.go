@@ -87,7 +87,7 @@ func Return() HandlerFunc {
 
 		if rt == JsonResponse {
 			encoder := json.NewEncoder(ctx)
-			ctx.Header().Set("Content-Type", "application/json")
+			ctx.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 			switch res := result.(type) {
 			case AbortError:
@@ -120,7 +120,7 @@ func Return() HandlerFunc {
 			return
 		} else if rt == XmlResponse {
 			encoder := xml.NewEncoder(ctx)
-			ctx.Header().Set("Content-Type", "application/xml")
+			ctx.Header().Set("Content-Type", "application/xml; charset=UTF-8")
 			switch res := result.(type) {
 			case AbortError:
 				ctx.WriteHeader(res.Code())

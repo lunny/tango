@@ -66,7 +66,7 @@ func TestContext2(t *testing.T) {
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
-	expect(t, recorder.Header().Get("Content-Type"), "application/json")
+	expect(t, recorder.Header().Get("Content-Type"), "application/json; charset=UTF-8")
 	expect(t, strings.TrimSpace(buff.String()), `{"get":"ctx"}`)
 }
 
@@ -97,7 +97,7 @@ func TestContext3(t *testing.T) {
 
 	o.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
-	expect(t, recorder.Header().Get("Content-Type"), "application/xml")
+	expect(t, recorder.Header().Get("Content-Type"), "application/xml; charset=UTF-8")
 	refute(t, len(buff.String()), 0)
 	expect(t, strings.TrimSpace(buff.String()), `<XmlStruct><Content>content</Content></XmlStruct>`)
 }

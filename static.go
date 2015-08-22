@@ -121,7 +121,7 @@ func Static(opts ...StaticOptions) HandlerFunc {
 
 			// list dir files
 			if opt.ListDir {
-				ctx.Header().Set("Content-Type", "text/html")
+				ctx.Header().Set("Content-Type", "text/html; charset=UTF-8")
 				ctx.Write([]byte(`<ul style="list-style-type:none;line-height:32px;">`))
 				rootPath, _ := filepath.Abs(opt.RootPath)
 				rPath, _ := filepath.Rel(rootPath, fPath)
