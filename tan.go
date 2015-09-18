@@ -82,9 +82,9 @@ func (t *Tango) Use(handlers ...Handler) {
 }
 
 func GetAddress(args ...interface{}) string {
-	host := os.Getenv("HOST")
-	_port, _ := strconv.ParseInt(os.Getenv("PORT"), 10, 32)
-	port := int(_port)
+
+	var host string
+	var port int
 
 	if len(args) == 1 {
 		switch arg := args[0].(type) {
@@ -112,8 +112,15 @@ func GetAddress(args ...interface{}) string {
 	if len(host) == 0 {
 		host = "0.0.0.0"
 	}
+	if host_ := os.Getenv("HOST"); len(host_) != 0 {
+		host = host_
+	}
+
 	if port == 0 {
 		port = 8000
+	}
+	if port_, _ := strconv.ParseInt(os.Getenv("PORT"), 10, 32); port_ != 0 {
+		port = int(port_)
 	}
 
 	addr := host + ":" + strconv.FormatInt(int64(port), 10)
