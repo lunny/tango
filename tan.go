@@ -124,7 +124,7 @@ func GetAddress(args ...interface{}) string {
 // Run the http server. Listening on os.GetEnv("PORT") or 8000 by default.
 func (t *Tango) Run(args ...interface{}) {
 	addr := GetAddress(args...)
-	t.logger.Info("Listening on http://", addr)
+	t.logger.Info("Listening on http://" + addr)
 
 	err := http.ListenAndServe(addr, t)
 	if err != nil {
@@ -135,7 +135,7 @@ func (t *Tango) Run(args ...interface{}) {
 func (t *Tango) RunTLS(certFile, keyFile string, args ...interface{}) {
 	addr := GetAddress(args...)
 
-	t.logger.Info("Listening on https://", addr)
+	t.logger.Info("Listening on https://" + addr)
 
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, t)
 	if err != nil {
