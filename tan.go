@@ -109,18 +109,16 @@ func GetAddress(args ...interface{}) string {
 		}
 	}
 
-	if len(host) == 0 {
-		host = "0.0.0.0"
-	}
 	if host_ := os.Getenv("HOST"); len(host_) != 0 {
 		host = host_
+	} else if len(host) == 0 {
+		host = "0.0.0.0"
 	}
 
-	if port == 0 {
-		port = 8000
-	}
 	if port_, _ := strconv.ParseInt(os.Getenv("PORT"), 10, 32); port_ != 0 {
 		port = int(port_)
+	} else if port == 0 {
+		port = 8000
 	}
 
 	addr := host + ":" + strconv.FormatInt(int64(port), 10)
