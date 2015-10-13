@@ -75,6 +75,7 @@ func (t *Tango) Put(url string, c interface{}) {
 
 func (t *Tango) Any(url string, c interface{}) {
 	t.Route(SupportMethods, url, c)
+	t.Route([]string{"HEAD:Get"}, url, c)
 }
 
 func (t *Tango) Use(handlers ...Handler) {
