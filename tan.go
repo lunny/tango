@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.6.0807"
+	return "0.4.6.1013"
 }
 
 type Tango struct {
@@ -42,7 +42,7 @@ func (t *Tango) Logger() Logger {
 }
 
 func (t *Tango) Get(url string, c interface{}) {
-	t.Route([]string{"GET", "HEAD"}, url, c)
+	t.Route([]string{"GET", "HEAD:Get"}, url, c)
 }
 
 func (t *Tango) Post(url string, c interface{}) {

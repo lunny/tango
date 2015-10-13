@@ -27,7 +27,7 @@ func (g *Group) Use(handlers ...Handler) {
 }
 
 func (g *Group) Get(url string, c interface{}) {
-	g.Route([]string{"GET", "HEAD"}, url, c)
+	g.Route([]string{"GET", "HEAD:Get"}, url, c)
 }
 
 func (g *Group) Post(url string, c interface{}) {

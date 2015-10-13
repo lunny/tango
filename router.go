@@ -432,9 +432,15 @@ func (router *router) Route(ms interface{}, url string, c interface{}) {
 	if vc.Kind() == reflect.Func {
 		switch ms.(type) {
 		case string:
-			router.addFunc([]string{ms.(string)}, url, c)
+			s := strings.Split(ms.(string), ":")
+			router.addFunc([]string{s[0]}, url, c)
 		case []string:
-			router.addFunc(ms.([]string), url, c)
+			var newSlice []string
+			for _, m := range ms.([]string) {
+				s := strings.Split(m, ":")
+				newSlice = append(newSlice, s[0])
+			}
+			router.addFunc(newSlice, url, c)
 		default:
 			panic("unknow methods format")
 		}
