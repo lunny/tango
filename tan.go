@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.6.1013"
+	return "0.4.6.1014"
 }
 
 type Tango struct {
@@ -183,7 +183,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx.tan = t
 	ctx.reset(req, resp)
 
-	ctx.Invoke()
+	ctx.invoke()
 
 	// if there is no logging or error handle, so the last written check.
 	if !ctx.Written() {

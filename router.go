@@ -34,7 +34,7 @@ var (
 		"PATCH",
 	}
 
-	PoolSize = 800
+	PoolSize = 10
 )
 
 // Route
