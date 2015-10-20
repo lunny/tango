@@ -5,10 +5,12 @@
 package tango
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -184,6 +186,36 @@ func (ctx *Context) ServeJson(obj interface{}) error {
 		ctx.Header().Del("Content-Type")
 	}
 	return err
+}
+
+func (ctx *Context) Body() ([]byte, error) {
+	body, err := ioutil.ReadAll(ctx.req.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.req.Body.Close()
+	ctx.req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	return body, nil
+}
+
+func (ctx *Context) DecodeJson(obj interface{}) error {
+	body, err := ctx.Body()
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(body, obj)
+}
+
+func (ctx *Context) DecodeXml(obj interface{}) error {
+	body, err := ctx.Body()
+	if err != nil {
+		return err
+	}
+
+	return xml.Unmarshal(body, obj)
 }
 
 func (ctx *Context) Download(fpath string) error {
