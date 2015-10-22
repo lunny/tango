@@ -678,6 +678,21 @@ var (
 				{"/123/s", true, Params{param{":name1", "123"}, param{":name2", "s"}}},
 			},
 		},
+
+		{
+			[]string{"/(:name1)/(:name1)abc/",
+				"/(:name1)/(:name1)abc(:name2)abc/",
+				"/(:name1)/abc(:name1)abc(:name2)abc/",
+				"/(:name1)/(:name1)/"},
+			[]result{
+				{"/abc/abc123abc123abc", true, Params{
+					param{":name1", "abc"},
+					param{":name1", "123"},
+					param{":name2", "123"},
+				},
+				},
+			},
+		},
 	}
 )
 

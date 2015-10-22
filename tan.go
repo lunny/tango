@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.6.1020"
+	return "0.4.6.1022"
 }
 
 type Tango struct {
