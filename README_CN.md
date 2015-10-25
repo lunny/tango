@@ -5,7 +5,9 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 
 Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设计理念。开发者可根据自身业务逻辑来选择性的装卸框架的功能，甚至利用丰富的中间件来搭建一个全栈式Web开发框架。
 
-##### 当前版本: v0.4.6   [版本更新记录](https://github.com/lunny/tango/releases)
+## 最近更新
+- [2015-10-23] 更新renders插件，解决模板修改后需要刷新两次才能生效的问题
+
 
 ## 特性
 - 强大而灵活的路由设计
