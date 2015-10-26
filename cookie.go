@@ -10,12 +10,12 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"html/template"
 )
 
 func isValidCookieValue(p []byte) bool {

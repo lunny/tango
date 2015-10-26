@@ -218,16 +218,16 @@ func TestReturnJson3(t *testing.T) {
 }
 
 type JsonReturn3 struct {
-    Json
+	Json
 }
 
 func (JsonReturn3) Get() (int, interface{}) {
-    if true {
-        return 201, map[string]string{
-            "say": "Hello tango!",
-        }
-    }
-    return 500, errors.New("something error")
+	if true {
+		return 201, map[string]string{
+			"say": "Hello tango!",
+		}
+	}
+	return 500, errors.New("something error")
 }
 
 func TestReturnJson4(t *testing.T) {

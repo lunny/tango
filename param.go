@@ -6,8 +6,8 @@ package tango
 
 import (
 	"errors"
-	"strconv"
 	"html/template"
+	"strconv"
 )
 
 type (
@@ -25,7 +25,7 @@ func (p *Params) Get(key string) string {
 		return ""
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for _, v := range *p {
@@ -41,7 +41,7 @@ func (p *Params) String(key string) (string, error) {
 		return "", errors.New("not exist")
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for _, v := range *p {
@@ -57,7 +57,7 @@ func (p *Params) Strings(key string) ([]string, error) {
 		return nil, errors.New("not exist")
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	var s = make([]string, 0)
@@ -77,7 +77,7 @@ func (p *Params) Escape(key string) (string, error) {
 		return "", errors.New("not exist")
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for _, v := range *p {
@@ -133,7 +133,7 @@ func (p *Params) MustString(key string, defaults ...string) string {
 		return ""
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for _, v := range *p {
@@ -152,7 +152,7 @@ func (p *Params) MustStrings(key string, defaults ...[]string) []string {
 		return []string{}
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	var s = make([]string, 0)
@@ -175,7 +175,7 @@ func (p *Params) MustEscape(key string, defaults ...string) string {
 		return ""
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for _, v := range *p {
@@ -316,7 +316,7 @@ func (p *Params) Set(key, value string) {
 		return
 	}
 	if key[0] != ':' && key[0] != '*' {
-		key = ":"+ key
+		key = ":" + key
 	}
 
 	for i, v := range *p {
