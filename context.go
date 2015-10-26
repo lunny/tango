@@ -87,7 +87,7 @@ func (ctx *Context) Params() *Params {
 	return &ctx.params
 }
 
-func (ctx *Context) RemoteAddr() string {
+func (ctx *Context) IP() string {
 	proxy := []string{}
 	if ips := ctx.Req().Header.Get("X-Forwarded-For"); ips != "" {
 		proxy = strings.Split(ips, ",")
