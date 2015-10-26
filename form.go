@@ -2,9 +2,9 @@ package tango
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 	"strconv"
-	"html/template"
 )
 
 type Forms http.Request
@@ -13,10 +13,7 @@ var _ Set = &Forms{}
 
 func (f *Forms) String(key string) (string, error) {
 	(*http.Request)(f).ParseForm()
-	if v, ok := (*http.Request)(f).Form[key]; ok {
-		return v[0], nil
-	}
-	return "", errors.New("not exist")
+	return (*http.Request)(f).FormValue(key), nil
 }
 
 func (f *Forms) Strings(key string) ([]string, error) {
@@ -29,10 +26,7 @@ func (f *Forms) Strings(key string) ([]string, error) {
 
 func (f *Forms) Escape(key string) (string, error) {
 	(*http.Request)(f).ParseForm()
-	if v, ok := (*http.Request)(f).Form[key]; ok {
-		return template.HTMLEscapeString(v[0]), nil
-	}
-	return "", errors.New("not exist")
+	return template.HTMLEscapeString((*http.Request)(f).FormValue(key)), nil
 }
 
 func (f *Forms) Int(key string) (int, error) {
@@ -77,8 +71,8 @@ func (f *Forms) Float64(key string) (float64, error) {
 
 func (f *Forms) MustString(key string, defaults ...string) string {
 	(*http.Request)(f).ParseForm()
-	if v, ok := (*http.Request)(f).Form[key]; ok {
-		return v[0]
+	if v := (*http.Request)(f).FormValue(key); len(v) > 0 {
+		return v
 	}
 	if len(defaults) > 0 {
 		return defaults[0]
@@ -99,8 +93,8 @@ func (f *Forms) MustStrings(key string, defaults ...[]string) []string {
 
 func (f *Forms) MustEscape(key string, defaults ...string) string {
 	(*http.Request)(f).ParseForm()
-	if v, ok := (*http.Request)(f).Form[key]; ok {
-		return template.HTMLEscapeString(v[0])
+	if v := (*http.Request)(f).FormValue(key); len(v) > 0 {
+		return template.HTMLEscapeString(v)
 	}
 	if len(defaults) > 0 {
 		return defaults[0]
