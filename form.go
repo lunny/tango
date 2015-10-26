@@ -2,9 +2,9 @@ package tango
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 	"strconv"
-	"html/template"
 )
 
 type Forms http.Request

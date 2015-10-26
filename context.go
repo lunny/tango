@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 )
 
 type Handler interface {
@@ -57,6 +58,10 @@ func (ctx *Context) Req() *http.Request {
 	return ctx.req
 }
 
+func (ctx *Context) IsAjax() bool {
+	return ctx.Req().Header.Get("X-Requested-With") == "XMLHttpRequest"
+}
+
 func (ctx *Context) SecureCookies(secret string) Cookies {
 	return &secureCookies{
 		(*cookies)(ctx),
@@ -80,6 +85,23 @@ func (ctx *Context) Route() *Route {
 func (ctx *Context) Params() *Params {
 	ctx.newAction()
 	return &ctx.params
+}
+
+func (ctx *Context) RemoteAddr() string {
+	proxy := []string{}
+	if ips := ctx.Req().Header.Get("X-Forwarded-For"); ips != "" {
+		proxy = strings.Split(ips, ",")
+	}
+	if len(proxy) > 0 && proxy[0] != "" {
+		return proxy[0]
+	}
+	ip := strings.Split(ctx.Req().RemoteAddr, ":")
+	if len(ip) > 0 {
+		if ip[0] != "[" {
+			return ip[0]
+		}
+	}
+	return "127.0.0.1"
 }
 
 func (ctx *Context) Action() interface{} {

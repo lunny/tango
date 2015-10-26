@@ -12,7 +12,7 @@ import (
 )
 
 type StatusResult struct {
-	Code int
+	Code   int
 	Result interface{}
 }
 
