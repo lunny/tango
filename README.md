@@ -100,7 +100,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [Wego](https://github.com/go-tango/wego)
 - [dbweb](https://github.com/go-xorm/dbweb)
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)
-- [FXH Blog](https://github.com/gofxh/blog)
+- [Pugo](https://github.com/go-xiaohei/pugo) - A pugo blog
 - [Gos](https://github.com/go-tango/gos)
 
 ## License
