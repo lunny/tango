@@ -12,12 +12,11 @@ type Forms http.Request
 var _ Set = &Forms{}
 
 func (f *Forms) String(key string) (string, error) {
-	(*http.Request)(f).ParseForm()
 	return (*http.Request)(f).FormValue(key), nil
 }
 
 func (f *Forms) Strings(key string) ([]string, error) {
-	(*http.Request)(f).ParseForm()
+	(*http.Request)(f).ParseMultipartForm(32 << 20)
 	if v, ok := (*http.Request)(f).Form[key]; ok {
 		return v, nil
 	}
@@ -25,7 +24,7 @@ func (f *Forms) Strings(key string) ([]string, error) {
 }
 
 func (f *Forms) Escape(key string) (string, error) {
-	(*http.Request)(f).ParseForm()
+	//	(*http.Request)(f).ParseForm()
 	return template.HTMLEscapeString((*http.Request)(f).FormValue(key)), nil
 }
 
@@ -70,7 +69,6 @@ func (f *Forms) Float64(key string) (float64, error) {
 }
 
 func (f *Forms) MustString(key string, defaults ...string) string {
-	(*http.Request)(f).ParseForm()
 	if v := (*http.Request)(f).FormValue(key); len(v) > 0 {
 		return v
 	}
@@ -81,7 +79,7 @@ func (f *Forms) MustString(key string, defaults ...string) string {
 }
 
 func (f *Forms) MustStrings(key string, defaults ...[]string) []string {
-	(*http.Request)(f).ParseForm()
+	(*http.Request)(f).ParseMultipartForm(32 << 20)
 	if v, ok := (*http.Request)(f).Form[key]; ok {
 		return v
 	}
@@ -92,7 +90,6 @@ func (f *Forms) MustStrings(key string, defaults ...[]string) []string {
 }
 
 func (f *Forms) MustEscape(key string, defaults ...string) string {
-	(*http.Request)(f).ParseForm()
 	if v := (*http.Request)(f).FormValue(key); len(v) > 0 {
 		return template.HTMLEscapeString(v)
 	}
