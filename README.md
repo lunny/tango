@@ -88,6 +88,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [flash](https://github.com/tango-contrib/flash) - [![Build Status](https://drone.io/github.com/tango-contrib/flash/status.png)](https://drone.io/github.com/tango-contrib/flash/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/flash)](http://gocover.io/github.com/tango-contrib/flash) Share data between requests
 - [debug](https://github.com/tango-contrib/debug) - [![Build Status](https://drone.io/github.com/tango-contrib/debug/status.png)](https://drone.io/github.com/tango-contrib/debug/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/debug)](http://gocover.io/github.com/tango-contrib/debug) show detail debug infomaton on log
 - [basicauth](https://github.com/tango-contrib/basicauth) - [![Build Status](https://drone.io/github.com/tango-contrib/basicauth/status.png)](https://drone.io/github.com/tango-contrib/basicauth/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/basicauth)](http://gocover.io/github.com/tango-contrib/basicauth) basicauth middleware
+- [cache](https://github.com/tango-contrib/cache) - [![Build Status](https://drone.io/github.com/tango-contrib/cache/status.png)](https://drone.io/github.com/tango-contrib/cache/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/cache)](http://gocover.io/github.com/tango-contrib/cache) cache middleware
 
 ## Getting Help
 
@@ -97,11 +98,12 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 
 ## Cases
 
-- [Wego](https://github.com/go-tango/wego)
-- [dbweb](https://github.com/go-xorm/dbweb)
+- [Wego](https://github.com/go-tango/wego) - Discuss Forum
+- [dbweb](https://github.com/go-xorm/dbweb) - DB management web UI
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)
 - [Pugo](https://github.com/go-xiaohei/pugo) - A pugo blog
-- [Gos](https://github.com/go-tango/gos)
+- [Gos](https://github.com/go-tango/gos) - Static web server
+- [GoFtpd](https://github.com/goftp/ftpd) - Pure Go cross-platform ftp server
 
 ## License
 
