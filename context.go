@@ -74,6 +74,7 @@ func (ctx *Context) Cookies() Cookies {
 }
 
 func (ctx *Context) Forms() *Forms {
+	ctx.req.ParseForm()
 	return (*Forms)(ctx.req)
 }
 

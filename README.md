@@ -64,7 +64,7 @@ This code will automatically convert returned map or error to a json because we 
 - Easy to plugin features with modular design.
 - High performance dependency injection embedded.
 
-## Middlewares 
+## Middlewares
 
 Middlewares allow you easily plugin features for your Tango applications.
 
@@ -77,7 +77,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [param](https://github.com/lunny/tango/wiki/Params) - get the router parameters
 - [return](https://github.com/lunny/tango/wiki/Return) - Handle the returned value smartlly
 - [context](https://github.com/lunny/tango/wiki/Context) - Inject context to action struct
-- [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager, [session-redis](http://github.com/tango-contrib/session-redis), [session-nodb](http://github.com/tango-contrib/session-nodb), [session-ledis](http://github.com/tango-contrib/session-ledis)
+- [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager, [session-redis](http://github.com/tango-contrib/session-redis), [session-nodb](http://github.com/tango-contrib/session-nodb), [session-ledis](http://github.com/tango-contrib/session-ledis), [session-ssdb](http://github.com/tango-contrib/session-ssdb)
 - [xsrf](https://github.com/tango-contrib/xsrf) - [![Build Status](https://drone.io/github.com/tango-contrib/xsrf/status.png)](https://drone.io/github.com/tango-contrib/xsrf/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/xsrf)](http://gocover.io/github.com/tango-contrib/xsrf) Generates and validates csrf tokens
 - [binding](https://github.com/tango-contrib/binding) - [![Build Status](https://drone.io/github.com/tango-contrib/binding/status.png)](https://drone.io/github.com/tango-contrib/binding/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/binding)](http://gocover.io/github.com/tango-contrib/binding) Bind and validates forms
 - [renders](https://github.com/tango-contrib/renders) - [![Build Status](https://drone.io/github.com/tango-contrib/renders/status.png)](https://drone.io/github.com/tango-contrib/renders/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/renders)](http://gocover.io/github.com/tango-contrib/renders) Go template engine
@@ -90,11 +90,16 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 - [basicauth](https://github.com/tango-contrib/basicauth) - [![Build Status](https://drone.io/github.com/tango-contrib/basicauth/status.png)](https://drone.io/github.com/tango-contrib/basicauth/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/basicauth)](http://gocover.io/github.com/tango-contrib/basicauth) basicauth middleware
 - [cache](https://github.com/tango-contrib/cache) - [![Build Status](https://drone.io/github.com/tango-contrib/cache/status.png)](https://drone.io/github.com/tango-contrib/cache/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/cache)](http://gocover.io/github.com/tango-contrib/cache) cache middleware - cache-memory, cache-file, [cache-ledis](https://github.com/tango-contrib/cache-ledis), [cache-nodb](https://github.com/tango-contrib/cache-nodb), [cache-mysql](https://github.com/tango-contrib/cache-mysql), [cache-postgres](https://github.com/tango-contrib/cache-postgres), [cache-memcache](https://github.com/tango-contrib/cache-memcache), [cache-redis](https://github.com/tango-contrib/cache-redis)
 
-## Getting Help
+## Documentation
 
-- [Wiki](https://github.com/lunny/tango/wiki)
+- [English](http://gobook.io/read/github.com/go-tango/manual-en-US/) - [github.com/go-tango/manual-en-US](https://github.com/go-tango/manual-en-US)
+- [简体中文](http://gobook.io/read/github.com/go-tango/manual-zh-CN/) - [github.com/go-tango/manual-zh-CN](https://github.com/go-tango/manual-zh-CN)
 - [API Reference](https://gowalker.org/github.com/lunny/tango)
-- [Discuss](https://groups.google.com/forum/#!forum/go-tango)
+
+## Discuss
+
+- [Google Group - English](https://groups.google.com/forum/#!forum/go-tango)
+- QQ Group - 简体中文 #369240307
 
 ## Cases
 

@@ -6,6 +6,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设计理念。开发者可根据自身业务逻辑来选择性的装卸框架的功能，甚至利用丰富的中间件来搭建一个全栈式Web开发框架。
 
 ## 最近更新
+- [2016-2-1] 新增 session-ssdb，支持将ssdb作为session的后端存储
 - [2015-10-23] 更新[renders](https://github.com/tango-contrib/renders)插件，解决模板修改后需要刷新两次才能生效的问题
 
 ## 特性
@@ -17,10 +18,60 @@ Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设
 ## 安装Tango：
     go get github.com/lunny/tango
 
-## 帮助文档
-- [快速入门](https://github.com/lunny/tango/wiki/QuickStart)
-- [开发文档](https://github.com/lunny/tango/wiki/ZH_Home)
-- [API文档](https://gowalker.org/github.com/lunny/tango)
+## 快速入门
+
+一个经典的Tango例子如下：
+
+```go
+package main
+
+import (
+    "errors"
+    "github.com/lunny/tango"
+)
+
+type Action struct {
+    tango.Json
+}
+
+func (Action) Get() interface{} {
+    if true {
+        return map[string]string{
+            "say": "Hello tango!",
+        }
+    }
+    return errors.New("something error")
+}
+
+func main() {
+    t := tango.Classic()
+    t.Get("/", new(Action))
+    t.Run()
+}
+```
+
+然后在浏览器访问`http://localhost:8000`, 将会得到一个json返回
+```
+{"say":"Hello tango!"}
+```
+
+如果将上述例子中的 `true` 改为 `false`, 将会得到一个json返回
+```
+{"err":"something error"}
+```
+
+这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json
+
+## 文档
+
+- [English](http://gobook.io/read/github.com/go-tango/manual-en-US/) - [github.com/go-tango/manual-en-US](https://github.com/go-tango/manual-en-US)
+- [简体中文](http://gobook.io/read/github.com/go-tango/manual-zh-CN/) - [github.com/go-tango/manual-zh-CN](https://github.com/go-tango/manual-zh-CN)
+- [API Reference](https://gowalker.org/github.com/lunny/tango)
+
+## 交流讨论
+
+- QQ群：369240307
+- [论坛](https://groups.google.com/forum/#!forum/go-tango)
 
 ## 使用案例
 - [Wego](https://github.com/go-tango/wego)  tango结合[xorm](http://www.xorm.io/)开发的论坛
@@ -29,11 +80,6 @@ Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news) RSS聚合工具
 - [Gos](https://github.com/go-tango/gos)  简易的Web静态文件服务端
 - [GoFtpd](https://github.com/goftp/ftpd) - 纯Go的跨平台FTP服务器
-
-## 交流讨论
-- QQ群：369240307
-- [中文论坛](https://groups.google.com/forum/#!forum/go-tango)
-- [英文论坛](https://groups.google.com/forum/#!forum/go-tango)
 
 ## 中间件列表
 
@@ -46,7 +92,7 @@ Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设
 - [param](https://github.com/lunny/tango/wiki/Params) - get the router parameters
 - [return](https://github.com/lunny/tango/wiki/Return) - Handle the returned value smartlly
 - [context](https://github.com/lunny/tango/wiki/Context) - Inject context to action struct
-- [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager, [session-redis](http://github.com/tango-contrib/session-redis), [session-nodb](http://github.com/tango-contrib/session-nodb), [session-ledis](http://github.com/tango-contrib/session-ledis)
+- [session](https://github.com/tango-contrib/session) - [![Build Status](https://drone.io/github.com/tango-contrib/session/status.png)](https://drone.io/github.com/tango-contrib/session/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/session)](http://gocover.io/github.com/tango-contrib/session) Session manager, [session-redis](http://github.com/tango-contrib/session-redis), [session-nodb](http://github.com/tango-contrib/session-nodb), [session-ledis](http://github.com/tango-contrib/session-ledis), [session-ssdb](http://github.com/tango-contrib/session-ssdb)
 - [xsrf](https://github.com/tango-contrib/xsrf) - [![Build Status](https://drone.io/github.com/tango-contrib/xsrf/status.png)](https://drone.io/github.com/tango-contrib/xsrf/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/xsrf)](http://gocover.io/github.com/tango-contrib/xsrf) Generates and validates csrf tokens
 - [binding](https://github.com/tango-contrib/binding) - [![Build Status](https://drone.io/github.com/tango-contrib/binding/status.png)](https://drone.io/github.com/tango-contrib/binding/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/binding)](http://gocover.io/github.com/tango-contrib/binding) Bind and validates forms
 - [renders](https://github.com/tango-contrib/renders) - [![Build Status](https://drone.io/github.com/tango-contrib/renders/status.png)](https://drone.io/github.com/tango-contrib/renders/latest) [![](http://gocover.io/_badge/github.com/tango-contrib/renders)](http://gocover.io/github.com/tango-contrib/renders) Go template engine

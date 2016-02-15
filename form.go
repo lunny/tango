@@ -24,7 +24,6 @@ func (f *Forms) Strings(key string) ([]string, error) {
 }
 
 func (f *Forms) Escape(key string) (string, error) {
-	//	(*http.Request)(f).ParseForm()
 	return template.HTMLEscapeString((*http.Request)(f).FormValue(key)), nil
 }
 
