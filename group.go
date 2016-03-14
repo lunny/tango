@@ -5,7 +5,7 @@
 package tango
 
 type groupRouter struct {
-	methods []string
+	methods interface{}
 	url     string
 	c       interface{}
 }
@@ -63,7 +63,7 @@ func (g *Group) Any(url string, c interface{}) {
 	g.Route([]string{"HEAD:Get"}, url, c)
 }
 
-func (g *Group) Route(methods []string, url string, c interface{}) {
+func (g *Group) Route(methods interface{}, url string, c interface{}) {
 	g.routers = append(g.routers, groupRouter{methods, url, c})
 }
 
