@@ -41,12 +41,13 @@ var (
 type Route struct {
 	raw       interface{}
 	method    reflect.Value
+	handlers  []Handler
 	routeType RouteType
 	pool      *pool
 }
 
 func NewRoute(v interface{}, t reflect.Type,
-	method reflect.Value, tp RouteType) *Route {
+	method reflect.Value, tp RouteType, handlers []Handler) *Route {
 	var pool *pool
 	if tp == StructRoute || tp == StructPtrRoute {
 		pool = newPool(PoolSize, t)
@@ -56,6 +57,7 @@ func NewRoute(v interface{}, t reflect.Type,
 		routeType: tp,
 		method:    method,
 		pool:      pool,
+		handlers:  handlers,
 	}
 }
 
@@ -84,7 +86,7 @@ func (r *Route) newAction() reflect.Value {
 }
 
 type Router interface {
-	Route(methods interface{}, path string, handler interface{})
+	Route(methods interface{}, path string, handler interface{}, middlewares ...Handler)
 	Match(requestPath, method string) (*Route, Params)
 }
 
@@ -427,20 +429,20 @@ func removeStick(uri string) string {
 	return uri
 }
 
-func (router *router) Route(ms interface{}, url string, c interface{}) {
+func (router *router) Route(ms interface{}, url string, c interface{}, handlers ...Handler) {
 	vc := reflect.ValueOf(c)
 	if vc.Kind() == reflect.Func {
 		switch ms.(type) {
 		case string:
 			s := strings.Split(ms.(string), ":")
-			router.addFunc([]string{s[0]}, url, c)
+			router.addFunc([]string{s[0]}, url, c, handlers)
 		case []string:
 			var newSlice []string
 			for _, m := range ms.([]string) {
 				s := strings.Split(m, ":")
 				newSlice = append(newSlice, s[0])
 			}
-			router.addFunc(newSlice, url, c)
+			router.addFunc(newSlice, url, c, handlers)
 		default:
 			panic("unknow methods format")
 		}
@@ -473,7 +475,7 @@ func (router *router) Route(ms interface{}, url string, c interface{}) {
 			panic("unsupported methods")
 		}
 
-		router.addStruct(methods, url, c)
+		router.addStruct(methods, url, c, handlers)
 	} else {
 		panic("not support route type")
 	}
@@ -490,7 +492,7 @@ func (router *router) Route(ms interface{}, url string, c interface{}) {
 
 	it can has or has not return value
 */
-func (router *router) addFunc(methods []string, url string, c interface{}) {
+func (router *router) addFunc(methods []string, url string, c interface{}, handlers []Handler) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type()
 	var rt RouteType
@@ -517,23 +519,23 @@ func (router *router) addFunc(methods []string, url string, c interface{}) {
 		panic(fmt.Sprintln("no support function type", methods, url, c))
 	}
 
-	var r = NewRoute(c, t, vc, rt)
+	var r = NewRoute(c, t, vc, rt, handlers)
 	url = removeStick(url)
 	for _, m := range methods {
 		router.addRoute(m, url, r)
 	}
 }
 
-func (router *router) addStruct(methods map[string]string, url string, c interface{}) {
+func (router *router) addStruct(methods map[string]string, url string, c interface{}, handlers []Handler) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type().Elem()
 
 	// added a default method Get, Post
 	for name, method := range methods {
 		if m, ok := t.MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute))
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
 		} else if m, ok := vc.Type().MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute))
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
 		}
 	}
 }

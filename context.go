@@ -33,6 +33,7 @@ type Context struct {
 	params   Params
 	callArgs []reflect.Value
 	matched  bool
+	stage    byte
 
 	action interface{}
 	Result interface{}
@@ -42,6 +43,7 @@ func (ctx *Context) reset(req *http.Request, resp ResponseWriter) {
 	ctx.req = req
 	ctx.ResponseWriter = resp
 	ctx.idx = 0
+	ctx.stage = 0
 	ctx.route = nil
 	ctx.params = nil
 	ctx.callArgs = nil
@@ -147,41 +149,60 @@ func (ctx *Context) Next() {
 	ctx.invoke()
 }
 
-func (ctx *Context) invoke() {
-	if ctx.idx < len(ctx.tan.handlers) {
-		ctx.tan.handlers[ctx.idx].Handle(ctx)
-	} else {
-		ctx.newAction()
-		// route is matched
-		if ctx.action != nil {
-			var ret []reflect.Value
-			switch fn := ctx.route.raw.(type) {
-			case func(*Context):
-				fn(ctx)
-			case func(*http.Request, http.ResponseWriter):
-				fn(ctx.req, ctx.ResponseWriter)
-			case func():
-				fn()
-			case func(*http.Request):
-				fn(ctx.req)
-			case func(http.ResponseWriter):
-				fn(ctx.ResponseWriter)
-			default:
-				ret = ctx.route.method.Call(ctx.callArgs)
-			}
+func (ctx *Context) execute() {
+	ctx.newAction()
+	// route is matched
+	if ctx.action != nil {
+		if len(ctx.route.handlers) > 0 && ctx.stage == 0 {
+			ctx.idx = 0
+			ctx.stage = 1
+			ctx.invoke()
+			return
+		}
 
-			if len(ret) == 1 {
-				ctx.Result = ret[0].Interface()
-			} else if len(ret) == 2 {
-				if code, ok := ret[0].Interface().(int); ok {
-					ctx.Result = &StatusResult{code, ret[1].Interface()}
-				}
+		var ret []reflect.Value
+		switch fn := ctx.route.raw.(type) {
+		case func(*Context):
+			fn(ctx)
+		case func(*http.Request, http.ResponseWriter):
+			fn(ctx.req, ctx.ResponseWriter)
+		case func():
+			fn()
+		case func(*http.Request):
+			fn(ctx.req)
+		case func(http.ResponseWriter):
+			fn(ctx.ResponseWriter)
+		default:
+			ret = ctx.route.method.Call(ctx.callArgs)
+		}
+
+		if len(ret) == 1 {
+			ctx.Result = ret[0].Interface()
+		} else if len(ret) == 2 {
+			if code, ok := ret[0].Interface().(int); ok {
+				ctx.Result = &StatusResult{code, ret[1].Interface()}
 			}
-			// not route matched
+		}
+		// not route matched
+	} else {
+		if !ctx.Written() {
+			ctx.NotFound()
+		}
+	}
+}
+
+func (ctx *Context) invoke() {
+	if ctx.stage == 0 {
+		if ctx.idx < len(ctx.tan.handlers) {
+			ctx.tan.handlers[ctx.idx].Handle(ctx)
 		} else {
-			if !ctx.Written() {
-				ctx.NotFound()
-			}
+			ctx.execute()
+		}
+	} else if ctx.stage == 1 {
+		if ctx.idx < len(ctx.route.handlers) {
+			ctx.route.handlers[ctx.idx].Handle(ctx)
+		} else {
+			ctx.execute()
 		}
 	}
 }

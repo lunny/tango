@@ -5,9 +5,10 @@
 package tango
 
 type groupRouter struct {
-	methods interface{}
-	url     string
-	c       interface{}
+	methods  interface{}
+	url      string
+	c        interface{}
+	handlers []Handler
 }
 
 type Group struct {
@@ -63,8 +64,8 @@ func (g *Group) Any(url string, c interface{}) {
 	g.Route([]string{"HEAD:Get"}, url, c)
 }
 
-func (g *Group) Route(methods interface{}, url string, c interface{}) {
-	g.routers = append(g.routers, groupRouter{methods, url, c})
+func (g *Group) Route(methods interface{}, url string, c interface{}, handlers ...Handler) {
+	g.routers = append(g.routers, groupRouter{methods, url, c, handlers})
 }
 
 func (g *Group) Group(p string, o interface{}) {
@@ -97,10 +98,7 @@ func joinRoute(p, url string) string {
 
 func (t *Tango) addGroup(p string, g *Group) {
 	for _, r := range g.routers {
-		t.Route(r.methods, joinRoute(p, r.url), r.c)
-	}
-	for _, h := range g.handlers {
-		t.Use(Prefix(p, h))
+		t.Route(r.methods, joinRoute(p, r.url), r.c, append(g.handlers, r.handlers...)...)
 	}
 }
 

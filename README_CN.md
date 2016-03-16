@@ -6,6 +6,7 @@ Tango [![Build Status](https://drone.io/github.com/lunny/tango/status.png)](http
 Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设计理念。开发者可根据自身业务逻辑来选择性的装卸框架的功能，甚至利用丰富的中间件来搭建一个全栈式Web开发框架。
 
 ## 最近更新
+- [2016-3-16] Group完善中间件支持，Route支持中间件
 - [2016-2-1] 新增 session-ssdb，支持将ssdb作为session的后端存储
 - [2015-10-23] 更新[renders](https://github.com/tango-contrib/renders)插件，解决模板修改后需要刷新两次才能生效的问题
 

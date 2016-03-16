@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.4.8.0314"
+	return "0.5.0.0316"
 }
 
 type Tango struct {
@@ -83,7 +83,6 @@ func (t *Tango) Use(handlers ...Handler) {
 }
 
 func GetAddress(args ...interface{}) string {
-
 	var host string
 	var port int
 
