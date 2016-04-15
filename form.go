@@ -4,12 +4,18 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
+// Forms a new enhancement of http.Request
 type Forms http.Request
 
 var _ Set = &Forms{}
+
+func (f *Forms) Values() url.Values {
+	return (*http.Request)(f).Form
+}
 
 func (f *Forms) String(key string) (string, error) {
 	return (*http.Request)(f).FormValue(key), nil
