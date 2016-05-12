@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.5.0.0415"
+	return "0.5.1.0512"
 }
 
 type Tango struct {
@@ -41,41 +41,41 @@ func (t *Tango) Logger() Logger {
 	return t.logger
 }
 
-func (t *Tango) Get(url string, c interface{}) {
-	t.Route([]string{"GET", "HEAD:Get"}, url, c)
+func (t *Tango) Get(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"GET", "HEAD:Get"}, url, c, middlewares...)
 }
 
-func (t *Tango) Post(url string, c interface{}) {
-	t.Route([]string{"POST"}, url, c)
+func (t *Tango) Post(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"POST"}, url, c, middlewares...)
 }
 
-func (t *Tango) Head(url string, c interface{}) {
-	t.Route([]string{"HEAD"}, url, c)
+func (t *Tango) Head(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"HEAD"}, url, c, middlewares...)
 }
 
-func (t *Tango) Options(url string, c interface{}) {
-	t.Route([]string{"OPTIONS"}, url, c)
+func (t *Tango) Options(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"OPTIONS"}, url, c, middlewares...)
 }
 
-func (t *Tango) Trace(url string, c interface{}) {
-	t.Route([]string{"TRACE"}, url, c)
+func (t *Tango) Trace(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"TRACE"}, url, c, middlewares...)
 }
 
-func (t *Tango) Patch(url string, c interface{}) {
-	t.Route([]string{"PATCH"}, url, c)
+func (t *Tango) Patch(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"PATCH"}, url, c, middlewares...)
 }
 
-func (t *Tango) Delete(url string, c interface{}) {
-	t.Route([]string{"DELETE"}, url, c)
+func (t *Tango) Delete(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"DELETE"}, url, c, middlewares...)
 }
 
-func (t *Tango) Put(url string, c interface{}) {
-	t.Route([]string{"PUT"}, url, c)
+func (t *Tango) Put(url string, c interface{}, middlewares ...Handler) {
+	t.Route([]string{"PUT"}, url, c, middlewares...)
 }
 
-func (t *Tango) Any(url string, c interface{}) {
-	t.Route(SupportMethods, url, c)
-	t.Route([]string{"HEAD:Get"}, url, c)
+func (t *Tango) Any(url string, c interface{}, middlewares ...Handler) {
+	t.Route(SupportMethods, url, c, middlewares...)
+	t.Route([]string{"HEAD:Get"}, url, c, middlewares...)
 }
 
 func (t *Tango) Use(handlers ...Handler) {
