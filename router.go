@@ -536,6 +536,10 @@ func (router *router) addStruct(methods map[string]string, url string, c interfa
 			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
 		} else if m, ok := vc.Type().MethodByName(method); ok {
 			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
+		} else if m, ok := t.MethodByName("Any"); ok {
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
+		} else if m, ok := vc.Type().MethodByName("Any"); ok {
+			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
 		}
 	}
 }
