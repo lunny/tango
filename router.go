@@ -447,6 +447,10 @@ func (router *router) Route(ms interface{}, url string, c interface{}, handlers 
 			panic("unknow methods format")
 		}
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
+		if handler, ok := vc.Interface().(http.Handler); ok {
+			router.Route(ms, url, handler.ServeHTTP, handlers...)
+			return
+		}
 		var methods = make(map[string]string)
 		switch ms.(type) {
 		case string:
