@@ -364,8 +364,12 @@ func (r *router) matchNode(n *node, url string, params Params) (*node, Params) {
 	return nil, params
 }
 
+// Match for request url, match router
 func (r *router) Match(url, method string) (*Route, Params) {
-	cn := r.trees[method]
+	cn, ok := r.trees[method]
+	if !ok {
+		return nil, nil
+	}
 	var params = make(Params, 0, strings.Count(url, "/"))
 	for _, n := range cn.edges {
 		e, newParams := r.matchNode(n, url, params)
