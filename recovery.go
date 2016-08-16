@@ -22,7 +22,7 @@ func Recovery(debug bool) HandlerFunc {
 					} else {
 						content += "\n"
 					}
-					content += fmt.Sprintf("%v %v", file, line)
+					content += fmt.Sprintf("%v:%v", file, line)
 				}
 
 				ctx.Logger.Error(content)
