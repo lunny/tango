@@ -13,13 +13,13 @@ import (
 type RouteType byte
 
 const (
-	FuncRoute         RouteType = iota + 1 // func ()
-	FuncHttpRoute                          // func (http.ResponseWriter, *http.Request)
-	FuncReqRoute                           // func (*http.Request)
-	FuncResponseRoute                      // func (http.ResponseWriter)
-	FuncCtxRoute                           // func (*tango.Context)
-	StructRoute                            // func (st) <Get>()
-	StructPtrRoute                         // func (*struct) <Get>()
+	FuncRoute         RouteType = iota + 1 // 1 func ()
+	FuncHttpRoute                          // 2 func (http.ResponseWriter, *http.Request)
+	FuncReqRoute                           // 3 func (*http.Request)
+	FuncResponseRoute                      // 4 func (http.ResponseWriter)
+	FuncCtxRoute                           // 5 func (*tango.Context)
+	StructRoute                            // 6 func (st) <Get>()
+	StructPtrRoute                         // 7 func (*struct) <Get>()
 )
 
 var (

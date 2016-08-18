@@ -112,6 +112,22 @@ func (ctx *Context) Action() interface{} {
 	return ctx.action
 }
 
+func (ctx *Context) ActionTag(fieldName string) string {
+	ctx.newAction()
+	if ctx.route.routeType == StructPtrRoute || ctx.route.routeType == StructRoute {
+		tp := ctx.callArgs[0].Type()
+		if tp.Kind() == reflect.Ptr {
+			tp = tp.Elem()
+		}
+		field, ok := tp.FieldByName(fieldName)
+		if !ok {
+			return ""
+		}
+		return string(field.Tag)
+	}
+	return ""
+}
+
 func (ctx *Context) newAction() {
 	if !ctx.matched {
 		reqPath := removeStick(ctx.Req().URL.Path)
