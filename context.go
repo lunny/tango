@@ -112,6 +112,11 @@ func (ctx *Context) Action() interface{} {
 	return ctx.action
 }
 
+func (ctx *Context) ActionValue() reflect.Value {
+	ctx.newAction()
+	return ctx.callArgs[0]
+}
+
 func (ctx *Context) ActionTag(fieldName string) string {
 	ctx.newAction()
 	if ctx.route.routeType == StructPtrRoute || ctx.route.routeType == StructRoute {
