@@ -133,6 +133,10 @@ func (ctx *Context) ActionTag(fieldName string) string {
 	return ""
 }
 
+func (ctx *Context) WriteString(content string) (int, error) {
+	return io.WriteString(ctx.ResponseWriter, content)
+}
+
 func (ctx *Context) newAction() {
 	if !ctx.matched {
 		reqPath := removeStick(ctx.Req().URL.Path)
@@ -342,8 +346,8 @@ func (ctx *Context) NotFound(message ...string) {
 // body. It is useful for returning 4xx or 5xx errors.
 // Once it has been called, any return value from the handler will
 // not be written to the response.
-func (ctx *Context) Abort(status int, body string) {
-	ctx.Result = Abort(status, body)
+func (ctx *Context) Abort(status int, body ...string) {
+	ctx.Result = Abort(status, body...)
 	ctx.HandleError()
 }
 

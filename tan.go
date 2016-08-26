@@ -13,7 +13,7 @@ import (
 )
 
 func Version() string {
-	return "0.5.2.0818"
+	return "0.5.2.0826"
 }
 
 type Tango struct {
@@ -193,7 +193,7 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 		if ctx.Route() != nil {
 			if ctx.Result == nil {
-				ctx.Write([]byte(""))
+				ctx.WriteString("")
 				t.logger.Info(req.Method, ctx.Status(), p)
 				t.ctxPool.Put(ctx)
 				t.respPool.Put(resp)

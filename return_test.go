@@ -320,3 +320,56 @@ func TestReturnXmlError(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, strings.TrimSpace(buff.String()), `<err><content>error</content></err>`)
 }
+
+type JsonReturn7 struct {
+	Json
+}
+
+func (JsonReturn7) Get() (int, interface{}) {
+	return 201, "sss"
+}
+
+func TestReturn7(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JsonReturn7))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, 201)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"content":"sss"}`)
+}
+
+type Return8 struct {
+}
+
+func (Return8) Get() (int, interface{}) {
+	return 403, "xxx"
+}
+
+func TestReturn8(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(Return8))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, 403)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `xxx`)
+}

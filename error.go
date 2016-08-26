@@ -60,13 +60,13 @@ func Errors() HandlerFunc {
 		switch res := ctx.Result.(type) {
 		case AbortError:
 			ctx.WriteHeader(res.Code())
-			ctx.Write([]byte(res.Error()))
+			ctx.WriteString(res.Error())
 		case error:
 			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(res.Error()))
+			ctx.WriteString(res.Error())
 		default:
 			ctx.WriteHeader(http.StatusInternalServerError)
-			ctx.Write([]byte(http.StatusText(http.StatusInternalServerError)))
+			ctx.WriteString(http.StatusText(http.StatusInternalServerError))
 		}
 	}
 }

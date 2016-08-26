@@ -122,11 +122,11 @@ func Static(opts ...StaticOptions) HandlerFunc {
 			// list dir files
 			if opt.ListDir {
 				ctx.Header().Set("Content-Type", "text/html; charset=UTF-8")
-				ctx.Write([]byte(`<ul style="list-style-type:none;line-height:32px;">`))
+				ctx.WriteString(`<ul style="list-style-type:none;line-height:32px;">`)
 				rootPath, _ := filepath.Abs(opt.RootPath)
 				rPath, _ := filepath.Rel(rootPath, fPath)
 				if fPath != rootPath {
-					ctx.Write([]byte(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`))
+					ctx.WriteString(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`)
 				}
 				err = filepath.Walk(fPath, func(p string, fi os.FileInfo, err error) error {
 					rPath, _ := filepath.Rel(fPath, p)
@@ -136,7 +136,7 @@ func Static(opts ...StaticOptions) HandlerFunc {
 					rPath, _ = filepath.Rel(rootPath, p)
 					ps, _ := os.Stat(p)
 					if ps.IsDir() {
-						ctx.Write([]byte(`<li>┖ <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`))
+						ctx.WriteString(`<li>┖ <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
 					} else {
 						if len(opt.FilterExts) > 0 {
 							var matched bool
@@ -151,11 +151,11 @@ func Static(opts ...StaticOptions) HandlerFunc {
 							}
 						}
 
-						ctx.Write([]byte(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`))
+						ctx.WriteString(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
 					}
 					return nil
 				})
-				ctx.Write([]byte("</ul>"))
+				ctx.WriteString("</ul>")
 				return
 			}
 		}

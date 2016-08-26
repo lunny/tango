@@ -80,8 +80,9 @@ func Return() HandlerFunc {
 		}
 
 		var result = ctx.Result
+		var statusCode int = 0
 		if res, ok := ctx.Result.(*StatusResult); ok {
-			ctx.WriteHeader(res.Code)
+			statusCode = res.Code
 			result = res.Result
 		}
 
@@ -91,23 +92,42 @@ func Return() HandlerFunc {
 
 			switch res := result.(type) {
 			case AbortError:
-				ctx.WriteHeader(res.Code())
+				if statusCode == 0 {
+					statusCode = res.Code()
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(map[string]string{
 					"err": res.Error(),
 				})
 			case error:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(map[string]string{
 					"err": res.Error(),
 				})
 			case string:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(map[string]string{
 					"content": res,
 				})
 			case []byte:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(map[string]string{
 					"content": string(res),
 				})
 			default:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				err := encoder.Encode(result)
 				if err != nil {
 					ctx.Result = err
@@ -123,23 +143,42 @@ func Return() HandlerFunc {
 			ctx.Header().Set("Content-Type", "application/xml; charset=UTF-8")
 			switch res := result.(type) {
 			case AbortError:
-				ctx.WriteHeader(res.Code())
+				if statusCode == 0 {
+					statusCode = res.Code()
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(XmlError{
 					Content: res.Error(),
 				})
 			case error:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(XmlError{
 					Content: res.Error(),
 				})
 			case string:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(XmlString{
 					Content: res,
 				})
 			case []byte:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				encoder.Encode(XmlString{
 					Content: string(res),
 				})
 			default:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
 				err := encoder.Encode(result)
 				if err != nil {
 					ctx.Result = err
@@ -155,11 +194,17 @@ func Return() HandlerFunc {
 		case AbortError, error:
 			ctx.HandleError()
 		case []byte:
-			ctx.WriteHeader(http.StatusOK)
+			if statusCode == 0 {
+				statusCode = http.StatusOK
+			}
+			ctx.WriteHeader(statusCode)
 			ctx.Write(res)
 		case string:
-			ctx.WriteHeader(http.StatusOK)
-			ctx.Write([]byte(res))
+			if statusCode == 0 {
+				statusCode = http.StatusOK
+			}
+			ctx.WriteHeader(statusCode)
+			ctx.WriteString(res)
 		}
 	}
 }

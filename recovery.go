@@ -5,6 +5,7 @@
 package tango
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -14,24 +15,28 @@ func Recovery(debug bool) HandlerFunc {
 	return func(ctx *Context) {
 		defer func() {
 			if e := recover(); e != nil {
-				content := fmt.Sprintf("Handler crashed with error: %v", e)
-				for i := 1; ; i += 1 {
+				var buf bytes.Buffer
+				fmt.Fprintf(&buf, "Handler crashed with error: %v", e)
+
+				for i := 1; ; i++ {
 					_, file, line, ok := runtime.Caller(i)
 					if !ok {
 						break
 					} else {
-						content += "\n"
+						fmt.Fprintf(&buf, "\n")
 					}
-					content += fmt.Sprintf("%v:%v", file, line)
+					fmt.Fprintf(&buf, "%v:%v", file, line)
 				}
 
+				var content = buf.String()
 				ctx.Logger.Error(content)
 
 				if !ctx.Written() {
 					if !debug {
-						content = http.StatusText(http.StatusInternalServerError)
+						ctx.Result = InternalServerError(http.StatusText(http.StatusInternalServerError))
+					} else {
+						ctx.Result = InternalServerError(content)
 					}
-					ctx.Result = InternalServerError(content)
 				}
 			}
 		}()

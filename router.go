@@ -418,9 +418,8 @@ func validNodes(nodes []*node) bool {
 // add nodes to trees
 func (r *router) addnodes(method string, nodes []*node) {
 	cn := r.trees[method]
-	var p *node = cn
-
-	for i, _ := range nodes {
+	var p = cn
+	for i := 0; i < len(nodes); i++ {
 		p = r.addnode(p, nodes, i)
 	}
 }
