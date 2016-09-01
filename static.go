@@ -126,7 +126,7 @@ func Static(opts ...StaticOptions) HandlerFunc {
 				rootPath, _ := filepath.Abs(opt.RootPath)
 				rPath, _ := filepath.Rel(rootPath, fPath)
 				if fPath != rootPath {
-					ctx.WriteString(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`)
+					ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`)
 				}
 				err = filepath.Walk(fPath, func(p string, fi os.FileInfo, err error) error {
 					rPath, _ := filepath.Rel(fPath, p)
@@ -136,7 +136,7 @@ func Static(opts ...StaticOptions) HandlerFunc {
 					rPath, _ = filepath.Rel(rootPath, p)
 					ps, _ := os.Stat(p)
 					if ps.IsDir() {
-						ctx.WriteString(`<li>┖ <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
+						ctx.WriteString(`<li>┖ <a href="` + path.Join("/", opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
 					} else {
 						if len(opt.FilterExts) > 0 {
 							var matched bool
@@ -151,7 +151,7 @@ func Static(opts ...StaticOptions) HandlerFunc {
 							}
 						}
 
-						ctx.WriteString(`<li>&nbsp; &nbsp; <a href="/` + path.Join(opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
+						ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
 					}
 					return nil
 				})
