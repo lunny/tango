@@ -466,6 +466,16 @@ var (
 			{content: "-", tp: snode},
 			{content: ":name2", tp: rnode, regexp: regexp.MustCompile("([a-z]+)")},
 		},
+		"/web/content/(:id3)-(:unique3)/(:filename)": []*node{
+			{content: "/web", tp: snode},
+			{content: "/content", tp: snode},
+			{content: "/", tp: snode},
+			{content: ":id3", tp: nnode},
+			{content: "-", tp: snode},
+			{content: ":unique3", tp: nnode},
+			{content: "/", tp: snode},
+			{content: ":filename", tp: nnode},
+		},
 	}
 )
 
@@ -478,16 +488,16 @@ func TestParseNode(t *testing.T) {
 		for i := 0; i < len(r); i++ {
 			if r[i].content != res[i].content ||
 				r[i].tp != res[i].tp {
-				t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+				t.Fatalf("%v 's %d result %v is not equal %v", p, i, r[i], res[i])
 			}
 
 			if r[i].tp != rnode {
 				if r[i].regexp != nil {
-					t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+					t.Fatalf("%v 's %d result %v is not equal %v", p, i, r[i], res[i])
 				}
 			} else {
 				if r[i].regexp == nil {
-					t.Fatalf("%v 's %d result %v is not equal %v, %v", p, i, r[i], res[i])
+					t.Fatalf("%v 's %d result %v is not equal %v", p, i, r[i], res[i])
 				}
 			}
 		}
@@ -562,6 +572,9 @@ var (
 		"/(:name1)!(:name2[0-9]+)!(:name3.*)": []result{
 			{"/ss!123!456", true, Params{{":name1", "ss"}, {":name2", "123"}, {":name3", "456"}}},
 			{"/sss", false, Params{}},
+		},
+		"/web/content/(:id3)-(:unique3)/(:filename)": []result{
+			{"/web/content/36-0420888/website.assets_frontend.0.css", true, Params{{":id3", "36"}, {":unique3", "0420888"}, {":filename", "website.assets_frontend.0.css"}}},
 		},
 	}
 )

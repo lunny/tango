@@ -314,17 +314,6 @@ func (r *router) matchNode(n *node, url string, params Params) (*node, Params) {
 		}
 		return n, append(params, param{n.content, url})
 	} else if n.tp == nnode {
-		idx := strings.IndexByte(url, '/')
-		if idx > -1 {
-			for _, c := range n.edges {
-				h, newParams := r.matchNode(c, url[idx:], params)
-				if h != nil {
-					return h, append([]param{param{n.content, url[:idx]}}, newParams...)
-				}
-			}
-			return nil, params
-		}
-
 		for _, c := range n.edges {
 			idx := strings.Index(url, c.content)
 			if idx > -1 {
@@ -332,8 +321,11 @@ func (r *router) matchNode(n *node, url string, params Params) (*node, Params) {
 				return r.matchNode(c, url[idx:], params)
 			}
 		}
-		params = append(params, param{n.content, url})
-		return n, params
+		idx := strings.IndexByte(url, '/')
+		if idx < 0 {
+			params = append(params, param{n.content, url})
+			return n, params
+		}
 	} else if n.tp == rnode {
 		idx := strings.IndexByte(url, '/')
 		if idx > -1 {
