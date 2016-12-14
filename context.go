@@ -232,8 +232,39 @@ func (ctx *Context) invoke() {
 	}
 }
 
+func toHTTPError(err error) (msg string, httpStatus int) {
+	if os.IsNotExist(err) {
+		return "404 page not found", http.StatusNotFound
+	}
+	if os.IsPermission(err) {
+		return "403 Forbidden", http.StatusForbidden
+	}
+	// Default:
+	return "500 Internal Server Error", http.StatusInternalServerError
+}
+
 func (ctx *Context) ServeFile(path string) error {
-	http.ServeFile(ctx, ctx.Req(), path)
+	f, err := os.Open(path)
+	if err != nil {
+		msg, code := toHTTPError(err)
+		http.Error(ctx, msg, code)
+		return nil
+	}
+	defer f.Close()
+
+	d, err := f.Stat()
+	if err != nil {
+		msg, code := toHTTPError(err)
+		http.Error(ctx, msg, code)
+		return nil
+	}
+
+	if d.IsDir() {
+		http.Error(ctx, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return nil
+	}
+
+	http.ServeContent(ctx, ctx.Req(), d.Name(), d.ModTime(), f)
 	return nil
 }
 
