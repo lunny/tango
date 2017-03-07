@@ -12,10 +12,12 @@ import (
 	"sync"
 )
 
+// Version returns tango's version
 func Version() string {
 	return "0.5.2.1214"
 }
 
+// Tango describes tango object
 type Tango struct {
 	Router
 	handlers   []Handler
@@ -26,6 +28,7 @@ type Tango struct {
 }
 
 var (
+	// ClassicHandlers the default handlers
 	ClassicHandlers = []Handler{
 		Logging(),
 		Recovery(false),
@@ -37,52 +40,64 @@ var (
 	}
 )
 
+// Logger returns logger interface
 func (t *Tango) Logger() Logger {
 	return t.logger
 }
 
+// Get sets a route with GET method
 func (t *Tango) Get(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"GET", "HEAD:Get"}, url, c, middlewares...)
 }
 
+// Post sets a route with POST method
 func (t *Tango) Post(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"POST"}, url, c, middlewares...)
 }
 
+// Head sets a route with HEAD method
 func (t *Tango) Head(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"HEAD"}, url, c, middlewares...)
 }
 
+// Options sets a route with OPTIONS method
 func (t *Tango) Options(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"OPTIONS"}, url, c, middlewares...)
 }
 
+// Trace sets a route with TRACE method
 func (t *Tango) Trace(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"TRACE"}, url, c, middlewares...)
 }
 
+// Patch sets a route with PATCH method
 func (t *Tango) Patch(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"PATCH"}, url, c, middlewares...)
 }
 
+// Delete sets a route with DELETE method
 func (t *Tango) Delete(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"DELETE"}, url, c, middlewares...)
 }
 
+// Put sets a route with PUT method
 func (t *Tango) Put(url string, c interface{}, middlewares ...Handler) {
 	t.Route([]string{"PUT"}, url, c, middlewares...)
 }
 
+// Any sets a route every support method is OK.
 func (t *Tango) Any(url string, c interface{}, middlewares ...Handler) {
 	t.Route(SupportMethods, url, c, middlewares...)
 	t.Route([]string{"HEAD:Get"}, url, c, middlewares...)
 }
 
+// Use addes some global handlers
 func (t *Tango) Use(handlers ...Handler) {
 	t.handlers = append(t.handlers, handlers...)
 }
 
-func GetAddress(args ...interface{}) string {
+// GetAddress parses address
+func getAddress(args ...interface{}) string {
 	var host string
 	var port int
 
@@ -109,14 +124,14 @@ func GetAddress(args ...interface{}) string {
 		}
 	}
 
-	if host_ := os.Getenv("HOST"); len(host_) != 0 {
-		host = host_
+	if envHost := os.Getenv("HOST"); len(envHost) != 0 {
+		host = envHost
 	} else if len(host) == 0 {
 		host = "0.0.0.0"
 	}
 
-	if port_, _ := strconv.ParseInt(os.Getenv("PORT"), 10, 32); port_ != 0 {
-		port = int(port_)
+	if envPort, _ := strconv.ParseInt(os.Getenv("PORT"), 10, 32); envPort != 0 {
+		port = int(envPort)
 	} else if port == 0 {
 		port = 8000
 	}
@@ -128,7 +143,7 @@ func GetAddress(args ...interface{}) string {
 
 // Run the http server. Listening on os.GetEnv("PORT") or 8000 by default.
 func (t *Tango) Run(args ...interface{}) {
-	addr := GetAddress(args...)
+	addr := getAddress(args...)
 	t.logger.Info("Listening on http://" + addr)
 
 	err := http.ListenAndServe(addr, t)
@@ -137,8 +152,9 @@ func (t *Tango) Run(args ...interface{}) {
 	}
 }
 
+// RunTLS runs the https server with special cert and key files
 func (t *Tango) RunTLS(certFile, keyFile string, args ...interface{}) {
-	addr := GetAddress(args...)
+	addr := getAddress(args...)
 
 	t.logger.Info("Listening on https://" + addr)
 
@@ -148,12 +164,15 @@ func (t *Tango) RunTLS(certFile, keyFile string, args ...interface{}) {
 	}
 }
 
+// HandlerFunc describes the handle function
 type HandlerFunc func(ctx *Context)
 
+// Handle executes the handler
 func (h HandlerFunc) Handle(ctx *Context) {
 	h(ctx)
 }
 
+// WrapBefore wraps a http standard handler to tango's before action executes
 func WrapBefore(handler http.Handler) HandlerFunc {
 	return func(ctx *Context) {
 		handler.ServeHTTP(ctx.ResponseWriter, ctx.Req())
@@ -162,6 +181,7 @@ func WrapBefore(handler http.Handler) HandlerFunc {
 	}
 }
 
+// WrapAfter wraps a http standard handler to tango's after action executes
 func WrapAfter(handler http.Handler) HandlerFunc {
 	return func(ctx *Context) {
 		ctx.Next()
@@ -170,10 +190,12 @@ func WrapAfter(handler http.Handler) HandlerFunc {
 	}
 }
 
+// UseHandler adds a standard http handler to tango's
 func (t *Tango) UseHandler(handler http.Handler) {
 	t.Use(WrapBefore(handler))
 }
 
+// ServeHTTP implementes net/http interface so that it could run with net/http
 func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	resp := t.respPool.Get().(*responseWriter)
 	resp.reset(w)
@@ -215,9 +237,10 @@ func (t *Tango) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	t.respPool.Put(resp)
 }
 
+// NewWithLog creates tango with the special logger and handlers
 func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	tan := &Tango{
-		Router:     NewRouter(),
+		Router:     newRouter(),
 		logger:     logger,
 		handlers:   make([]Handler, 0),
 		ErrHandler: Errors(),
@@ -239,10 +262,12 @@ func NewWithLog(logger Logger, handlers ...Handler) *Tango {
 	return tan
 }
 
+// New creates tango with the default logger and handlers
 func New(handlers ...Handler) *Tango {
 	return NewWithLog(NewLogger(os.Stdout), handlers...)
 }
 
+// Classic returns the tango with default handlers and logger
 func Classic(l ...Logger) *Tango {
 	var logger Logger
 	if len(l) == 0 {

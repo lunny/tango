@@ -11,31 +11,56 @@ import (
 	"reflect"
 )
 
+// StatusResult describes http response
 type StatusResult struct {
 	Code   int
 	Result interface{}
 }
 
+// enumerate all the return response types
 const (
-	AutoResponse = iota
-	JsonResponse
-	XmlResponse
+	autoResponse = iota
+	jsonResponse
+	xmlResponse
 )
 
+// ResponseTyper describes reponse type
 type ResponseTyper interface {
 	ResponseType() int
 }
 
+// Json describes return JSON type
+// Deprecated: use JSON instead
 type Json struct{}
 
+// ResponseType implementes ResponseTyper
 func (Json) ResponseType() int {
-	return JsonResponse
+	return jsonResponse
 }
 
+// JSON describes return JSON type
+type JSON struct{}
+
+// ResponseType implementes ResponseTyper
+func (JSON) ResponseType() int {
+	return jsonResponse
+}
+
+// Xml descirbes return XML type
+// Deprecated: use XML instead
 type Xml struct{}
 
+// ResponseType implementes ResponseTyper
 func (Xml) ResponseType() int {
-	return XmlResponse
+	return xmlResponse
+}
+
+// XML descirbes return XML type
+type XML struct{}
+
+// ResponseType implementes ResponseTyper
+func (XML) ResponseType() int {
+	return xmlResponse
 }
 
 func isNil(a interface{}) bool {
@@ -46,16 +71,19 @@ func isNil(a interface{}) bool {
 	return !aa.IsValid() || (aa.Type().Kind() == reflect.Ptr && aa.IsNil())
 }
 
-type XmlError struct {
+// XMLError describes return xml error
+type XMLError struct {
 	XMLName xml.Name `xml:"err"`
 	Content string   `xml:"content"`
 }
 
-type XmlString struct {
+// XMLString describes return xml string
+type XMLString struct {
 	XMLName xml.Name `xml:"string"`
 	Content string   `xml:"content"`
 }
 
+// Return returns a tango middleware to handler return values
 func Return() HandlerFunc {
 	return func(ctx *Context) {
 		var rt int
@@ -80,13 +108,13 @@ func Return() HandlerFunc {
 		}
 
 		var result = ctx.Result
-		var statusCode int = 0
+		var statusCode = 0
 		if res, ok := ctx.Result.(*StatusResult); ok {
 			statusCode = res.Code
 			result = res.Result
 		}
 
-		if rt == JsonResponse {
+		if rt == jsonResponse {
 			encoder := json.NewEncoder(ctx)
 			if len(ctx.Header().Get("Content-Type")) <= 0 {
 				ctx.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -140,7 +168,7 @@ func Return() HandlerFunc {
 			}
 
 			return
-		} else if rt == XmlResponse {
+		} else if rt == xmlResponse {
 			encoder := xml.NewEncoder(ctx)
 			if len(ctx.Header().Get("Content-Type")) <= 0 {
 				ctx.Header().Set("Content-Type", "application/xml; charset=UTF-8")
@@ -151,7 +179,7 @@ func Return() HandlerFunc {
 					statusCode = res.Code()
 				}
 				ctx.WriteHeader(statusCode)
-				encoder.Encode(XmlError{
+				encoder.Encode(XMLError{
 					Content: res.Error(),
 				})
 			case error:
@@ -159,7 +187,7 @@ func Return() HandlerFunc {
 					statusCode = http.StatusOK
 				}
 				ctx.WriteHeader(statusCode)
-				encoder.Encode(XmlError{
+				encoder.Encode(XMLError{
 					Content: res.Error(),
 				})
 			case string:
@@ -167,7 +195,7 @@ func Return() HandlerFunc {
 					statusCode = http.StatusOK
 				}
 				ctx.WriteHeader(statusCode)
-				encoder.Encode(XmlString{
+				encoder.Encode(XMLString{
 					Content: res,
 				})
 			case []byte:
@@ -175,7 +203,7 @@ func Return() HandlerFunc {
 					statusCode = http.StatusOK
 				}
 				ctx.WriteHeader(statusCode)
-				encoder.Encode(XmlString{
+				encoder.Encode(XMLString{
 					Content: string(res),
 				})
 			default:
@@ -186,7 +214,7 @@ func Return() HandlerFunc {
 				err := encoder.Encode(result)
 				if err != nil {
 					ctx.Result = err
-					encoder.Encode(XmlError{
+					encoder.Encode(XMLError{
 						Content: err.Error(),
 					})
 				}

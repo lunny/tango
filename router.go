@@ -10,11 +10,13 @@ import (
 	"strings"
 )
 
+// RouteType defines route types
 type RouteType byte
 
+// enumerates route types
 const (
 	FuncRoute         RouteType = iota + 1 // 1 func ()
-	FuncHttpRoute                          // 2 func (http.ResponseWriter, *http.Request)
+	FuncHTTPRoute                          // 2 func (http.ResponseWriter, *http.Request)
 	FuncReqRoute                           // 3 func (*http.Request)
 	FuncResponseRoute                      // 4 func (http.ResponseWriter)
 	FuncCtxRoute                           // 5 func (*tango.Context)
@@ -22,6 +24,7 @@ const (
 	StructPtrRoute                         // 7 func (*struct) <Get>()
 )
 
+// enumerates all supported HTTP methods
 var (
 	SupportMethods = []string{
 		"GET",
@@ -37,7 +40,7 @@ var (
 	PoolSize = 10
 )
 
-// Route
+// Route defines HTTP route
 type Route struct {
 	raw       interface{}
 	method    reflect.Value
@@ -46,6 +49,7 @@ type Route struct {
 	pool      *pool
 }
 
+// NewRoute returns a route
 func NewRoute(v interface{}, t reflect.Type,
 	method reflect.Value, tp RouteType, handlers []Handler) *Route {
 	var pool *pool
@@ -61,18 +65,22 @@ func NewRoute(v interface{}, t reflect.Type,
 	}
 }
 
+// Raw returns raw data to define route.
 func (r *Route) Raw() interface{} {
 	return r.raw
 }
 
+// Method returns finalize execute method.
 func (r *Route) Method() reflect.Value {
 	return r.method
 }
 
+// RouteType returns route type.
 func (r *Route) RouteType() RouteType {
 	return r.routeType
 }
 
+// IsStruct returns if the execute is a struct
 func (r *Route) IsStruct() bool {
 	return r.routeType == StructRoute || r.routeType == StructPtrRoute
 }
@@ -85,6 +93,7 @@ func (r *Route) newAction() reflect.Value {
 	return r.pool.New()
 }
 
+// Router describes the interface of route
 type Router interface {
 	Route(methods interface{}, path string, handler interface{}, middlewares ...Handler)
 	Match(requestPath, method string) (*Route, Params)
@@ -157,7 +166,8 @@ func (n *node) equal(o *node) bool {
 	return true
 }
 
-func NewRouter() (r *router) {
+// newRouter return a new router
+func newRouter() (r *router) {
 	r = &router{
 		trees: make(map[string]*node),
 	}
@@ -372,7 +382,7 @@ func (r *router) Match(url, method string) (*Route, Params) {
 	return nil, nil
 }
 
-// add node nodes[i] to parent node p
+// addnode adds node nodes[i] to parent node p
 func (r *router) addnode(p *node, nodes []*node, i int) *node {
 	if len(p.edges) == 0 {
 		p.edges = make([]*node, 0)
@@ -392,7 +402,7 @@ func (r *router) addnode(p *node, nodes []*node, i int) *node {
 	return nodes[i]
 }
 
-// validate parsed nodes, all non-static route should have static route children.
+// validNodes validates parsed nodes, all non-static route should have static route children.
 func validNodes(nodes []*node) bool {
 	if len(nodes) == 0 {
 		return false
@@ -407,7 +417,7 @@ func validNodes(nodes []*node) bool {
 	return true
 }
 
-// add nodes to trees
+// addnodes adds nodes to trees
 func (r *router) addnodes(method string, nodes []*node) {
 	cn := r.trees[method]
 	var p = cn
@@ -424,26 +434,27 @@ func removeStick(uri string) string {
 	return uri
 }
 
-func (router *router) Route(ms interface{}, url string, c interface{}, handlers ...Handler) {
+// Route adds route
+func (r *router) Route(ms interface{}, url string, c interface{}, handlers ...Handler) {
 	vc := reflect.ValueOf(c)
 	if vc.Kind() == reflect.Func {
 		switch ms.(type) {
 		case string:
 			s := strings.Split(ms.(string), ":")
-			router.addFunc([]string{s[0]}, url, c, handlers)
+			r.addFunc([]string{s[0]}, url, c, handlers)
 		case []string:
 			var newSlice []string
 			for _, m := range ms.([]string) {
 				s := strings.Split(m, ":")
 				newSlice = append(newSlice, s[0])
 			}
-			router.addFunc(newSlice, url, c, handlers)
+			r.addFunc(newSlice, url, c, handlers)
 		default:
 			panic("unknow methods format")
 		}
 	} else if vc.Kind() == reflect.Ptr && vc.Elem().Kind() == reflect.Struct {
 		if handler, ok := vc.Interface().(http.Handler); ok {
-			router.Route(ms, url, handler.ServeHTTP, handlers...)
+			r.Route(ms, url, handler.ServeHTTP, handlers...)
 			return
 		}
 		var methods = make(map[string]string)
@@ -474,7 +485,7 @@ func (router *router) Route(ms interface{}, url string, c interface{}, handlers 
 			panic("unsupported methods")
 		}
 
-		router.addStruct(methods, url, c, handlers)
+		r.addStruct(methods, url, c, handlers)
 	} else {
 		panic("not support route type")
 	}
@@ -491,7 +502,7 @@ func (router *router) Route(ms interface{}, url string, c interface{}, handlers 
 
 	it can has or has not return value
 */
-func (router *router) addFunc(methods []string, url string, c interface{}, handlers []Handler) {
+func (r *router) addFunc(methods []string, url string, c interface{}, handlers []Handler) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type()
 	var rt RouteType
@@ -513,32 +524,31 @@ func (router *router) addFunc(methods []string, url string, c interface{}, handl
 		(t.In(0).Kind() == reflect.Interface && t.In(0).Name() == "ResponseWriter" &&
 			t.In(0).PkgPath() == "net/http") &&
 		t.In(1) == reflect.TypeOf(new(http.Request)) {
-		rt = FuncHttpRoute
+		rt = FuncHTTPRoute
 	} else {
 		panic(fmt.Sprintln("no support function type", methods, url, c))
 	}
 
-	var r = NewRoute(c, t, vc, rt, handlers)
 	url = removeStick(url)
 	for _, m := range methods {
-		router.addRoute(m, url, r)
+		r.addRoute(m, url, NewRoute(c, t, vc, rt, handlers))
 	}
 }
 
-func (router *router) addStruct(methods map[string]string, url string, c interface{}, handlers []Handler) {
+func (r *router) addStruct(methods map[string]string, url string, c interface{}, handlers []Handler) {
 	vc := reflect.ValueOf(c)
 	t := vc.Type().Elem()
 
 	// added a default method Get, Post
 	for name, method := range methods {
 		if m, ok := t.MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
+			r.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
 		} else if m, ok := vc.Type().MethodByName(method); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
+			r.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
 		} else if m, ok := t.MethodByName("Any"); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
+			r.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructPtrRoute, handlers))
 		} else if m, ok := vc.Type().MethodByName("Any"); ok {
-			router.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
+			r.addRoute(name, removeStick(url), NewRoute(c, t, m.Func, StructRoute, handlers))
 		}
 	}
 }

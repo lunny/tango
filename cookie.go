@@ -43,6 +43,7 @@ func isValidCookieName(s string) bool {
 	return true
 }
 
+// Set describes a set interface
 type Set interface {
 	String(key string) (string, error)
 	Int(key string) (int, error)
@@ -68,6 +69,7 @@ type Set interface {
 	MustBool(key string, defaults ...bool) bool
 }
 
+// Cookies describes cookie interface
 type Cookies interface {
 	Set
 	Get(string) *http.Cookie
@@ -80,6 +82,7 @@ type cookies Context
 
 var _ Cookies = &cookies{}
 
+// NewCookie return a http.Cookie via give name and value
 func NewCookie(name string, value string, age ...int64) *http.Cookie {
 	if !isValidCookieName(name) || !isValidCookieValue([]byte(value)) {
 		return nil
@@ -95,6 +98,7 @@ func NewCookie(name string, value string, age ...int64) *http.Cookie {
 	return &http.Cookie{Name: name, Value: value, Expires: utctime}
 }
 
+// Get return http.Cookie via key
 func (c *cookies) Get(key string) *http.Cookie {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -103,10 +107,12 @@ func (c *cookies) Get(key string) *http.Cookie {
 	return ck
 }
 
+// Set set a http.Cookie
 func (c *cookies) Set(ck *http.Cookie) {
 	http.SetCookie(c.ResponseWriter, ck)
 }
 
+// Expire let a cookie named key when expire address
 func (c *cookies) Expire(key string, expire time.Time) {
 	ck := c.Get(key)
 	if ck != nil {
@@ -116,10 +122,12 @@ func (c *cookies) Expire(key string, expire time.Time) {
 	}
 }
 
+// Del del cookie by key
 func (c *cookies) Del(key string) {
 	c.Expire(key, time.Date(1900, 1, 1, 0, 0, 0, 0, time.Local))
 }
 
+// String get cookie as string
 func (c *cookies) String(key string) (string, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -128,6 +136,7 @@ func (c *cookies) String(key string) (string, error) {
 	return ck.Value, nil
 }
 
+// Int get cookie as int
 func (c *cookies) Int(key string) (int, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -136,6 +145,7 @@ func (c *cookies) Int(key string) (int, error) {
 	return strconv.Atoi(ck.Value)
 }
 
+// Int32 get cookie as int32
 func (c *cookies) Int32(key string) (int32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -145,6 +155,7 @@ func (c *cookies) Int32(key string) (int32, error) {
 	return int32(v), err
 }
 
+// Int64 get cookie as int64
 func (c *cookies) Int64(key string) (int64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -153,6 +164,7 @@ func (c *cookies) Int64(key string) (int64, error) {
 	return strconv.ParseInt(ck.Value, 10, 64)
 }
 
+// Uint get cookie as uint
 func (c *cookies) Uint(key string) (uint, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -162,6 +174,7 @@ func (c *cookies) Uint(key string) (uint, error) {
 	return uint(v), err
 }
 
+// Uint32 get cookie as uint32
 func (c *cookies) Uint32(key string) (uint32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -171,6 +184,7 @@ func (c *cookies) Uint32(key string) (uint32, error) {
 	return uint32(v), err
 }
 
+// Uint64 get cookie as uint64
 func (c *cookies) Uint64(key string) (uint64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -179,6 +193,7 @@ func (c *cookies) Uint64(key string) (uint64, error) {
 	return strconv.ParseUint(ck.Value, 10, 64)
 }
 
+// Float32 get cookie as float32
 func (c *cookies) Float32(key string) (float32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -188,6 +203,7 @@ func (c *cookies) Float32(key string) (float32, error) {
 	return float32(v), err
 }
 
+// Float64 get cookie as float64
 func (c *cookies) Float64(key string) (float64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -196,6 +212,7 @@ func (c *cookies) Float64(key string) (float64, error) {
 	return strconv.ParseFloat(ck.Value, 32)
 }
 
+// Bool get cookie as bool
 func (c *cookies) Bool(key string) (bool, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -204,6 +221,7 @@ func (c *cookies) Bool(key string) (bool, error) {
 	return strconv.ParseBool(ck.Value)
 }
 
+// MustString get cookie as string with default
 func (c *cookies) MustString(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -215,6 +233,7 @@ func (c *cookies) MustString(key string, defaults ...string) string {
 	return ck.Value
 }
 
+// MustEscape get cookie as escaped string with default
 func (c *cookies) MustEscape(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -226,6 +245,7 @@ func (c *cookies) MustEscape(key string, defaults ...string) string {
 	return template.HTMLEscapeString(ck.Value)
 }
 
+// MustInt get cookie as int with default
 func (c *cookies) MustInt(key string, defaults ...int) int {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -241,6 +261,7 @@ func (c *cookies) MustInt(key string, defaults ...int) int {
 	return v
 }
 
+// MustInt32 get cookie as int32 with default
 func (c *cookies) MustInt32(key string, defaults ...int32) int32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -256,6 +277,7 @@ func (c *cookies) MustInt32(key string, defaults ...int32) int32 {
 	return int32(v)
 }
 
+// MustInt64 get cookie as int64 with default
 func (c *cookies) MustInt64(key string, defaults ...int64) int64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -271,6 +293,7 @@ func (c *cookies) MustInt64(key string, defaults ...int64) int64 {
 	return v
 }
 
+// MustUint get cookie as uint with default
 func (c *cookies) MustUint(key string, defaults ...uint) uint {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -286,6 +309,7 @@ func (c *cookies) MustUint(key string, defaults ...uint) uint {
 	return uint(v)
 }
 
+// MustUint32 get cookie as uint32 with default
 func (c *cookies) MustUint32(key string, defaults ...uint32) uint32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -301,6 +325,7 @@ func (c *cookies) MustUint32(key string, defaults ...uint32) uint32 {
 	return uint32(v)
 }
 
+// MustUint64 get cookie as uint64 with default
 func (c *cookies) MustUint64(key string, defaults ...uint64) uint64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -316,6 +341,7 @@ func (c *cookies) MustUint64(key string, defaults ...uint64) uint64 {
 	return v
 }
 
+// MustFloat32 get cookie as float32 with default
 func (c *cookies) MustFloat32(key string, defaults ...float32) float32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -331,6 +357,7 @@ func (c *cookies) MustFloat32(key string, defaults ...float32) float32 {
 	return float32(v)
 }
 
+// MustFloat64 get cookie as float64 with default
 func (c *cookies) MustFloat64(key string, defaults ...float64) float64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -346,6 +373,7 @@ func (c *cookies) MustFloat64(key string, defaults ...float64) float64 {
 	return v
 }
 
+// MustBool get cookie as bool with default
 func (c *cookies) MustBool(key string, defaults ...bool) bool {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -361,46 +389,57 @@ func (c *cookies) MustBool(key string, defaults ...bool) bool {
 	return v
 }
 
+// Cookie returns cookie as string with default
 func (ctx *Context) Cookie(key string, defaults ...string) string {
 	return ctx.Cookies().MustString(key, defaults...)
 }
 
+// CookieEscape returns cookie as escaped string with default
 func (ctx *Context) CookieEscape(key string, defaults ...string) string {
 	return ctx.Cookies().MustEscape(key, defaults...)
 }
 
+// CookieInt returns cookie as int with default
 func (ctx *Context) CookieInt(key string, defaults ...int) int {
 	return ctx.Cookies().MustInt(key, defaults...)
 }
 
+// CookieInt32 returns cookie as int32 with default
 func (ctx *Context) CookieInt32(key string, defaults ...int32) int32 {
 	return ctx.Cookies().MustInt32(key, defaults...)
 }
 
+// CookieInt64 returns cookie as int64 with default
 func (ctx *Context) CookieInt64(key string, defaults ...int64) int64 {
 	return ctx.Cookies().MustInt64(key, defaults...)
 }
 
+// CookieUint returns cookie as uint with default
 func (ctx *Context) CookieUint(key string, defaults ...uint) uint {
 	return ctx.Cookies().MustUint(key, defaults...)
 }
 
+// CookieUint32 returns cookie as uint32 with default
 func (ctx *Context) CookieUint32(key string, defaults ...uint32) uint32 {
 	return ctx.Cookies().MustUint32(key, defaults...)
 }
 
+// CookieUint64 returns cookie as uint64 with default
 func (ctx *Context) CookieUint64(key string, defaults ...uint64) uint64 {
 	return ctx.Cookies().MustUint64(key, defaults...)
 }
 
+// CookieFloat32 returns cookie as float32 with default
 func (ctx *Context) CookieFloat32(key string, defaults ...float32) float32 {
 	return ctx.Cookies().MustFloat32(key, defaults...)
 }
 
+// CookieFloat64 returns cookie as float64 with default
 func (ctx *Context) CookieFloat64(key string, defaults ...float64) float64 {
 	return ctx.Cookies().MustFloat64(key, defaults...)
 }
 
+// CookieBool returns cookie as bool with default
 func (ctx *Context) CookieBool(key string, defaults ...bool) bool {
 	return ctx.Cookies().MustBool(key, defaults...)
 }
@@ -474,6 +513,7 @@ func (c *secureCookies) Int(key string) (int, error) {
 	return strconv.Atoi(s)
 }
 
+// Int32 gets int32 data
 func (c *secureCookies) Int32(key string) (int32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -484,6 +524,7 @@ func (c *secureCookies) Int32(key string) (int32, error) {
 	return int32(v), err
 }
 
+// Int64 gets int64 data
 func (c *secureCookies) Int64(key string) (int64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -493,6 +534,7 @@ func (c *secureCookies) Int64(key string) (int64, error) {
 	return strconv.ParseInt(s, 10, 64)
 }
 
+// Uint gets uint data
 func (c *secureCookies) Uint(key string) (uint, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -503,6 +545,7 @@ func (c *secureCookies) Uint(key string) (uint, error) {
 	return uint(v), err
 }
 
+// Uint32 gets uint32 data
 func (c *secureCookies) Uint32(key string) (uint32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -513,6 +556,7 @@ func (c *secureCookies) Uint32(key string) (uint32, error) {
 	return uint32(v), err
 }
 
+// Uint64 gets unit64 data
 func (c *secureCookies) Uint64(key string) (uint64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -522,6 +566,7 @@ func (c *secureCookies) Uint64(key string) (uint64, error) {
 	return strconv.ParseUint(s, 10, 64)
 }
 
+// Float32 gets float32 data
 func (c *secureCookies) Float32(key string) (float32, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -532,6 +577,7 @@ func (c *secureCookies) Float32(key string) (float32, error) {
 	return float32(v), err
 }
 
+// Float64 gets float64 data
 func (c *secureCookies) Float64(key string) (float64, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -541,6 +587,7 @@ func (c *secureCookies) Float64(key string) (float64, error) {
 	return strconv.ParseFloat(s, 32)
 }
 
+// Bool gets bool data
 func (c *secureCookies) Bool(key string) (bool, error) {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -550,6 +597,7 @@ func (c *secureCookies) Bool(key string) (bool, error) {
 	return strconv.ParseBool(s)
 }
 
+// MustString gets data
 func (c *secureCookies) MustString(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -562,6 +610,7 @@ func (c *secureCookies) MustString(key string, defaults ...string) string {
 	return s
 }
 
+// MustEscape gets data escaped
 func (c *secureCookies) MustEscape(key string, defaults ...string) string {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -574,6 +623,7 @@ func (c *secureCookies) MustEscape(key string, defaults ...string) string {
 	return template.HTMLEscapeString(s)
 }
 
+// MustInt gets data int
 func (c *secureCookies) MustInt(key string, defaults ...int) int {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -590,6 +640,7 @@ func (c *secureCookies) MustInt(key string, defaults ...int) int {
 	return v
 }
 
+// MustInt32 gets data int32
 func (c *secureCookies) MustInt32(key string, defaults ...int32) int32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -606,6 +657,7 @@ func (c *secureCookies) MustInt32(key string, defaults ...int32) int32 {
 	return int32(v)
 }
 
+// MustInt64 gets data int64 type
 func (c *secureCookies) MustInt64(key string, defaults ...int64) int64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -622,6 +674,7 @@ func (c *secureCookies) MustInt64(key string, defaults ...int64) int64 {
 	return v
 }
 
+// MustUint gets data unit type
 func (c *secureCookies) MustUint(key string, defaults ...uint) uint {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -638,6 +691,7 @@ func (c *secureCookies) MustUint(key string, defaults ...uint) uint {
 	return uint(v)
 }
 
+// MustUint32 gets data uint32 type
 func (c *secureCookies) MustUint32(key string, defaults ...uint32) uint32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -654,6 +708,7 @@ func (c *secureCookies) MustUint32(key string, defaults ...uint32) uint32 {
 	return uint32(v)
 }
 
+// MustUint64 gets data unit64 type
 func (c *secureCookies) MustUint64(key string, defaults ...uint64) uint64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -670,6 +725,7 @@ func (c *secureCookies) MustUint64(key string, defaults ...uint64) uint64 {
 	return v
 }
 
+// MustFloat32 gets data float32 type
 func (c *secureCookies) MustFloat32(key string, defaults ...float32) float32 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -686,6 +742,7 @@ func (c *secureCookies) MustFloat32(key string, defaults ...float32) float32 {
 	return float32(v)
 }
 
+// MustFloat64 gets data float64 type
 func (c *secureCookies) MustFloat64(key string, defaults ...float64) float64 {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -702,6 +759,7 @@ func (c *secureCookies) MustFloat64(key string, defaults ...float64) float64 {
 	return v
 }
 
+// MustBool gets data bool type
 func (c *secureCookies) MustBool(key string, defaults ...bool) bool {
 	ck, err := c.req.Cookie(key)
 	if err != nil {
@@ -724,6 +782,7 @@ func secCookieValue(secret string, vb []byte) string {
 	return strings.Join([]string{string(vb), timestamp, sig}, "|")
 }
 
+// NewSecureCookie generates a new secure cookie
 func NewSecureCookie(secret, name string, val string, age ...int64) *http.Cookie {
 	var buf bytes.Buffer
 	encoder := base64.NewEncoder(base64.StdEncoding, &buf)
@@ -734,6 +793,7 @@ func NewSecureCookie(secret, name string, val string, age ...int64) *http.Cookie
 	return NewCookie(name, cookie, age...)
 }
 
+// Expire sets key expire time
 func (c *secureCookies) Expire(key string, expire time.Time) {
 	ck := c.Get(key)
 	if ck != nil {
@@ -743,6 +803,7 @@ func (c *secureCookies) Expire(key string, expire time.Time) {
 	}
 }
 
+// Del deletes key
 func (c *secureCookies) Del(key string) {
 	c.Expire(key, time.Date(1900, 1, 1, 0, 0, 0, 0, time.Local))
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// StaticOptions defines Static middleware's options
 type StaticOptions struct {
 	RootPath   string
 	Prefix     string
@@ -43,6 +44,7 @@ func prepareStaticOptions(options []StaticOptions) StaticOptions {
 	return opt
 }
 
+// Static return a middleware for serving static files
 func Static(opts ...StaticOptions) HandlerFunc {
 	return func(ctx *Context) {
 		if ctx.Req().Method != "GET" && ctx.Req().Method != "HEAD" {
@@ -58,12 +60,12 @@ func Static(opts ...StaticOptions) HandlerFunc {
 			if !strings.HasPrefix(ctx.Req().URL.Path, opt.Prefix) {
 				ctx.Next()
 				return
+			}
+
+			if len(opt.Prefix) == len(ctx.Req().URL.Path) {
+				rPath = ""
 			} else {
-				if len(opt.Prefix) == len(ctx.Req().URL.Path) {
-					rPath = ""
-				} else {
-					rPath = ctx.Req().URL.Path[len(opt.Prefix):]
-				}
+				rPath = ctx.Req().URL.Path[len(opt.Prefix):]
 			}
 		}
 

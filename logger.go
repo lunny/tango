@@ -11,6 +11,7 @@ import (
 	"github.com/lunny/log"
 )
 
+// Logger defines the logger interface for tango use
 type Logger interface {
 	Debugf(format string, v ...interface{})
 	Debug(v ...interface{})
@@ -22,24 +23,29 @@ type Logger interface {
 	Error(v ...interface{})
 }
 
+// NewLogger use the default logger with special writer
 func NewLogger(out io.Writer) Logger {
 	l := log.New(out, "[tango] ", log.Ldefault())
 	l.SetOutputLevel(log.Ldebug)
 	return l
 }
 
+// LogInterface defines logger interface to inject logger to struct
 type LogInterface interface {
 	SetLogger(Logger)
 }
 
+// Log implementes LogInterface
 type Log struct {
 	Logger
 }
 
+// SetLogger implementes LogInterface
 func (l *Log) SetLogger(log Logger) {
 	l.Logger = log
 }
 
+// Logging returns handler to log informations
 func Logging() HandlerFunc {
 	return func(ctx *Context) {
 		start := time.Now()

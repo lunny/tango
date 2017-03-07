@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+// some http headers
 const (
 	HeaderAcceptEncoding  = "Accept-Encoding"
 	HeaderContentEncoding = "Content-Encoding"
@@ -24,28 +25,36 @@ const (
 	HeaderVary            = "Vary"
 )
 
+// Compresser defines the interface return compress type
 type Compresser interface {
 	CompressType() string
 }
 
+// GZip implements gzip Compresser
 type GZip struct{}
 
+// CompressType returns compress type
 func (GZip) CompressType() string {
 	return "gzip"
 }
 
+// Deflate implements deflate Compresser
 type Deflate struct{}
 
+// CompressType returns compress type
 func (Deflate) CompressType() string {
 	return "deflate"
 }
 
+// Compress implements auto Compresser
 type Compress struct{}
 
+// CompressType returns compress type
 func (Compress) CompressType() string {
 	return "auto"
 }
 
+// Compresses defines a middleware to compress HTTP response
 func Compresses(exts []string) HandlerFunc {
 	extsmap := make(map[string]bool)
 	for _, ext := range exts {

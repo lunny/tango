@@ -40,11 +40,11 @@ func TestContext1(t *testing.T) {
 	expect(t, buff.String(), "context")
 }
 
-type CtxJsonAction struct {
+type CtxJSONAction struct {
 	Ctx
 }
 
-func (p *CtxJsonAction) Get() error {
+func (p *CtxJSONAction) Get() error {
 	return p.Ctx.ServeJson(map[string]string{
 		"get": "ctx",
 	})
@@ -56,7 +56,7 @@ func TestContext2(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(CtxJsonAction))
+	o.Get("/", new(CtxJSONAction))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -70,16 +70,16 @@ func TestContext2(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"get":"ctx"}`)
 }
 
-type CtxXmlAction struct {
+type CtxXMLAction struct {
 	Ctx
 }
 
-type XmlStruct struct {
+type XMLStruct struct {
 	Content string
 }
 
-func (p *CtxXmlAction) Get() error {
-	return p.Ctx.ServeXml(XmlStruct{"content"})
+func (p *CtxXMLAction) Get() error {
+	return p.Ctx.ServeXml(XMLStruct{"content"})
 }
 
 func TestContext3(t *testing.T) {
@@ -88,7 +88,7 @@ func TestContext3(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(CtxXmlAction))
+	o.Get("/", new(CtxXMLAction))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -99,7 +99,7 @@ func TestContext3(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	expect(t, recorder.Header().Get("Content-Type"), "application/xml; charset=UTF-8")
 	refute(t, len(buff.String()), 0)
-	expect(t, strings.TrimSpace(buff.String()), `<XmlStruct><Content>content</Content></XmlStruct>`)
+	expect(t, strings.TrimSpace(buff.String()), `<XMLStruct><Content>content</Content></XMLStruct>`)
 }
 
 type CtxFileAction struct {

@@ -11,6 +11,7 @@ import (
 	"runtime"
 )
 
+// Recovery returns a middleware which catch panics and log them
 func Recovery(debug bool) HandlerFunc {
 	return func(ctx *Context) {
 		defer func() {

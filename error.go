@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// AbortError defines an interface to describe HTTP error
 type AbortError interface {
 	error
 	Code() int
@@ -27,6 +28,7 @@ func (a *abortError) Error() string {
 	return fmt.Sprintf("%v", a.content)
 }
 
+// Abort returns an AbortError
 func Abort(code int, content ...string) AbortError {
 	if len(content) >= 1 {
 		return &abortError{code, content[0]}
@@ -34,27 +36,32 @@ func Abort(code int, content ...string) AbortError {
 	return &abortError{code, http.StatusText(code)}
 }
 
+// NotFound returns not found HTTP error
 func NotFound(content ...string) AbortError {
 	return Abort(http.StatusNotFound, content...)
 }
 
+// NotSupported returns not supported HTTP error
 func NotSupported(content ...string) AbortError {
 	return Abort(http.StatusMethodNotAllowed, content...)
 }
 
+// InternalServerError returns internal server HTTP error
 func InternalServerError(content ...string) AbortError {
 	return Abort(http.StatusInternalServerError, content...)
 }
 
+// Forbidden returns forbidden HTTP error
 func Forbidden(content ...string) AbortError {
 	return Abort(http.StatusForbidden, content...)
 }
 
+// Unauthorized returns unauthorized HTTP error
 func Unauthorized(content ...string) AbortError {
 	return Abort(http.StatusUnauthorized, content...)
 }
 
-// default errorhandler, you can use your self handler
+// Errors returns default errorhandler, you can use your self handler
 func Errors() HandlerFunc {
 	return func(ctx *Context) {
 		switch res := ctx.Result.(type) {

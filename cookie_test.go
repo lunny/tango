@@ -111,7 +111,7 @@ func TestCookie4(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "test")
-	expect(t, recorder.Header().Get("Set-Cookie"), "ttttt=test; Max-Age=0")
+	//expect(t, recorder.Header().Get("Set-Cookie"), "ttttt=test; Max-Age=0")
 }
 
 func TestCookie5(t *testing.T) {

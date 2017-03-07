@@ -18,10 +18,12 @@ import (
 	"strings"
 )
 
+// Handler defines middleware interface
 type Handler interface {
 	Handle(*Context)
 }
 
+// Context defines request and response context
 type Context struct {
 	tan *Tango
 	Logger
@@ -52,18 +54,22 @@ func (ctx *Context) reset(req *http.Request, resp ResponseWriter) {
 	ctx.Result = nil
 }
 
+// HandleError handles errors
 func (ctx *Context) HandleError() {
 	ctx.tan.ErrHandler.Handle(ctx)
 }
 
+// Req returns current HTTP Request information
 func (ctx *Context) Req() *http.Request {
 	return ctx.req
 }
 
+// IsAjax returns if the request is an ajax request
 func (ctx *Context) IsAjax() bool {
 	return ctx.Req().Header.Get("X-Requested-With") == "XMLHttpRequest"
 }
 
+// SecureCookies generates a secret cookie
 func (ctx *Context) SecureCookies(secret string) Cookies {
 	return &secureCookies{
 		(*cookies)(ctx),
@@ -71,25 +77,30 @@ func (ctx *Context) SecureCookies(secret string) Cookies {
 	}
 }
 
+// Cookies returns the cookies
 func (ctx *Context) Cookies() Cookies {
 	return (*cookies)(ctx)
 }
 
+// Forms returns the query names and values
 func (ctx *Context) Forms() *Forms {
 	ctx.req.ParseForm()
 	return (*Forms)(ctx.req)
 }
 
+// Route returns route
 func (ctx *Context) Route() *Route {
 	ctx.newAction()
 	return ctx.route
 }
 
+// Params returns the URL params
 func (ctx *Context) Params() *Params {
 	ctx.newAction()
 	return &ctx.params
 }
 
+// IP returns remote IP
 func (ctx *Context) IP() string {
 	proxy := []string{}
 	if ips := ctx.Req().Header.Get("X-Forwarded-For"); ips != "" {
@@ -107,16 +118,20 @@ func (ctx *Context) IP() string {
 	return "127.0.0.1"
 }
 
+// Action returns action
 func (ctx *Context) Action() interface{} {
 	ctx.newAction()
 	return ctx.action
 }
 
+// ActionValue returns action value
 func (ctx *Context) ActionValue() reflect.Value {
 	ctx.newAction()
 	return ctx.callArgs[0]
 }
 
+// ActionTag returns field tag on action struct
+// TODO: cache the name
 func (ctx *Context) ActionTag(fieldName string) string {
 	ctx.newAction()
 	if ctx.route.routeType == StructPtrRoute || ctx.route.routeType == StructRoute {
@@ -133,6 +148,7 @@ func (ctx *Context) ActionTag(fieldName string) string {
 	return ""
 }
 
+// WriteString writes a string to response write
 func (ctx *Context) WriteString(content string) (int, error) {
 	return io.WriteString(ctx.ResponseWriter, content)
 }
@@ -151,7 +167,7 @@ func (ctx *Context) newAction() {
 				ctx.callArgs = []reflect.Value{vc}
 			case FuncRoute:
 				ctx.callArgs = []reflect.Value{}
-			case FuncHttpRoute:
+			case FuncHTTPRoute:
 				ctx.callArgs = []reflect.Value{reflect.ValueOf(ctx.ResponseWriter),
 					reflect.ValueOf(ctx.Req())}
 			case FuncReqRoute:
@@ -168,9 +184,10 @@ func (ctx *Context) newAction() {
 	}
 }
 
+// Next call next middleware or action
 // WARNING: don't invoke this method on action
 func (ctx *Context) Next() {
-	ctx.idx += 1
+	ctx.idx++
 	ctx.invoke()
 }
 
@@ -243,6 +260,7 @@ func toHTTPError(err error) (msg string, httpStatus int) {
 	return "500 Internal Server Error", http.StatusInternalServerError
 }
 
+// ServeFile serves a file
 func (ctx *Context) ServeFile(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -268,7 +286,14 @@ func (ctx *Context) ServeFile(path string) error {
 	return nil
 }
 
+// ServeXml serves marshaled XML content from obj
+// Deprecated: use ServeXML instead
 func (ctx *Context) ServeXml(obj interface{}) error {
+	return ctx.ServeXML(obj)
+}
+
+// ServeXML serves marshaled XML content from obj
+func (ctx *Context) ServeXML(obj interface{}) error {
 	encoder := xml.NewEncoder(ctx)
 	ctx.Header().Set("Content-Type", "application/xml; charset=UTF-8")
 	err := encoder.Encode(obj)
@@ -278,7 +303,14 @@ func (ctx *Context) ServeXml(obj interface{}) error {
 	return err
 }
 
+// ServeJson serves marshaled JSON content from obj
+// Deprecated: use ServeJSON instead
 func (ctx *Context) ServeJson(obj interface{}) error {
+	return ctx.ServeJSON(obj)
+}
+
+// ServeJSON serves marshaled JSON content from obj
+func (ctx *Context) ServeJSON(obj interface{}) error {
 	encoder := json.NewEncoder(ctx)
 	ctx.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	err := encoder.Encode(obj)
@@ -288,6 +320,7 @@ func (ctx *Context) ServeJson(obj interface{}) error {
 	return err
 }
 
+// Body returns body's content
 func (ctx *Context) Body() ([]byte, error) {
 	body, err := ioutil.ReadAll(ctx.req.Body)
 	if err != nil {
@@ -300,7 +333,14 @@ func (ctx *Context) Body() ([]byte, error) {
 	return body, nil
 }
 
+// DecodeJson decodes body as JSON format to obj
+// Deprecated: use DecodeJSON instead
 func (ctx *Context) DecodeJson(obj interface{}) error {
+	return ctx.DecodeJSON(obj)
+}
+
+// DecodeJSON decodes body as JSON format to obj
+func (ctx *Context) DecodeJSON(obj interface{}) error {
 	body, err := ctx.Body()
 	if err != nil {
 		return err
@@ -309,7 +349,14 @@ func (ctx *Context) DecodeJson(obj interface{}) error {
 	return json.Unmarshal(body, obj)
 }
 
+// DecodeXml decodes body as XML format to obj
+// Deprecated: use DecodeXML instead
 func (ctx *Context) DecodeXml(obj interface{}) error {
+	return ctx.DecodeXML(obj)
+}
+
+// DecodeXML decodes body as XML format to obj
+func (ctx *Context) DecodeXML(obj interface{}) error {
 	body, err := ctx.Body()
 	if err != nil {
 		return err
@@ -318,6 +365,7 @@ func (ctx *Context) DecodeXml(obj interface{}) error {
 	return xml.Unmarshal(body, obj)
 }
 
+// Download provides a locale file to http client
 func (ctx *Context) Download(fpath string) error {
 	f, err := os.Open(fpath)
 	if err != nil {
@@ -331,6 +379,7 @@ func (ctx *Context) Download(fpath string) error {
 	return err
 }
 
+// SaveToFile saves the HTTP post file form to local file path
 func (ctx *Context) SaveToFile(formName, savePath string) error {
 	file, _, err := ctx.Req().FormFile(formName)
 	if err != nil {
@@ -347,6 +396,7 @@ func (ctx *Context) SaveToFile(formName, savePath string) error {
 	return err
 }
 
+// Redirect redirects the request to another URL
 func (ctx *Context) Redirect(url string, status ...int) {
 	s := http.StatusFound
 	if len(status) > 0 {
@@ -355,11 +405,12 @@ func (ctx *Context) Redirect(url string, status ...int) {
 	http.Redirect(ctx.ResponseWriter, ctx.Req(), url, s)
 }
 
-// Notmodified writes a 304 HTTP response
+// NotModified writes a 304 HTTP response
 func (ctx *Context) NotModified() {
 	ctx.WriteHeader(http.StatusNotModified)
 }
 
+// Unauthorized writes a 401 HTTP response
 func (ctx *Context) Unauthorized() {
 	ctx.Abort(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 }
@@ -382,18 +433,22 @@ func (ctx *Context) Abort(status int, body ...string) {
 	ctx.HandleError()
 }
 
+// Contexter describes an interface to set *Context
 type Contexter interface {
 	SetContext(*Context)
 }
 
+// Ctx implements Contexter
 type Ctx struct {
 	*Context
 }
 
+// SetContext set *Context to action struct
 func (c *Ctx) SetContext(ctx *Context) {
 	c.Context = ctx
 }
 
+// Contexts returns a middleware to inject Context to action struct
 func Contexts() HandlerFunc {
 	return func(ctx *Context) {
 		if action := ctx.Action(); action != nil {

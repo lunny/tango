@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Prefix provides a middleware to wrap another middleware with a prefix URL
 // TODO: regex prefix
 func Prefix(prefix string, handler Handler) HandlerFunc {
 	return func(ctx *Context) {

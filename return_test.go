@@ -78,11 +78,11 @@ func TestReturnPut(t *testing.T) {
 	expect(t, buff.String(), "error return")
 }
 
-type JsonReturn struct {
+type JSONReturn struct {
 	Json
 }
 
-func (JsonReturn) Get() interface{} {
+func (JSONReturn) Get() interface{} {
 	return map[string]interface{}{
 		"test1": 1,
 		"test2": "2",
@@ -96,7 +96,7 @@ func TestReturnJson1(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonReturn))
+	o.Get("/", new(JSONReturn))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -109,11 +109,11 @@ func TestReturnJson1(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"test1":1,"test2":"2","test3":true}`)
 }
 
-type JsonErrReturn struct {
+type JSONErrReturn struct {
 	Json
 }
 
-func (JsonErrReturn) Get() error {
+func (JSONErrReturn) Get() error {
 	return errors.New("error")
 }
 
@@ -123,7 +123,7 @@ func TestReturnJsonError(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonErrReturn))
+	o.Get("/", new(JSONErrReturn))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -136,11 +136,11 @@ func TestReturnJsonError(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
 }
 
-type JsonErrReturn2 struct {
+type JSONErrReturn2 struct {
 	Json
 }
 
-func (JsonErrReturn2) Get() error {
+func (JSONErrReturn2) Get() error {
 	return Abort(http.StatusInternalServerError, "error")
 }
 
@@ -150,7 +150,7 @@ func TestReturnJsonError2(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonErrReturn2))
+	o.Get("/", new(JSONErrReturn2))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -163,11 +163,11 @@ func TestReturnJsonError2(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
 }
 
-type JsonReturn1 struct {
+type JSONReturn1 struct {
 	Json
 }
 
-func (JsonReturn1) Get() string {
+func (JSONReturn1) Get() string {
 	return "return"
 }
 
@@ -177,7 +177,7 @@ func TestReturnJson2(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonReturn1))
+	o.Get("/", new(JSONReturn1))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -190,11 +190,11 @@ func TestReturnJson2(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"content":"return"}`)
 }
 
-type JsonReturn2 struct {
+type JSONReturn2 struct {
 	Json
 }
 
-func (JsonReturn2) Get() []byte {
+func (JSONReturn2) Get() []byte {
 	return []byte("return")
 }
 
@@ -204,7 +204,7 @@ func TestReturnJson3(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonReturn2))
+	o.Get("/", new(JSONReturn2))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -217,11 +217,11 @@ func TestReturnJson3(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"content":"return"}`)
 }
 
-type JsonReturn3 struct {
+type JSONReturn3 struct {
 	Json
 }
 
-func (JsonReturn3) Get() (int, interface{}) {
+func (JSONReturn3) Get() (int, interface{}) {
 	if true {
 		return 201, map[string]string{
 			"say": "Hello tango!",
@@ -236,7 +236,7 @@ func TestReturnJson4(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonReturn3))
+	o.Get("/", new(JSONReturn3))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -249,7 +249,7 @@ func TestReturnJson4(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"say":"Hello tango!"}`)
 }
 
-type XmlReturn struct {
+type XMLReturn struct {
 	Xml
 }
 
@@ -258,7 +258,7 @@ type Address struct {
 }
 type Person struct {
 	XMLName   xml.Name `xml:"person"`
-	Id        int      `xml:"id,attr"`
+	ID        int      `xml:"id,attr"`
 	FirstName string   `xml:"name>first"`
 	LastName  string   `xml:"name>last"`
 	Age       int      `xml:"age"`
@@ -268,20 +268,20 @@ type Person struct {
 	Comment string `xml:",comment"`
 }
 
-func (XmlReturn) Get() interface{} {
-	v := &Person{Id: 13, FirstName: "John", LastName: "Doe", Age: 42}
+func (XMLReturn) Get() interface{} {
+	v := &Person{ID: 13, FirstName: "John", LastName: "Doe", Age: 42}
 	v.Comment = " Need more details. "
 	v.Address = Address{"Hanga Roa", "Easter Island"}
 	return v
 }
 
-func TestReturnXml(t *testing.T) {
+func TestReturnXML(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(XmlReturn))
+	o.Get("/", new(XMLReturn))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -294,11 +294,11 @@ func TestReturnXml(t *testing.T) {
 	expect(t, buff.String(), `<person id="13"><name><first>John</first><last>Doe</last></name><age>42</age><Married>false</Married><City>Hanga Roa</City><State>Easter Island</State><!-- Need more details. --></person>`)
 }
 
-type XmlErrReturn struct {
+type XMLErrReturn struct {
 	Xml
 }
 
-func (XmlErrReturn) Get() error {
+func (XMLErrReturn) Get() error {
 	return errors.New("error")
 }
 
@@ -308,7 +308,7 @@ func TestReturnXmlError(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(XmlErrReturn))
+	o.Get("/", new(XMLErrReturn))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
@@ -321,11 +321,11 @@ func TestReturnXmlError(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `<err><content>error</content></err>`)
 }
 
-type JsonReturn7 struct {
+type JSONReturn7 struct {
 	Json
 }
 
-func (JsonReturn7) Get() (int, interface{}) {
+func (JSONReturn7) Get() (int, interface{}) {
 	return 201, "sss"
 }
 
@@ -335,7 +335,7 @@ func TestReturn7(t *testing.T) {
 	recorder.Body = buff
 
 	o := Classic()
-	o.Get("/", new(JsonReturn7))
+	o.Get("/", new(JSONReturn7))
 
 	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
 	if err != nil {
