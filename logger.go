@@ -23,6 +23,72 @@ type Logger interface {
 	Error(v ...interface{})
 }
 
+// CompositeLogger defines a composite loggers
+type CompositeLogger struct {
+	loggers []Logger
+}
+
+// NewCompositeLogger creates a composite loggers
+func NewCompositeLogger(logs ...Logger) Logger {
+	return &CompositeLogger{loggers: logs}
+}
+
+// Debugf implementes Logger interface
+func (l *CompositeLogger) Debugf(format string, v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Debugf(format, v...)
+	}
+}
+
+// Debug implementes Logger interface
+func (l *CompositeLogger) Debug(v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Debug(v...)
+	}
+}
+
+// Infof implementes Logger interface
+func (l *CompositeLogger) Infof(format string, v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Infof(format, v...)
+	}
+}
+
+// Info implementes Logger interface
+func (l *CompositeLogger) Info(v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Info(v...)
+	}
+}
+
+// Warnf implementes Logger interface
+func (l *CompositeLogger) Warnf(format string, v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Warnf(format, v...)
+	}
+}
+
+// Warn implementes Logger interface
+func (l *CompositeLogger) Warn(v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Warn(v...)
+	}
+}
+
+// Errorf implementes Logger interface
+func (l *CompositeLogger) Errorf(format string, v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Errorf(format, v...)
+	}
+}
+
+// Error implementes Logger interface
+func (l *CompositeLogger) Error(v ...interface{}) {
+	for _, log := range l.loggers {
+		log.Error(v...)
+	}
+}
+
 // NewLogger use the default logger with special writer
 func NewLogger(out io.Writer) Logger {
 	l := log.New(out, "[tango] ", log.Ldefault())
