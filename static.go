@@ -5,6 +5,7 @@
 package tango
 
 import (
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -18,6 +19,19 @@ type StaticOptions struct {
 	IndexFiles []string
 	ListDir    bool
 	FilterExts []string
+	// FileSystem is the interface for supporting any implmentation of file system.
+	FileSystem http.FileSystem
+}
+
+// IsFilterExt decribes if rPath's ext match filter ext
+func (s *StaticOptions) IsFilterExt(rPath string) bool {
+	rext := path.Ext(rPath)
+	for _, ext := range s.FilterExts {
+		if rext == ext {
+			return true
+		}
+	}
+	return false
 }
 
 func prepareStaticOptions(options []StaticOptions) StaticOptions {
@@ -39,6 +53,11 @@ func prepareStaticOptions(options []StaticOptions) StaticOptions {
 
 	if len(opt.IndexFiles) == 0 {
 		opt.IndexFiles = []string{"index.html", "index.htm"}
+	}
+
+	if opt.FileSystem == nil {
+		ps, _ := filepath.Abs(opt.RootPath)
+		opt.FileSystem = http.Dir(ps)
 	}
 
 	return opt
@@ -69,97 +88,88 @@ func Static(opts ...StaticOptions) HandlerFunc {
 			}
 		}
 
-		fPath, _ := filepath.Abs(filepath.Join(opt.RootPath, rPath))
-		finfo, err := os.Stat(fPath)
+		f, err := opt.FileSystem.Open(strings.TrimLeft(rPath, "/"))
 		if err != nil {
-			if !os.IsNotExist(err) {
+			if os.IsNotExist(err) {
+				ctx.Result = NotFound()
+			} else {
 				ctx.Result = InternalServerError(err.Error())
-				ctx.HandleError()
+			}
+			ctx.HandleError()
+			return
+		}
+		defer f.Close()
+
+		finfo, err := f.Stat()
+		if err != nil {
+			ctx.Result = InternalServerError(err.Error())
+			ctx.HandleError()
+			return
+		}
+
+		if !finfo.IsDir() {
+			if len(opt.FilterExts) > 0 && !opt.IsFilterExt(rPath) {
+				ctx.Next()
 				return
 			}
-		} else if !finfo.IsDir() {
-			if len(opt.FilterExts) > 0 {
-				var matched bool
-				for _, ext := range opt.FilterExts {
-					if filepath.Ext(fPath) == ext {
-						matched = true
-						break
-					}
-				}
-				if !matched {
-					ctx.Next()
-					return
-				}
-			}
 
-			err := ctx.ServeFile(fPath)
-			if err != nil {
-				ctx.Result = InternalServerError(err.Error())
-				ctx.HandleError()
-			}
+			http.ServeContent(ctx, ctx.Req(), finfo.Name(), finfo.ModTime(), f)
 			return
-		} else {
-			// try serving index.html or index.htm
-			if len(opt.IndexFiles) > 0 {
-				for _, index := range opt.IndexFiles {
-					nPath := filepath.Join(fPath, index)
-					finfo, err = os.Stat(nPath)
+		}
+
+		// try serving index.html or index.htm
+		if len(opt.IndexFiles) > 0 {
+			for _, index := range opt.IndexFiles {
+				fi, err := opt.FileSystem.Open(strings.TrimLeft(path.Join(rPath, index), "/"))
+				if err != nil {
+					if !os.IsNotExist(err) {
+						ctx.Result = InternalServerError(err.Error())
+						ctx.HandleError()
+						return
+					}
+				} else {
+					finfo, err = fi.Stat()
 					if err != nil {
-						if !os.IsNotExist(err) {
-							ctx.Result = InternalServerError(err.Error())
-							ctx.HandleError()
-							return
-						}
-					} else if !finfo.IsDir() {
-						err = ctx.ServeFile(nPath)
-						if err != nil {
-							ctx.Result = InternalServerError(err.Error())
-							ctx.HandleError()
-						}
+						ctx.Result = InternalServerError(err.Error())
+						ctx.HandleError()
+						return
+					}
+					if !finfo.IsDir() {
+						http.ServeContent(ctx, ctx.Req(), finfo.Name(), finfo.ModTime(), fi)
 						return
 					}
 				}
 			}
+		}
 
-			// list dir files
-			if opt.ListDir {
-				ctx.Header().Set("Content-Type", "text/html; charset=UTF-8")
-				ctx.WriteString(`<ul style="list-style-type:none;line-height:32px;">`)
-				rootPath, _ := filepath.Abs(opt.RootPath)
-				rPath, _ := filepath.Rel(rootPath, fPath)
-				if fPath != rootPath {
-					ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`)
-				}
-				err = filepath.Walk(fPath, func(p string, fi os.FileInfo, err error) error {
-					rPath, _ := filepath.Rel(fPath, p)
-					if rPath == "." || len(strings.Split(rPath, string(filepath.Separator))) > 1 {
-						return nil
-					}
-					rPath, _ = filepath.Rel(rootPath, p)
-					ps, _ := os.Stat(p)
-					if ps.IsDir() {
-						ctx.WriteString(`<li>┖ <a href="` + path.Join("/", opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
-					} else {
-						if len(opt.FilterExts) > 0 {
-							var matched bool
-							for _, ext := range opt.FilterExts {
-								if filepath.Ext(p) == ext {
-									matched = true
-									break
-								}
-							}
-							if !matched {
-								return nil
-							}
-						}
+		// list dir files
+		if opt.ListDir {
+			ctx.Header().Set("Content-Type", "text/html; charset=UTF-8")
+			ctx.WriteString(`<ul style="list-style-type:none;line-height:32px;">`)
+			if rPath != "/" {
+				ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, filepath.Dir(rPath)) + `">..</a></li>`)
+			}
 
-						ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, rPath) + `">` + filepath.Base(p) + `</a></li>`)
-					}
-					return nil
-				})
-				ctx.WriteString("</ul>")
+			fs, err := f.Readdir(0)
+			if err != nil {
+				ctx.Result = InternalServerError(err.Error())
+				ctx.HandleError()
 				return
 			}
+
+			for _, fi := range fs {
+				if fi.IsDir() {
+					ctx.WriteString(`<li>┖ <a href="` + path.Join("/", opt.Prefix, rPath, fi.Name()) + `">` + path.Base(fi.Name()) + `</a></li>`)
+				} else {
+					if len(opt.FilterExts) > 0 && !opt.IsFilterExt(fi.Name()) {
+						continue
+					}
+
+					ctx.WriteString(`<li>&nbsp; &nbsp; <a href="` + path.Join("/", opt.Prefix, rPath, fi.Name()) + `">` + filepath.Base(fi.Name()) + `</a></li>`)
+				}
+			}
+			ctx.WriteString("</ul>")
+			return
 		}
 
 		ctx.Next()

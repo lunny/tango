@@ -262,7 +262,13 @@ func toHTTPError(err error) (msg string, httpStatus int) {
 
 // ServeFile serves a file
 func (ctx *Context) ServeFile(path string) error {
-	f, err := os.Open(path)
+	dir, file := filepath.Split(path)
+	return ctx.ServeContent(file, http.Dir(dir))
+}
+
+// ServeContent serve content
+func (ctx *Context) ServeContent(path string, fileSystem http.FileSystem) error {
+	f, err := fileSystem.Open(path)
 	if err != nil {
 		msg, code := toHTTPError(err)
 		http.Error(ctx, msg, code)
