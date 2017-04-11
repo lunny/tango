@@ -26,7 +26,7 @@ import (
 )
 
 type Action struct {
-    tango.Json
+    tango.JSON
 }
 
 func (Action) Get() interface{} {
@@ -55,7 +55,7 @@ If you change `true` after `if` to `false`, then you will get
 {"err":"something error"}
 ```
 
-This code will automatically convert returned map or error to a json because we has an embedded struct `tango.Json`.
+This code will automatically convert returned map or error to a json because we has an embedded struct `tango.JSON`.
 
 ## Features
 

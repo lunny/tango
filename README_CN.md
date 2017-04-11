@@ -13,11 +13,12 @@ Tango 是一个微内核的Go语言Web框架，采用模块化和注入式的设
 
 ## 特性
 - 强大而灵活的路由设计
-- 兼容已有的`http.Handler`
+- 兼容已有的 `http.Handler`
 - 基于中间件的模块化设计，灵活定制框架功能
 - 高性能的依赖注入方式
 
 ## 安装Tango：
+
     go get github.com/lunny/tango
 
 ## 快速入门
@@ -33,7 +34,7 @@ import (
 )
 
 type Action struct {
-    tango.Json
+    tango.JSON
 }
 
 func (Action) Get() interface{} {
@@ -53,16 +54,18 @@ func main() {
 ```
 
 然后在浏览器访问`http://localhost:8000`, 将会得到一个json返回
+
 ```
 {"say":"Hello tango!"}
 ```
 
 如果将上述例子中的 `true` 改为 `false`, 将会得到一个json返回
+
 ```
 {"err":"something error"}
 ```
 
-这段代码因为拥有一个内嵌的`tango.Json`，所以返回值会被自动的转成Json
+这段代码因为拥有一个内嵌的`tango.JSON`，所以返回值会被自动的转成Json
 
 ## 文档
 
