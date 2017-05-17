@@ -124,7 +124,6 @@ func TestStatic5(t *testing.T) {
 
 	tg.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
-	//expect(t, buff.String(), NotFound().Error())
 }
 
 type MemoryFileSystem map[string][]byte
@@ -256,5 +255,59 @@ func TestStatic6(t *testing.T) {
 
 	tg.ServeHTTP(recorder, req)
 	expect(t, recorder.Code, http.StatusOK)
-	//expect(t, buff.String(), NotFound().Error())
+}
+
+func TestStatic7(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	tg := New()
+	tg.Use(Static(StaticOptions{
+		RootPath: "./public",
+	}))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/test.html", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tg.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "hello tango")
+}
+
+func TestStatic8(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	tg := New()
+	tg.Use(Return())
+	tg.Use(Static(StaticOptions{
+		RootPath: "./public",
+	}))
+	tg.Get("/b", func() string {
+		return "hello"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/test.html", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tg.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "hello tango")
+
+	buff.Reset()
+
+	req, err = http.NewRequest("GET", "http://localhost:8000/b", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tg.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "hello")
 }
