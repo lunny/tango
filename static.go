@@ -91,7 +91,12 @@ func Static(opts ...StaticOptions) HandlerFunc {
 		f, err := opt.FileSystem.Open(strings.TrimLeft(rPath, "/"))
 		if err != nil {
 			if os.IsNotExist(err) {
-				ctx.Result = NotFound()
+				if opt.Prefix != "" {
+					ctx.Result = NotFound()
+				} else {
+					ctx.Next()
+					return
+				}
 			} else {
 				ctx.Result = InternalServerError(err.Error())
 			}

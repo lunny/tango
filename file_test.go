@@ -49,6 +49,26 @@ func TestDir2(t *testing.T) {
 	expect(t, buff.String(), http.StatusText(http.StatusNotFound))
 }
 
+func TestDir3(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	tg := New()
+	tg.Get("/*name", Dir("./public"))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/js/my.js", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var res = "var test"
+	tg.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, len(buff.String()), len(res))
+	expect(t, buff.String(), res)
+}
+
 func TestFile1(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
