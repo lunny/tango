@@ -1,7 +1,7 @@
 Tango [简体中文](README_CN.md)
 =======================
 
-[![CircleCI](https://circleci.com/gh/lunny/tango/tree/master.svg?style=svg)](https://circleci.com/gh/lunny/tango/tree/master)  [![codecov](https://codecov.io/gh/lunny/tango/branch/master/graph/badge.svg)](https://codecov.io/gh/lunny/tango)
+[![CircleCI](https://circleci.com/gh/lunny/tango.svg?style=shield)](https://circleci.com/gh/lunny/tango)  [![codecov](https://codecov.io/gh/lunny/tango/branch/master/graph/badge.svg)](https://codecov.io/gh/lunny/tango)
  [![](https://goreportcard.com/badge/github.com/lunny/tango)](https://goreportcard.com/report/github.com/lunny/tango) [![Join the chat at https://gitter.im/lunny/tango](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lunny/tango?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![Tango Logo](logo.png)
