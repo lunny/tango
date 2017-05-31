@@ -369,3 +369,69 @@ func TestContext14(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	expect(t, buff.String(), "text")
 }
+
+func TestContextDecodeJSON(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	type Data struct {
+		Name string
+	}
+
+	o := Classic()
+	o.Post("/", func(ctx *Context) string {
+		var data Data
+		err := ctx.DecodeJSON(&data)
+		if err != nil {
+			return err.Error()
+		}
+		return data.Name
+	})
+
+	req, err := http.NewRequest("POST", "http://localhost:8000/", bytes.NewBufferString(`
+		{
+			"Name": "lunny"
+		}
+	`))
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "lunny")
+}
+
+func TestContextDecodeXML(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	type Data struct {
+		Name string `xml:"name"`
+	}
+
+	o := Classic()
+	o.Post("/", func(ctx *Context) string {
+		var data Data
+		err := ctx.DecodeXML(&data)
+		if err != nil {
+			return err.Error()
+		}
+		return data.Name
+	})
+
+	req, err := http.NewRequest("POST", "http://localhost:8000/", bytes.NewBufferString(`
+		<Data><name>lunny</name></Data>
+	`))
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "lunny")
+}
