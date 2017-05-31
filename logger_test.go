@@ -38,6 +38,12 @@ type LoggerAction struct {
 }
 
 func (l *LoggerAction) Get() string {
+	l.Warn("this is a warn")
+	l.Warnf("This is a %s", "warnf")
+	l.Error("this is an error")
+	l.Errorf("This is a %s", "errorf")
+	l.Infof("This is a %s", "infof")
+	l.Debugf("This is a %s", "debuf")
 	return "log"
 }
 
@@ -82,4 +88,27 @@ func TestLogger3(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "log")
+}
+
+type Logger4Action struct {
+}
+
+func (l *Logger4Action) Get() {
+}
+
+func TestLogger4(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	n := Classic()
+	n.Get("/", new(Logger4Action))
+
+	req, err := http.NewRequest("GET", "http://localhost:3000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
 }
