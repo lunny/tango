@@ -206,8 +206,8 @@ func (ctx *Context) execute() {
 		switch fn := ctx.route.raw.(type) {
 		case func(*Context):
 			fn(ctx)
-		case func(*http.Request, http.ResponseWriter):
-			fn(ctx.req, ctx.ResponseWriter)
+		case func(http.ResponseWriter, *http.Request):
+			fn(ctx.ResponseWriter, ctx.req)
 		case func():
 			fn()
 		case func(*http.Request):

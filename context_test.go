@@ -280,3 +280,92 @@ func TestContext10(t *testing.T) {
 		fmt.Println(i)
 	})
 }
+
+type DownloadAction2 struct {
+	Ctx
+}
+
+func (n *DownloadAction2) Get() {
+	n.ServeFile("./public/a.html")
+}
+
+func TestContext11(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Any("/", new(DownloadAction2))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusNotFound)
+}
+
+func TestContext12(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Any("/", func() string {
+		return "text"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "text")
+}
+
+func TestContext13(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(responseWriter http.ResponseWriter, req *http.Request) {
+		responseWriter.Write([]byte("text"))
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "text")
+}
+
+func TestContext14(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", func(req *http.Request) string {
+		return "text"
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "text")
+}
