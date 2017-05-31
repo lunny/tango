@@ -79,7 +79,7 @@ func TestReturnPut(t *testing.T) {
 }
 
 type JSONReturn struct {
-	Json
+	JSON
 }
 
 func (JSONReturn) Get() interface{} {
@@ -110,7 +110,7 @@ func TestReturnJson1(t *testing.T) {
 }
 
 type JSONErrReturn struct {
-	Json
+	JSON
 }
 
 func (JSONErrReturn) Get() error {
@@ -137,7 +137,7 @@ func TestReturnJsonError(t *testing.T) {
 }
 
 type JSONErrReturn2 struct {
-	Json
+	JSON
 }
 
 func (JSONErrReturn2) Get() error {
@@ -164,7 +164,7 @@ func TestReturnJsonError2(t *testing.T) {
 }
 
 type JSONReturn1 struct {
-	Json
+	JSON
 }
 
 func (JSONReturn1) Get() string {
@@ -191,7 +191,7 @@ func TestReturnJson2(t *testing.T) {
 }
 
 type JSONReturn2 struct {
-	Json
+	JSON
 }
 
 func (JSONReturn2) Get() []byte {
@@ -218,7 +218,7 @@ func TestReturnJson3(t *testing.T) {
 }
 
 type JSONReturn3 struct {
-	Json
+	JSON
 }
 
 func (JSONReturn3) Get() (int, interface{}) {
@@ -250,7 +250,7 @@ func TestReturnJson4(t *testing.T) {
 }
 
 type XMLReturn struct {
-	Xml
+	XML
 }
 
 type Address struct {
@@ -295,7 +295,7 @@ func TestReturnXML(t *testing.T) {
 }
 
 type XMLErrReturn struct {
-	Xml
+	XML
 }
 
 func (XMLErrReturn) Get() error {
@@ -322,7 +322,7 @@ func TestReturnXmlError(t *testing.T) {
 }
 
 type JSONReturn7 struct {
-	Json
+	JSON
 }
 
 func (JSONReturn7) Get() (int, interface{}) {
