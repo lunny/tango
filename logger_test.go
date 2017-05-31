@@ -59,3 +59,27 @@ func TestLogger2(t *testing.T) {
 	refute(t, len(buff.String()), 0)
 	expect(t, buff.String(), "log")
 }
+
+func TestLogger3(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	logger := NewCompositeLogger(log.Std, log.New(log.NewFileWriter(log.FileOptions{
+		Dir:    "./",
+		ByType: log.ByDay,
+	}), "file", log.Ldefault()))
+
+	n := Classic(logger)
+	n.Get("/", new(LoggerAction))
+
+	req, err := http.NewRequest("GET", "http://localhost:3000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "log")
+}
