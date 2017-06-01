@@ -435,3 +435,43 @@ func TestContextDecodeXML(t *testing.T) {
 	expect(t, recorder.Code, http.StatusOK)
 	expect(t, buff.String(), "lunny")
 }
+
+type ActionTag struct {
+	Name string `name`
+}
+
+func (a *ActionTag) Get() interface{} {
+	return "lunny"
+}
+
+func TestContextActionTag(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Use(HandlerFunc(func(ctx *Context) {
+		ctx.Next()
+
+		v := ctx.ActionValue()
+		if a, ok := v.Interface().(*ActionTag); ok {
+			fmt.Println(a.Get())
+		}
+
+		tagName := ctx.ActionTag("Name")
+		if tagName == "name" {
+			fmt.Println("find the action")
+		}
+	}))
+	o.Get("/", new(ActionTag))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+
+	expect(t, recorder.Code, http.StatusOK)
+	expect(t, buff.String(), "lunny")
+}
