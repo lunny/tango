@@ -328,6 +328,10 @@ func (ctx *Context) ServeJSON(obj interface{}) error {
 
 // Body returns body's content
 func (ctx *Context) Body() ([]byte, error) {
+	if ctx.req.Body == nil {
+		return []byte{}, nil
+	}
+
 	body, err := ioutil.ReadAll(ctx.req.Body)
 	if err != nil {
 		return nil, err
