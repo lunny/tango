@@ -1,12 +1,3 @@
-iiiiiii
-fsfdafsaf
-
-f
-dsa
-fds
-afdsfdafdfasfdfs
-
-
 Tango [简体中文](README_CN.md)
 =======================
 
