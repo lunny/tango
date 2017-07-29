@@ -116,6 +116,7 @@ There are already many [middlewares](https://github.com/tango-contrib) to simpli
 
 ## Cases
 
+- [GopherTC](https://github.com/jimmykuu/gopher/tree/2.0) - China Discuss Forum
 - [Wego](https://github.com/go-tango/wego) - Discuss Forum
 - [dbweb](https://github.com/go-xorm/dbweb) - DB management web UI
 - [Godaily](http://godaily.org) - [github](https://github.com/godaily/news)

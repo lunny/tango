@@ -82,6 +82,8 @@ func main() {
 - [论坛](https://groups.google.com/forum/#!forum/go-tango)
 
 ## 使用案例
+
+- [GopherTC](https://github.com/jimmykuu/gopher/tree/2.0) - Golang China
 - [Wego](https://github.com/go-tango/wego)  tango结合[xorm](http://www.xorm.io/)开发的论坛
 - [Pugo](https://github.com/go-xiaohei/pugo) 博客
 - [DBWeb](https://github.com/go-xorm/dbweb) 基于Web的数据库管理工具
