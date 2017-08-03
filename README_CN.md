@@ -83,6 +83,7 @@ func main() {
 
 ## 使用案例
 
+- [会计人论坛](https://www.kuaijiren.com) - 会计人论坛
 - [GopherTC](https://github.com/jimmykuu/gopher/tree/2.0) - Golang China
 - [Wego](https://github.com/go-tango/wego)  tango结合[xorm](http://www.xorm.io/)开发的论坛
 - [Pugo](https://github.com/go-xiaohei/pugo) 博客
