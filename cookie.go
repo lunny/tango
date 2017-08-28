@@ -463,6 +463,9 @@ type secureCookies struct {
 var _ Cookies = &secureCookies{}
 
 func parseSecureCookie(secret string, value string) string {
+	if strings.Count(value, "|") < 2 {
+		return ""
+	}
 	parts := strings.SplitN(value, "|", 3)
 	val, timestamp, sig := parts[0], parts[1], parts[2]
 	if getCookieSig(secret, []byte(val), timestamp) != sig {
