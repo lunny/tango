@@ -77,3 +77,9 @@ func Errors() HandlerFunc {
 		}
 	}
 }
+
+// ErrorWithCode descripts an error that with error code
+type ErrorWithCode interface {
+	error
+	ErrorCode() int
+}

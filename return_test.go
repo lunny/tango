@@ -163,6 +163,44 @@ func TestReturnJsonError2(t *testing.T) {
 	expect(t, strings.TrimSpace(buff.String()), `{"err":"error"}`)
 }
 
+type JSONErrReturn3 struct {
+	JSON
+}
+
+type MyError struct {
+}
+
+func (m *MyError) Error() string {
+	return "error"
+}
+
+func (m *MyError) ErrorCode() int {
+	return 1
+}
+
+func (JSONErrReturn3) Get() error {
+	return &MyError{}
+}
+
+func TestReturnJsonError3(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	o.Get("/", new(JSONErrReturn3))
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, strings.TrimSpace(buff.String()), `{"err":"error","err_code":1}`)
+}
+
 type JSONReturn1 struct {
 	JSON
 }

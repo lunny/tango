@@ -129,6 +129,15 @@ func Return() HandlerFunc {
 				encoder.Encode(map[string]string{
 					"err": res.Error(),
 				})
+			case ErrorWithCode:
+				if statusCode == 0 {
+					statusCode = http.StatusOK
+				}
+				ctx.WriteHeader(statusCode)
+				encoder.Encode(map[string]interface{}{
+					"err":      res.Error(),
+					"err_code": res.ErrorCode(),
+				})
 			case error:
 				if statusCode == 0 {
 					statusCode = http.StatusOK
