@@ -29,7 +29,10 @@ func newPool(size int, tp reflect.Type) *pool {
 }
 
 func (p *pool) New() reflect.Value {
-	//return reflect.New(p.stp)
+	if p.size == 0 {
+		return reflect.New(p.stp)
+	}
+
 	p.lock.Lock()
 	if p.cur == p.pool.Len() {
 		p.pool = reflect.MakeSlice(p.tp, p.size, p.size)
