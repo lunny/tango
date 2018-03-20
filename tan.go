@@ -19,6 +19,7 @@ func Version() string {
 
 // Tango describes tango object
 type Tango struct {
+	http.Server
 	Router
 	handlers   []Handler
 	logger     Logger
@@ -146,7 +147,10 @@ func (t *Tango) Run(args ...interface{}) {
 	addr := getAddress(args...)
 	t.logger.Info("Listening on http://" + addr)
 
-	err := http.ListenAndServe(addr, t)
+	t.Server.Addr = addr
+	t.Server.Handler = t
+
+	err := t.ListenAndServe()
 	if err != nil {
 		t.logger.Error(err)
 	}
@@ -158,7 +162,10 @@ func (t *Tango) RunTLS(certFile, keyFile string, args ...interface{}) {
 
 	t.logger.Info("Listening on https://" + addr)
 
-	err := http.ListenAndServeTLS(addr, certFile, keyFile, t)
+	t.Server.Addr = addr
+	t.Server.Handler = t
+
+	err := t.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		t.logger.Error(err)
 	}
