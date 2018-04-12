@@ -85,7 +85,7 @@ func (g *Group) Route(methods interface{}, url string, c interface{}, middleware
 func (g *Group) Group(p string, o interface{}) {
 	gr := getGroup(o)
 	for _, gchild := range gr.routers {
-		g.Route(gchild.methods, joinRoute(p, gchild.url), gchild.c, gchild.handlers...)
+		g.Route(gchild.methods, joinRoute(p, gchild.url), gchild.c, append(gr.handlers, gchild.handlers...)...)
 	}
 }
 
