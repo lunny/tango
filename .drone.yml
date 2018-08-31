@@ -1,0 +1,59 @@
+workspace:
+  base: /go
+  path: src/github.com/lunny/tango
+
+clone:
+  git:
+    image: plugins/git:next
+    depth: 50
+    tags: true
+
+pipeline:
+
+  test:
+    image: golang:1.8
+    #group: testing
+    pull: true
+    commands:
+      - go get -t -d -v ./...
+      - go build -v
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+      - bash <(curl -s https://codecov.io/bash)
+    when:
+      event: [ push, tag, pull_request ]
+
+  test:
+    image: golang:1.9
+    #group: testing
+    pull: true
+    commands:
+      - go get -t -d -v ./...
+      - go build -v
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+      - bash <(curl -s https://codecov.io/bash)
+    when:
+      event: [ push, tag, pull_request ]
+
+  test:
+    image: golang:1.10
+    #group: testing
+    pull: true
+    commands:
+      - go get -t -d -v ./...
+      - go build -v
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+      - bash <(curl -s https://codecov.io/bash)
+    when:
+      event: [ push, tag, pull_request ]
+
+  test:
+    image: golang:1.11
+    #group: testing
+    pull: true
+    commands:
+      - go get -t -d -v ./...
+      - go build -v
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+      - bash <(curl -s https://codecov.io/bash)
+    when:
+      event: [ push, tag, pull_request ]
