@@ -18,9 +18,14 @@ pipeline:
       - go get -t -d -v ./...
       - go build -v
       - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-      - bash <(curl -s https://codecov.io/bash)
     when:
       event: [ push, tag, pull_request ]
+  
+  codecov:
+    image: robertstettner/drone-codecov
+    token: ${CODECOV_TOKEN}
+    files:
+      - coverage.txt
 
   test:
     image: golang:1.9
@@ -29,8 +34,6 @@ pipeline:
     commands:
       - go get -t -d -v ./...
       - go build -v
-      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-      - bash <(curl -s https://codecov.io/bash)
     when:
       event: [ push, tag, pull_request ]
 
@@ -41,8 +44,6 @@ pipeline:
     commands:
       - go get -t -d -v ./...
       - go build -v
-      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-      - bash <(curl -s https://codecov.io/bash)
     when:
       event: [ push, tag, pull_request ]
 
@@ -53,7 +54,5 @@ pipeline:
     commands:
       - go get -t -d -v ./...
       - go build -v
-      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-      - bash <(curl -s https://codecov.io/bash)
     when:
       event: [ push, tag, pull_request ]
