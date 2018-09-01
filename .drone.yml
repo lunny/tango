@@ -12,14 +12,14 @@ pipeline:
 
   test:
     image: golang:1.8
-    #group: testing
+    group: testing
     pull: true
     commands:
       - go get -t -d -v ./...
       - go build -v
       - go test -v -race -coverprofile=coverage.txt -covermode=atomic
     when:
-      event: [ push, tag, pull_request ]
+      event: [ push, pull_request ]
 
   coverage:
     image: robertstettner/drone-codecov
@@ -28,34 +28,33 @@ pipeline:
       - coverage.txt
     when:
       event: [ push, pull_request ]
-      branch: [ master ]
 
   test:
     image: golang:1.9
-    #group: testing
+    group: testing
     pull: true
     commands:
       - go get -t -d -v ./...
       - go build -v
     when:
-      event: [ push, tag, pull_request ]
+      event: [ push, pull_request ]
 
   test:
     image: golang:1.10
-    #group: testing
+    group: testing
     pull: true
     commands:
       - go get -t -d -v ./...
       - go build -v
     when:
-      event: [ push, tag, pull_request ]
+      event: [ push, pull_request ]
 
   test:
     image: golang:1.11
-    #group: testing
+    group: testing
     pull: true
     commands:
       - go get -t -d -v ./...
       - go build -v
     when:
-      event: [ push, tag, pull_request ]
+      event: [ push, pull_request ]
