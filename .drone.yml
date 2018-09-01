@@ -20,10 +20,10 @@ pipeline:
       - go test -v -race -coverprofile=coverage.txt -covermode=atomic
     when:
       event: [ push, tag, pull_request ]
-  
+
   codecov:
-    image: robertstettner/drone-codecov
-    token: ${CODECOV_TOKEN}
+    image: plugins/codecov
+    secrets: [ codecov_token ]
     files:
       - coverage.txt
 
