@@ -26,6 +26,8 @@ pipeline:
     secrets: [ codecov_token ]
     files:
       - coverage.txt
+    when:
+      event: [push, pull_request]
 
   test:
     image: golang:1.9
