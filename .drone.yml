@@ -21,13 +21,14 @@ pipeline:
     when:
       event: [ push, tag, pull_request ]
 
-  codecov:
-    image: plugins/codecov
+  coverage:
+    image: robertstettner/drone-codecov
     secrets: [ codecov_token ]
     files:
       - coverage.txt
     when:
-      event: [push, pull_request]
+      event: [ push, pull_request ]
+      branch: [ master ]
 
   test:
     image: golang:1.9
