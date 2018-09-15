@@ -135,14 +135,17 @@ func Static(opts ...StaticOptions) HandlerFunc {
 				} else {
 					finfo, err = fi.Stat()
 					if err != nil {
+						fi.Close()
 						ctx.Result = InternalServerError(err.Error())
 						ctx.HandleError()
 						return
 					}
 					if !finfo.IsDir() {
 						http.ServeContent(ctx, ctx.Req(), finfo.Name(), finfo.ModTime(), fi)
+						fi.Close()
 						return
 					}
+					fi.Close()
 				}
 			}
 		}
