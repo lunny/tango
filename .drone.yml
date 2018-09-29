@@ -26,9 +26,10 @@ pipeline:
       event: [ push, pull_request ]
 
   coverage:
-    image: plugins/codecov
+    image: robertstettner/drone-codecov
     secrets: [ codecov_token ]
     files:
       - coverage.txt
     when:
       event: [ push, pull_request ]
+      branch: [ master ]
