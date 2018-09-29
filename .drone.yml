@@ -8,12 +8,16 @@ clone:
     depth: 50
     tags: true
 
-pipeline:
+matrix:
+  GO_VERSION:
+    - 1.8
+    - 1.9
+    - 1.10
+    - 1.11
 
+pipeline:
   test:
-    image: golang:1.8
-    group: testing
-    pull: true
+    image: golang:${GO_VERSION}
     commands:
       - go get -t -d -v ./...
       - go build -v
@@ -26,35 +30,5 @@ pipeline:
     secrets: [ codecov_token ]
     files:
       - coverage.txt
-    when:
-      event: [ push, pull_request ]
-
-  test:
-    image: golang:1.9
-    group: testing
-    pull: true
-    commands:
-      - go get -t -d -v ./...
-      - go build -v
-    when:
-      event: [ push, pull_request ]
-
-  test:
-    image: golang:1.10
-    group: testing
-    pull: true
-    commands:
-      - go get -t -d -v ./...
-      - go build -v
-    when:
-      event: [ push, pull_request ]
-
-  test:
-    image: golang:1.11
-    group: testing
-    pull: true
-    commands:
-      - go get -t -d -v ./...
-      - go build -v
     when:
       event: [ push, pull_request ]

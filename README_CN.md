@@ -1,4 +1,4 @@
-Tango [![CircleCI](https://circleci.com/gh/lunny/tango.svg?style=shield)](https://circleci.com/gh/lunny/tango)  [![codecov](https://codecov.io/gh/lunny/tango/branch/master/graph/badge.svg)](https://codecov.io/gh/lunny/tango)
+Tango [![GitCI](https://gitci.cn/api/badges/lunny/tango/status.svg)](https://gitci.cn/gh/lunny/tango)  [![codecov](https://codecov.io/gh/lunny/tango/branch/master/graph/badge.svg)](https://codecov.io/gh/lunny/tango)
 [![](https://goreportcard.com/badge/github.com/lunny/tango)](https://goreportcard.com/report/github.com/lunny/tango)
 [![Join the chat at https://img.shields.io/discord/323705316027924491.svg](https://img.shields.io/discord/323705316027924491.svg)](https://discord.gg/7Ckxjwu)
 [English](README.md)
