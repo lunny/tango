@@ -83,3 +83,11 @@ type ErrorWithCode interface {
 	error
 	ErrorCode() int
 }
+
+type ErrorKeyIsNotExist struct {
+	Key string
+}
+
+func (e ErrorKeyIsNotExist) Error() string {
+	return fmt.Sprintf("Key %s is not exist", e.Key)
+}
