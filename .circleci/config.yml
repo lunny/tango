@@ -1,0 +1,20 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.10
+
+    working_directory: /go/src/github.com/lunny/tango
+    steps:
+      - checkout
+
+      - run: go get -t -d -v ./...
+      - run: GO111MODULE=off go build -v
+      - run: GO111MODULE=on go build -v
+      - run: go test -v -race -coverprofile=coverage.txt -covermode=atomic
+
+      - run: bash <(curl -s https://codecov.io/bash)

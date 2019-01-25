@@ -82,10 +82,15 @@ func (ctx *Context) Cookies() Cookies {
 	return (*cookies)(ctx)
 }
 
-// Forms returns the query names and values
+// Forms returns the query/body names and values
 func (ctx *Context) Forms() *Forms {
 	ctx.req.ParseForm()
 	return (*Forms)(ctx.req)
+}
+
+// Queries returns the query names and values
+func (ctx *Context) Queries() *Queries {
+	return (*Queries)(ctx.req)
 }
 
 // Route returns route
