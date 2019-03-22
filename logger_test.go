@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/lunny/log"
+	"gitea.com/lunny/log"
 )
 
 func TestLogger1(t *testing.T) {

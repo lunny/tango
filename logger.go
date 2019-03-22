@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/lunny/log"
+	"gitea.com/lunny/log"
 )
 
 // Logger defines the logger interface for tango use
