@@ -64,6 +64,11 @@ func (ctx *Context) Req() *http.Request {
 	return ctx.req
 }
 
+// SetRequest sets the request to context
+func (ctx *Context) SetRequest(req *http.Request) {
+	ctx.req = req
+}
+
 // IsAjax returns if the request is an ajax request
 func (ctx *Context) IsAjax() bool {
 	return ctx.Req().Header.Get("X-Requested-With") == "XMLHttpRequest"
