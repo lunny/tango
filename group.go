@@ -82,8 +82,11 @@ func (g *Group) Route(methods interface{}, url string, c interface{}, middleware
 }
 
 // Group defines group's child group
-func (g *Group) Group(p string, o interface{}) {
+func (g *Group) Group(p string, o interface{}, handlers ...Handler) {
 	gr := getGroup(o)
+	if len(handlers) > 0 {
+		gr.handlers = append(handlers, gr.handlers...)
+	}
 	for _, gchild := range gr.routers {
 		g.Route(gchild.methods, joinRoute(p, gchild.url), gchild.c, append(gr.handlers, gchild.handlers...)...)
 	}
@@ -117,6 +120,8 @@ func (t *Tango) addGroup(p string, g *Group) {
 }
 
 // Group adds routines groups
-func (t *Tango) Group(p string, o interface{}) {
-	t.addGroup(p, getGroup(o))
+func (t *Tango) Group(p string, o interface{}, handlers ...Handler) {
+	g := getGroup(o)
+	g.handlers = append(handlers, g.handlers...)
+	t.addGroup(p, g)
 }

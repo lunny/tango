@@ -371,3 +371,95 @@ func TestGroup9(t *testing.T) {
 	expect(t, buff.String(), "/2")
 	expect(t, handlerGroup, "")
 }
+
+func TestGroup10(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	var handlerGroup string
+	o.Group("/api/v1", func(g *Group) {
+		g.Group("/case/:case_id", func(tg *Group) {
+			tg.Put("/1", func() string {
+				return "/1"
+			})
+		})
+	}, HandlerFunc(func(ctx *Context) {
+		handlerGroup = ctx.Param("case_id")
+		ctx.Next()
+	}))
+	o.Post("/api/v1/2", func() string {
+		return "/2"
+	})
+
+	req, err := http.NewRequest("PUT", "http://localhost:8000/api/v1/case/1/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/1")
+	expect(t, handlerGroup, "1")
+
+	handlerGroup = ""
+	buff.Reset()
+	req, err = http.NewRequest("POST", "http://localhost:8000/api/v1/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/2")
+	expect(t, handlerGroup, "")
+}
+
+func TestGroup11(t *testing.T) {
+	buff := bytes.NewBufferString("")
+	recorder := httptest.NewRecorder()
+	recorder.Body = buff
+
+	o := Classic()
+	var handlerGroup string
+	o.Group("/api/v1", func(g *Group) {
+		g.Group("/case/:case_id", func(tg *Group) {
+			tg.Put("/1", func() string {
+				return "/1"
+			})
+		}, HandlerFunc(func(ctx *Context) {
+			handlerGroup = ctx.Param("case_id")
+			ctx.Next()
+		}))
+	})
+	o.Post("/api/v1/2", func() string {
+		return "/2"
+	})
+
+	req, err := http.NewRequest("PUT", "http://localhost:8000/api/v1/case/1/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/1")
+	expect(t, handlerGroup, "1")
+
+	handlerGroup = ""
+	buff.Reset()
+	req, err = http.NewRequest("POST", "http://localhost:8000/api/v1/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	o.ServeHTTP(recorder, req)
+	expect(t, recorder.Code, http.StatusOK)
+	refute(t, len(buff.String()), 0)
+	expect(t, buff.String(), "/2")
+	expect(t, handlerGroup, "")
+}
