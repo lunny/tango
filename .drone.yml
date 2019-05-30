@@ -1,0 +1,35 @@
+workspace:
+  base: /go
+  path: src/github.com/lunny/tango
+
+clone:
+  git:
+    image: plugins/git:next
+    depth: 50
+    tags: true
+
+matrix:
+  GO_VERSION:
+    - 1.8
+    - 1.9
+    - 1.10
+    - 1.11
+
+pipeline:
+  test:
+    image: golang:${GO_VERSION}
+    commands:
+      - go get -t -d -v ./...
+      - go build -v
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+    when:
+      event: [ push, pull_request ]
+
+  coverage:
+    image: robertstettner/drone-codecov
+    secrets: [ codecov_token2 ]
+    files:
+      - coverage.txt
+    when:
+      event: [ push, pull_request ]
+      branch: [ master ]
